@@ -1,5 +1,7 @@
 #Meteor Typescript libraries
 
+Empty package to easily bring all Meteor Typescript definitions into your project. 
+
 ## What do you get?
 
 Typescript definitions for some of the most popular Meteor packages.
@@ -16,5 +18,11 @@ Typescript definitions for some of the most popular Meteor packages.
 * ecma
 * node
 
-Plus a few sample projects showing how to build a meteor typescript project from the ground up.
+## Installation
+
+* mrt add typescript-libs
+
+This will create a **packages/typescript-libs** folder in your project will all the required reference files.
+  Those can now be references with a ///<reference path="/path/to/packages/typescript-libs/meteor.d.ts" /> like tag.
+ No files are being added to the build.
 

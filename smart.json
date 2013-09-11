@@ -1,0 +1,8 @@
+{
+    "name": "typescript-libs",
+    "description": "The most common Typescript definition files for meteor, including meteor.d.ts",
+    "homepage": "https://github.com/orefalo/meteorts-validator",
+    "author": "Olivier Refalo <orefalo@yahoo.com>",
+    "version": "0.1.0",
+    "git": "https://github.com/orefalo/meteor-typescript-libs.git",
+}
