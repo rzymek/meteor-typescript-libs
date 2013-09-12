@@ -10,6 +10,7 @@ Typescript definitions for some of the most popular Meteor packages.
 
 * Starting with **meteor.d.ts**
 * observatory
+* smart-collections
 * backbone
 * underscore
 * underscore-string
