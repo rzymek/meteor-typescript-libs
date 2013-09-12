@@ -26,3 +26,7 @@ This will create a **packages/typescript-libs** folder in your project will all 
   Those can now be references with a ///<reference path="/path/to/packages/typescript-libs/meteor.d.ts" /> like tag.
  No files are being added to the build.
 
+## Other projects of interest
+
+* [https://github.com/orefalo/meteor-typescript-compiler](https://github.com/orefalo/meteor-typescript-compiler)
+* [https://github.com/orefalo/meteor-typescript-demos](https://github.com/orefalo/meteor-typescript-demos)
