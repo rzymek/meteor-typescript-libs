@@ -1,6 +1,6 @@
 /// <reference path="libs/meteor.d.ts" />
 Package.describe({
-    summary: "The most common Typescript definition files for meteor, including meteor.d.ts"
+    summary: "meteor.d.ts plus other common Typescript+Meteor definitions"
 });
 
 Package.on_use(function (api) {

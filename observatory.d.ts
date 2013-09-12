@@ -1,6 +1,6 @@
 // http://observatoryjs.com/
 //
-//  mrt add observatory
+// mrt add observatory
 // add {{>logs_bootstrap}} in your template before the </body> tag
 //
 // authored by orefalo

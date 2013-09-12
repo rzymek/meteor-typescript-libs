@@ -2,7 +2,7 @@
  *
  *  Meteor definitions for TypeScript
  *  author - orefalo@yahoo.com
- *  supports meteor 0.6.1.1
+ *  supports meteor 0.6.5.1
  *
  */
 
@@ -391,12 +391,12 @@ declare module Meteor {
 
 	function user():User;
 
-//	function users():Collection<User>;
+	function users():Meteor.Collection<User>;
 
 	function userId():string;
 
-	class Error {
-		constructor(error:number, reason?:string, details?:string);
+	interface Error {
+		new(error:number, reason?:string, details?:string):Error;
 	}
 
 	interface AllowDenyOptions {
@@ -409,9 +409,9 @@ declare module Meteor {
 
 	}
 
-	class Collection<T> {
+	interface Collection<T> {
 
-		constructor(name:string, options?:Meteor.CollectionOptions);
+		new(name:string, options?:Meteor.CollectionOptions):T;
 
 		ObjectID(hexString?:any);
 
