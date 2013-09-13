@@ -337,7 +337,7 @@ declare module Meteor {
 	var isServer:boolean;
 	var settings:{[id:string]:any};
 	var release:string;
-	var users:Meteor.Collection<User>;
+    //var users:Meteor.Collection<User>;
 
 	function apply(method:string, ...parameters):void;
 
