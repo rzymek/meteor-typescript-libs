@@ -3,16 +3,18 @@
 declare module  Router {
 
 	interface TemplateConfig {
-		to:string;
+		to?: string;
+		waitOn?: boolean;
+		data?: boolean;
 	}
 
 	interface TemplateConfigDico {[id:string]:TemplateConfig}
 
 	interface Configuration {
-		layout: string;
-		notFoundTemplate: string;
-		loadingTemplate: string;
-		renderTemplates:TemplateConfigDico;
+		layout?: string;
+		notFoundTemplate?: string;
+		loadingTemplate?: string;
+		renderTemplates?:TemplateConfigDico;
 
 		before?:Function;
 		after?:Function;
@@ -24,7 +26,7 @@ declare module  Router {
 //	}
 
 	interface MapConfig {
-		path:string;
+		path?:string;
 		// by default template is the route name, this field is the override
 		template?:string;
 
@@ -71,5 +73,7 @@ declare module  Router {
 }
 
 interface RouteController {
+
+	render(route:string);
 
 }
