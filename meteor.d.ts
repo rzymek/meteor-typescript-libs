@@ -411,7 +411,7 @@ declare module Meteor {
 
 	interface Collection<T> {
 
-		new(name:string, options?:Meteor.CollectionOptions):T;
+		new(name:string, options?:Meteor.CollectionOptions):Collection<T>;
 
 		ObjectID(hexString?:any);
 
