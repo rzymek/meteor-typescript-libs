@@ -409,9 +409,11 @@ declare module Meteor {
 
 	}
 
-	interface Collection<T> {
+	function Collection<T>(name:string, options?:Meteor.CollectionOptions);
 
-		new(name:string, options?:Meteor.CollectionOptions):Collection<T>;
+	public interface Collection<T> {
+
+	    //new(name:string, options?:Meteor.CollectionOptions):Collection<T>;
 
 		ObjectID(hexString?:any);
 
