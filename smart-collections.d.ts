@@ -9,25 +9,14 @@
 
 declare module Meteor {
 
-	interface SmartCollection<T> {
+	function SmartCollection<T>(name:string, options?:Meteor.CollectionOptions);
+
+	interface SmartCollection<T> extends Meteor.Collection<T> {
 
 		new(name:string, options?:Meteor.CollectionOptions):T;
 
 		// keys can only be strings at this time - per author
 		ObjectID(hexString?:string);
 
-		find(selector?:any, options?):Meteor.Cursor<T>;
-
-		findOne(selector?, options?):T;
-
-		insert(doc:T, callback?:Function):string;
-
-		update(selector:any, modifier, options?, callback?:Function);
-
-		remove(selector:any, callback?:Function);
-
-		allow(options:Meteor.AllowDenyOptions);
-
-		deny(options);
 	}
 }
