@@ -8,18 +8,38 @@
 
 declare module Deps {
 
+	function Computation():void;
+
+	function Dependency();
+
 	function flush():void;
 
-	function autorun(func:Function);
+	function nonreactive(func:Function):void;
 
-	class Dependency {
+	var active:boolean;
+	var currentComputation:Deps.Computation;
 
-		depend(computation?):boolean;
+	function onInvalidate(callback:Function):void;
 
+	function afterFlush(callback:Function):void;
+
+	function autorun(func:Function):Deps.Computation;
+
+	interface Dependency {
+		depend(fromComputation?:Deps.Computation):boolean;
 		changed():void;
-
 		hasDependents():boolean;
 	}
+
+	interface Computation {
+		stop(): void;
+		invalidate(): void;
+		onInvalidate(callback:Function): void;
+		stopped: boolean;
+		invalidated: boolean;
+		firstRun: boolean;
+	}
+
 }
 
 declare module Npm {
@@ -51,8 +71,8 @@ declare module Package {
 	interface Api {
 		export(variable:string);
 		export(variables:string[]);
-        use(deps:string, where?:string[]);
-        use(deps:string, where?:string);
+		use(deps:string, where?:string[]);
+		use(deps:string, where?:string);
 		use(deps:string[], where?:string[]);
 		use(deps:string[], where?:string);
 		add_files(file:string, where?:string[]);
@@ -89,7 +109,6 @@ interface Tinytest {
 //});
 //});
 
-
 	add(name:string, func:Function);
 	addAsync(name:string, func:Function);
 }
@@ -100,13 +119,13 @@ declare var Tinytest:Tinytest;
 
 interface EJSON {
 
-	parse(item:string):EJSON;
+	parse(str:string):EJSON;
 
-	stringify(item):string;
+	stringify(obj):string;
 
-	fromJSONValue(item):any;
+	fromJSONValue(obj):any;
 
-	toJSONValue(item):any;
+	toJSONValue(obj):JSON;
 
 	equals(a, b, options?):boolean;
 
@@ -116,7 +135,7 @@ interface EJSON {
 
 	isBinary(obj):boolean;
 
-	addType(name:string, factory):void;
+	addType(name:string, factory:Function):void;
 
 }
 
@@ -143,19 +162,20 @@ declare module HTTP {
 	}
 
 	interface HTTPRequest {
-		content:string;
-		data:any;
-		query:string;
-		params:{[id:string]:string};
-		auth:string;
-		headers:{[id:string]:string};
-		timeout:number;
-		followRedirects:boolean;
+		content?:string;
+		data?:any;
+		query?:string;
+		params?:{[id:string]:string};
+		auth?:string;
+		headers?:{[id:string]:string};
+		timeout?:number;
+		followRedirects?:boolean;
 	}
 
 	interface HTTPResponse {
 		statusCode:number;
 		content:string;
+		// response is not always json
 		data:any;
 		headers:{[id:string]:string};
 	}
@@ -164,7 +184,7 @@ declare module HTTP {
 // Email -----------
 
 declare module Email {
-	function send(msg:EmailMessage);
+	function send(msg:EmailMessage):void;
 
 	interface EmailMessage {
 		from:string;
@@ -179,7 +199,7 @@ declare module Email {
 		bcc?:any;
 
 		// damn it, this should really be string ot string[]
-		replyTo:any;
+		replyTo?:any;
 		subject:string;
 		text?:string;
 		html?:string;
@@ -201,9 +221,14 @@ declare function check(value:any, pattern:any);
 
 interface Match {
 
-	test(value, pattern)
+	test(value:any, pattern:any):boolean;
 	Any;
+	String;
 	Integer;
+	Boolean;
+	undefined;
+	null;
+	Object;
 	Optional(pattern):boolean;
 	ObjectIncluding(dico):boolean;
 	OneOf(...patterns);
@@ -253,16 +278,14 @@ declare module DDP {
 
 }
 
-// COLLECTION --------------------
-
 // SESSION -----------
 
 interface Session {
 
-	set(key:string, value):void;
-	setDefault(key:string, value):void;
-	get(key:string);
-	equals(key:string, value):boolean;
+	set(key:string, value:any):void;
+	setDefault(key:string, value:any):void;
+	get(key:string):any;
+	equals(key:string, value:any):boolean;
 
 }
 
@@ -337,7 +360,7 @@ declare module Meteor {
 	var isServer:boolean;
 	var settings:{[id:string]:any};
 	var release:string;
-    //var users:Meteor.Collection<User>;
+	//var users:Meteor.Collection<User>;
 
 	function apply(method:string, ...parameters):void;
 
@@ -413,7 +436,7 @@ declare module Meteor {
 
 	public interface Collection<T> {
 
-	    //new(name:string, options?:Meteor.CollectionOptions):Collection<T>;
+		//new(name:string, options?:Meteor.CollectionOptions):Collection<T>;
 
 		ObjectID(hexString?:any);
 
