@@ -362,6 +362,14 @@ declare module Meteor {
 	var release:string;
 	//var users:Meteor.Collection<User>;
 
+  function Error(error: number, reason?: string, details?: string): void;
+
+  interface Error {
+    error: number;
+    reason?: string;
+    details?: string;
+  }
+
 	function apply(method:string, ...parameters):void;
 
 	function absoluteUrl(path?:string, options?:AbsoluteUrlOptions):string;
@@ -387,6 +395,8 @@ declare module Meteor {
 	function methods(IMeteorMethodsDictionary);
 
 	function onReconnect();
+
+  function defer(callback: Function): void;
 
 	/**
 	 * Publish a record set.
@@ -434,7 +444,7 @@ declare module Meteor {
 
 	function Collection<T>(name:string, options?:Meteor.CollectionOptions);
 
-	public interface Collection<T> {
+	interface Collection<T> {
 
 		//new(name:string, options?:Meteor.CollectionOptions):Collection<T>;
 
@@ -585,9 +595,56 @@ declare module Meteor {
 		profile: any;
 		services: any;
 	}
+
+  /*******************************************************
+   * For "router" and "iron-router" contributed packages *
+   *******************************************************/
+  var Router: {
+
+    // These are for Router
+    page(): void;
+    add(route: Object): void;
+    to(path: string, ...args: any[]): void;
+    filters(filtersMap: Object);
+    filter(filterName: string, options?: Object);
+
+    // These are for Iron-Router
+    map(routeMap: Function): void;
+    path(route: string, params?: Object): void;
+    url(route: string): void;
+    routes: Object;
+    configure(options: Meteor.RouterConfig): void;
+  }
+
+// For Iron-Router
+  interface RouterConfig {
+    layout: string;
+    notFoundTemplate: string;
+    loadingTemplate: string;
+    renderTemplates: Object;
+  }
+
+
+  /******************************
+   * For "errors" smart package *
+   ******************************/
+  var Errors: {
+    throw(message: string): void;
+    clear(): void;
+  }
+
+  /*********************************************
+   * For "paginated-subscription smart package *
+   *********************************************/
+  function subscribeWithPagination(collection: string, limit: number): {
+    loaded(): number;
+    limit(): number;
+    ready(): boolean;
+    loadNextPage(): void;
+  };
+
 }
 
 // TEMPLATE ----------
 
 declare var Template:Meteor.TemplateDico;
-
