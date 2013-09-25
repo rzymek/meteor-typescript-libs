@@ -597,7 +597,7 @@ declare module Meteor {
 	}
 
   /*******************************************************
-   * For "router" and "iron-router" contributed packages *
+   * For "router" and "iron-router" smart packages *
    *******************************************************/
   var Router: {
 
