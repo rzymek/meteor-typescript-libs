@@ -1,7 +1,9 @@
 /**
  *
  *  Meteor definitions for TypeScript
- *  author - orefalo@yahoo.com
+ *  author - Olivier Refalo - orefalo@yahoo.com
+ *  author - David Allen - dave@fullflavedave.com
+ *
  *  supports meteor 0.6.5.1
  *
  */
