@@ -626,15 +626,6 @@ declare module Meteor {
     renderTemplates: Object;
   }
 
-
-  /******************************
-   * For "errors" smart package *
-   ******************************/
-  var Errors: {
-    throw(message: string): void;
-    clear(): void;
-  }
-
   /*********************************************
    * For "paginated-subscription smart package *
    *********************************************/
