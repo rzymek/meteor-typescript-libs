@@ -598,44 +598,6 @@ declare module Meteor {
 		services: any;
 	}
 
-  /*******************************************************
-   * For "router" and "iron-router" smart packages *
-   *******************************************************/
-  var Router: {
-
-    // These are for Router
-    page(): void;
-    add(route: Object): void;
-    to(path: string, ...args: any[]): void;
-    filters(filtersMap: Object);
-    filter(filterName: string, options?: Object);
-
-    // These are for Iron-Router
-    map(routeMap: Function): void;
-    path(route: string, params?: Object): void;
-    url(route: string): void;
-    routes: Object;
-    configure(options: Meteor.RouterConfig): void;
-  }
-
-// For Iron-Router
-  interface RouterConfig {
-    layout: string;
-    notFoundTemplate: string;
-    loadingTemplate: string;
-    renderTemplates: Object;
-  }
-
-  /*********************************************
-   * For "paginated-subscription smart package *
-   *********************************************/
-  function subscribeWithPagination(collection: string, limit: number): {
-    loaded(): number;
-    limit(): number;
-    ready(): boolean;
-    loadNextPage(): void;
-  };
-
 }
 
 // TEMPLATE ----------

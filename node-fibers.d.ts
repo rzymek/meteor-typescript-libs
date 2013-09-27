@@ -2,6 +2,21 @@
 // Project: https://github.com/laverdet/node-fibers
 // Definitions by: Cary Haynie <https://github.com/caryhaynie>
 // Definitions: https://github.com/borisyankov/DefinitelyTyped
+//
+//  var Future = Npm.require('fibers/future');
+//
+// Meteor.publish('items', function () {
+//	var future = new Future;
+//
+//	// simulate high latency publish function
+//	Meteor.setTimeout(function () {
+//		future.return(Items.find());
+//	}, 2000);
+//
+//	return future.wait();
+// });
+//
+
 
 interface Fiber {
     reset: () => any;

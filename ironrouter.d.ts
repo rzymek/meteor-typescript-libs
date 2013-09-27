@@ -1,6 +1,6 @@
 // mrt add iron-router
 
-declare module  Router {
+ declare module Router {
 
 	interface TemplateConfig {
 		to?: string;
@@ -75,5 +75,7 @@ declare module  Router {
 interface RouteController {
 
 	render(route:string);
-
+	extend(obj:any);
 }
+
+declare var RouteController:RouteController;
