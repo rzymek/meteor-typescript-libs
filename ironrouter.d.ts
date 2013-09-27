@@ -75,7 +75,7 @@
 interface RouteController {
 
 	render(route:string);
-	extend(obj:any);
+	extend(definition:{});
 }
 
 declare var RouteController:RouteController;
