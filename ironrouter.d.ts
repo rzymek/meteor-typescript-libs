@@ -1,4 +1,7 @@
-// mrt add iron-router
+// Definitions for the iron-router smart package
+//
+// https://atmosphere.meteor.com/package/iron-router
+// https://github.com/EventedMind/iron-router
 
  declare module Router {
 

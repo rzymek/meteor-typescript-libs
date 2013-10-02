@@ -1,15 +1,9 @@
-//
-// errors smart package
+// Definitions for the errors smart package
 //
 // https://github.com/tmeasday/meteor-errors
-//
-//
 
-declare module Meteor {
-
-	var Errors:{
+declare	var Errors: {
 		throw(message:string): void;
-		clear(): void;
-	}
-
+		clearSeen(): void;
 }
+
