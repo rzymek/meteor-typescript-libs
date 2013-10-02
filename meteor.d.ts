@@ -296,29 +296,55 @@ declare var Session:Session;
 // ACCOUNTS ----------
 
 interface Accounts {
-
-	emailTemplates;
-	ui;
-
-	config(options);
-	validateNewUser(func:Function);
-	onCreateUser(func:Function);
-	createUser(options, callback:Function);
-	changePassword(oldPassword:string, newPassword:string, callback:Function);
-	forgotPassword(options, callback:Function);
-	resetPassword(token, newPassword:string, callback:Function);
-	setPassword(userId:string, newPassword:string);
-	verifyEmail(token, callback:Function);
-	sendResetPasswordEmail(userId:string, email:string);
-	sendEnrollmentEmail(userId:string, email?:string);
-	sendVerificationEmail(userId:string, email:string);
-
+  config(options: {
+          sendVerificationEmail?: boolean;
+          forbidClientAccountCreation?: boolean;
+        }): void;
+  ui: {
+    config(options: {
+            requestPermissions?: Object;
+            requestOfflineToken?: Object;
+            passwordSignupFields?: string;
+          });
+  }
+  validateNewUser(func: Function): void;
+  onCreateUser(func: Function): void;
+  createUser(options: {
+              username?: string;
+              email?: string;
+              password?: string;
+              profile?: {};
+            },
+            callback?: Function): string;
+  changePassword(oldPassword: string, newPassword: string, callback?: Function): void;
+  forgotPassword(options: {
+                  email: string
+                },
+                 callback?: Function): void;
+  resetPassword(token: string, newPassword: string, callback?: Function): void;
+  setPassword(userId: string, newPassword: string): void;
+  verifyEmail(token: string, callback?: Function): void;
+  sendResetPasswordEmail(userId: string, email?: string): void;
+  sendEnrollmentEmail(userId: string, email?: string): void;
+  sendVerificationEmail(userId: string, email?: string): void;
+  emailTemplates: {
+    from: string;
+    siteName: string;
+    resetPassword: EmailFields;
+    enrollAccount: EmailFields;
+    verifyEmail: EmailFields;
+  }
+  // DA: I didn't see the signature for this listed in the API docs, but it appears in the examples
+  loginServiceConfiguration: {
+    remove(options: Object): void;
+    insert(options: Object): void;
+  }
+}
+interface EmailFields {
+  subject?: Function;
+  text?: Function;
 }
 declare var Accounts:Accounts;
-
-//declare module Accounts.ui {
-//	config(options);
-//}
 
 // RANDOM -------------
 
@@ -426,7 +452,7 @@ declare module Meteor {
 
 	function user():User;
 
-	function users():Meteor.Collection<User>;
+  var users: Meteor.Collection<User>;
 
 	function userId():string;
 
@@ -590,12 +616,12 @@ declare module Meteor {
 	}
 
 	interface User {
-		_id:string;
-		username:string;
-		emails:Meteor.UserEmail[];
-		createdAt: number;
-		profile: any;
-		services: any;
+		_id?:string;
+		username?:string;
+		emails?:Meteor.UserEmail[];
+		createdAt?: number;
+		profile?: any;
+		services?: any;
 	}
 
 }
