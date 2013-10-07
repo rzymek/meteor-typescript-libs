@@ -63,9 +63,9 @@
 
 	function route(name:string, routeParams?:MapConfig, handler?:any);
 
-	function path(route:string, params?:Object):void;
+	function path(route:string, params?:Object):string;
 
-	function url(route:string):void;
+	function url(route:string):string;
 
 	function go(route:string):void;
 
