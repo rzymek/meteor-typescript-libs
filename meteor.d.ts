@@ -7,6 +7,8 @@
  *  supports meteor 0.6.5.1
  *
  */
+/// <reference path="lib.d.ts" />
+
 
 declare module Deps {
 
@@ -557,10 +559,14 @@ declare module Meteor {
 		fetch():Array<T>;
 		count():number;
 		rewind():void;
-		observe(callbacks);
-		observeChanges(callbacks);
+		observe(callbacks):Meteor.LiveQueryHandle;
+		observeChanges(callbacks):Meteor.LiveQueryHandle;
 
 	}
+
+  interface LiveQueryHandle {
+    stop():void;
+  }
 
 	// TEMPLATE ------
 
