@@ -301,6 +301,8 @@ interface Accounts {
   config(options: {
           sendVerificationEmail?: boolean;
           forbidClientAccountCreation?: boolean;
+          restrictCreationByEmailDomain: any;
+          loginExpirationInDays: number;
         }): void;
   ui: {
     config(options: {
@@ -400,31 +402,19 @@ declare module Meteor {
   }
 
 	function apply(method:string, ...parameters):void;
-
 	function absoluteUrl(path?:string, options?:AbsoluteUrlOptions):string;
-
 	function call(method:string, ...parameters):void;
-
 	function clearTimeout(id:number);
-
 	function clearInterval(id:number);
-
 	function check(value, pattern);
-
 	function disconnect();
-
 	function loggingIn():boolean;
-
-	function logout(callback?);
-
+  function logout(callback?:Function):void;
+  function logoutOtherClients(callback?:Function):void;
 	function loginWithPassword(user, password:string, callback?);
-
 	function loginWithExternalService(options, callback?);
-
 	function methods(IMeteorMethodsDictionary);
-
 	function onReconnect();
-
   function defer(callback: Function): void;
 
 	/**
@@ -434,27 +424,16 @@ declare module Meteor {
 	 * @param func Function called on the server each time a client subscribes
 	 */
 	function publish(name:string, func:Function):void;
-
 	function render(htmlFunc:Function);
-
 	function renderList(observable:Meteor.Cursor<any>, docFunc:Function, elseFunc?:Function);
-
 	function reconnect();
-
 	function setTimeout(func:Function, delay:number):number;
-
 	function startup(func:Function);
-
 	function setInterval(func:Function, delay:number):number;
-
 	function subscribe(name, ...rest);
-
 	function status():Meteor.StatusEnum;
-
 	function user():User;
-
   var users: Meteor.Collection<User>;
-
 	function userId():string;
 
 	interface Error {
@@ -462,36 +441,26 @@ declare module Meteor {
 	}
 
 	interface AllowDenyOptions {
-
 		insert?: (userId:string, doc) => boolean;
 		update?: (userId, doc, fieldNames, modifier) => boolean;
 		remove?: (userId, doc) => boolean;
 		fetch?: string[];
 		transform?: Function;
-
 	}
 
 	function Collection<T>(name:string, options?:Meteor.CollectionOptions);
 
 	interface Collection<T> {
-
 		//new(name:string, options?:Meteor.CollectionOptions):Collection<T>;
-
-		ObjectID(hexString?:any);
-
+		ObjectID(hexString?:any): Object;
 		find(selector?:any, options?):Meteor.Cursor<T>;
-
 		findOne(selector?, options?):T;
-
 		insert(doc:T, callback?:Function):string;
-
-		update(selector:any, modifier, options?, callback?:Function);
-
+    update(selector:any, modifier: any, options?: {multi?: boolean; upsert?: boolean;}, callback?:Function): number;
+    upsert(selector:any, modifier: any, options?: {multi?: boolean;}, callback?:Function): {numberAffected?: number; insertedId?: string;}
 		remove(selector:any, callback?:Function);
-
-		allow(options:Meteor.AllowDenyOptions);
-
-		deny(options);
+		allow(options:Meteor.AllowDenyOptions): boolean;
+		deny(options:Meteor.AllowDenyOptions): boolean;
 	}
 
 	//Meteor.publish("counts-by-room", function (roomId) {
@@ -553,15 +522,13 @@ declare module Meteor {
 	}
 
 	interface Cursor<T> {
-
-		forEach(callback:Function);
-		map(callback:Function);
+		forEach(callback:Function, thisArg?: any):void;
+		map(callback:Function, thisArg?: any):void;
 		fetch():Array<T>;
 		count():number;
 		rewind():void;
 		observe(callbacks):Meteor.LiveQueryHandle;
 		observeChanges(callbacks):Meteor.LiveQueryHandle;
-
 	}
 
   interface LiveQueryHandle {
