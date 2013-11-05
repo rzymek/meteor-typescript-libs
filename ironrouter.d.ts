@@ -3,25 +3,21 @@
 // https://atmosphere.meteor.com/package/iron-router
 // https://github.com/EventedMind/iron-router
 
- declare module Router {
+declare module Router {
 
-	interface TemplateConfig {
+  interface TemplateConfig {
 		to?: string;
 		waitOn?: boolean;
 		data?: boolean;
 	}
 
-	interface TemplateConfigDico {[id:string]:TemplateConfig}
+  interface TemplateConfigDico {[id:string]:TemplateConfig}
 
-	interface Configuration {
-		layout?: string;
-		notFoundTemplate?: string;
-		loadingTemplate?: string;
-		renderTemplates?:TemplateConfigDico;
-
-		before?:Function;
-		after?:Function;
-	}
+  interface GlobalConfig {
+    layoutTemplate?: string;
+    notFoundTemplate?: string;
+    loadingTemplate?: string;
+  }
 
 //	interface RouteHandler {
 //		route(name:string, routeParams?:MapConfig);
@@ -31,8 +27,9 @@
 	interface MapConfig {
 		path?:string;
 		// by default template is the route name, this field is the override
-		template?:string;
-
+    template?:string;
+    layoutTemplate?: string;
+    yieldTemplates?: TemplateConfigDico;
 		// can be a Function or an object literal {}
 		data?: any;
 		// waitOn can be a subscription handle, an array of subscription handles or a function that returns a subscription handle
@@ -41,44 +38,52 @@
 		loadingTemplate?:string;
 		notFoundTemplate?: string;
 		controller?: string;
-		action?: string;
+		action?: Function;
+
+    // The before and after hooks can be Functions or an array of Functions
+    before?: any;
+    after?: any;
+    load?: Function;
+    unload?: Function;
+    reactive?: boolean;
 	}
 
-	// These are for Router
+  interface HookOptions {
+    except?: string[];
+  }
+
+  interface HookOptionsDico {[id:string]:HookOptions}
+
+  // Deprecated:  for old "Router" smart package
 	function page():void;
-
 	function add(route:Object):void;
-
 	function to(path:string, ...args:any[]):void;
-
 	function filters(filtersMap:Object);
-
 	function filter(filterName:string, options?:Object);
 
 	// These are for Iron-Router
-
-	function configure(config:Configuration);
-
+	function configure(config:GlobalConfig);
 	function map(func:Function):void;
-
 	function route(name:string, routeParams?:MapConfig, handler?:any);
-
 	function path(route:string, params?:Object):string;
-
 	function url(route:string):string;
-
 	function go(route:string):void;
+  function before(func: Function, options?: HookOptionsDico): void;
+  function after(func: Function, options?: HookOptionsDico): void;
+  function load(func: Function, options?: HookOptionsDico): void;
+  function unload(func: Function, options?: HookOptionsDico): void;
+  function render(template?: string, options?: TemplateConfigDico): void;
+  function wait(): void;
+  function stop(): void;
+  function redirect(): void;
 
-//	routes: Object;
-//
-//	params: any[];
-
+  var routes: {};
+  var params;
 }
 
 interface RouteController {
-
 	render(route:string);
-	extend(definition:{});
+	extend(routeParams: Router.MapConfig);
 }
 
 declare var RouteController:RouteController;
