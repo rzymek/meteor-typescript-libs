@@ -19,11 +19,6 @@ declare module Router {
     loadingTemplate?: string;
   }
 
-//	interface RouteHandler {
-//		route(name:string, routeParams?:MapConfig);
-//		params:any[];
-//	}
-
 	interface MapConfig {
 		path?:string;
 		// by default template is the route name, this field is the override
@@ -67,7 +62,7 @@ declare module Router {
 	function route(name:string, routeParams?:MapConfig, handler?:any);
 	function path(route:string, params?:Object):string;
 	function url(route:string):string;
-	function go(route:string):void;
+  function go(route:string, params?:Object):void;
   function before(func: Function, options?: HookOptionsDico): void;
   function after(func: Function, options?: HookOptionsDico): void;
   function load(func: Function, options?: HookOptionsDico): void;
@@ -78,7 +73,7 @@ declare module Router {
   function redirect(): void;
 
   var routes: {};
-  var params;
+  var params: any;
 }
 
 interface RouteController {
