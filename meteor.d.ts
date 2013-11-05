@@ -290,6 +290,7 @@ interface Session {
 	setDefault(key:string, value:any):void;
 	get(key:string):any;
 	equals(key:string, value:any):boolean;
+  keys: {};
 
 }
 
