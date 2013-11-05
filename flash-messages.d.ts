@@ -16,3 +16,12 @@ declare module FlashMessages {
     hideDelay?: number;
   }
 }
+
+interface FlashMessagesDAO {
+  message: string;
+  style?: string;
+  seen?: boolean;
+  options?: FlashMessages.ConfigurationOptions;
+}
+
+declare var flashMessages: Meteor.Collection<FlashMessagesDAO>;
