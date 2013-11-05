@@ -67,7 +67,7 @@
 
 	function url(route:string):string;
 
-	function go(route:string):void;
+	function go(route:string, params?:Object):void;
 
 //	routes: Object;
 //
