@@ -647,7 +647,7 @@ declare module D3 {
         * @param url Url to request
         * @param callback Function to invoke when resource is loaded or the request fails
         */
-        (url: string, callback?: (error: any, response: any[]) => void ): Xhr;
+        (url: string, accessor?: (d: any) => {}, callback?: (error: any, response: any[]) => void ): Xhr;
         /**
         * Parse a delimited string into objects using the header row.
         *
