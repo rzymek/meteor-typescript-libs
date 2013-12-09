@@ -3,6 +3,6 @@
     "description": "meteor.d.ts plus other common Typescript+Meteor definitions",
     "homepage": "https://github.com/orefalo/meteor-typescript-libs",
     "author": "Olivier Refalo <orefalo@yahoo.com>",
-    "version": "0.1.11",
+    "version": "0.1.12",
     "git": "https://github.com/orefalo/meteor-typescript-libs.git"
 }
