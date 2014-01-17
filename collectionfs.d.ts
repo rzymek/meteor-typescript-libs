@@ -74,25 +74,27 @@ declare module CollectionFS{
     encoding?: string;
   }
 
+  interface FileRecord {
+    chunkSize?: number; // Default 256kb ~ 262.144 bytes
+    uploadDate?: number;  // Client set date
+    handledAt?: number;          // datetime set by Server when handled
+    fileHandler?:{};           // fileHandler supplied data if any
+    md5?: any;               // Not yet implemented
+    complete?: boolean;         // countChunks == numChunks
+    currentChunk?: number;         // Used to coordinate clients
+    owner?: string;
+    countChunks?: number; // Expected number of chunks
+    numChunks?: number;             // number of chunks in database
+    filename?: string;     // Original filename
+    length?: string;     // Issue in Meteor
+    contentType?: string;
+    encoding?: string;       // Default 'utf-8'
+    metadata?: {}
+  }
+
   interface FileHandlerOptions {
     blob: Buffer;              // Type of node.js Buffer()
-    fileRecord: {
-      chunkSize : number; // Default 256kb ~ 262.144 bytes
-      uploadDate : number;  // Client set date
-      handledAt: number;          // datetime set by Server when handled
-      fileHandler:{};           // fileHandler supplied data if any
-      md5: any;               // Not yet implemented
-      complete: boolean;         // countChunks == numChunks
-      currentChunk: number;         // Used to coordinate clients
-      owner: string;
-      countChunks: number; // Expected number of chunks
-      numChunks: number;             // number of chunks in database
-      filename: string;     // Original filename
-      length: string;     // Issue in Meteor
-      contentType: string;
-      encoding: string;       // Default 'utf-8'
-      metadata : {}
-    };
+    fileRecord: FileRecord;
     destination: (extension?:string) => {serverFilename: Destination};
     sumFailes: number;
   }

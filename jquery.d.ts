@@ -254,7 +254,7 @@ interface JQueryStatic {
 
     globalEval(code: string): any;
 
-    grep(array: any[], func: any, invert: boolean): any[];
+    grep(array: any[], func: any, invert?: boolean): any[];
 
     inArray(value: any, array: any[], fromIndex?: number): number;
 
