@@ -449,7 +449,7 @@ declare module Meteor {
 		transform?: Function;
 	}
 
-	function Collection<T>(name:string, options?:Meteor.CollectionOptions);
+	function Collection<T>(name:string, options?:Meteor.CollectionOptions) : void;
 
 	interface Collection<T> {
 		//new(name:string, options?:Meteor.CollectionOptions):Collection<T>;
