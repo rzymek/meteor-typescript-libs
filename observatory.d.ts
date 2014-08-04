@@ -11,12 +11,12 @@
 declare module Observatory {
 
     interface Toolbox {
-        fatal(msg:string, json?:EJSON, module?:string);
-        error(msg:string, json?:EJSON, module?:string);
-        warn(msg:string, json?:EJSON, module?:string);
-        info(msg:string, json?:EJSON, module?:string);
-        verbose(msg:string, json?:EJSON, module?:string);
-        debug(msg:string, json?:EJSON, module?:string);
+        fatal(msg:string, json?:Meteor.EJSON, module?:string);
+        error(msg:string, json?:Meteor.EJSON, module?:string);
+        warn(msg:string, json?:Meteor.EJSON, module?:string);
+        info(msg:string, json?:Meteor.EJSON, module?:string);
+        verbose(msg:string, json?:Meteor.EJSON, module?:string);
+        debug(msg:string, json?:Meteor.EJSON, module?:string);
 
         // tracing an error, useful in try-catch blocks
         trace(error:Error, msg:string, module?:string);

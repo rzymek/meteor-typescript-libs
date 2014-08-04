@@ -32,8 +32,8 @@ interface CollectionFS<T> {
   acceptDrops(templateName: string, selector: string, metadata?: {}, callback?: (file: File, fileID: string) => void): void;
 
   // Server API
-  storeBuffer(fileName: string, buffer: Buffer, options: CollectionFS.StoreBufferOptions): string;
-  retrieveBuffer(fileId: string): Buffer;
+  storeBuffer(fileName: string, buffer: IBuffer, options: CollectionFS.StoreBufferOptions): string;
+  retrieveBuffer(fileId: string): IBuffer;
 }
 
 declare module CollectionFS{
@@ -63,7 +63,7 @@ declare module CollectionFS{
     countChunks: number;
     length: number;
     file?: any;
-    blob?: Buffer;
+    blob?: IBuffer;
   }
 
   interface StoreBufferOptions {
@@ -93,7 +93,7 @@ declare module CollectionFS{
   }
 
   interface FileHandlerOptions {
-    blob: Buffer;              // Type of node.js Buffer()
+    blob: IBuffer;              // Type of node.js Buffer()
     fileRecord: FileRecord;
     destination: (extension?:string) => {serverFilename: Destination};
     sumFailes: number;
@@ -149,7 +149,7 @@ interface NodeBuffer {
 }
 
 //Copied from node.d.ts since node.d.ts was giving me compile errors for overloading some signatures
-interface Buffer extends NodeBuffer {
+interface IBuffer extends NodeBuffer {
   new (str: string, encoding?: string): NodeBuffer;
   new (size: number): NodeBuffer;
   new (array: any[]): NodeBuffer;
@@ -160,5 +160,45 @@ interface Buffer extends NodeBuffer {
 }
 
 //Copied from node.d.ts since node.d.ts was giving me compile errors for overloading some signatures
-declare var Buffer: (size: number) => Buffer;
+declare var Buffer: (size: number) => IBuffer;
 
+//Code below this point is for the devel branch that should be compatible with Meteor 0.8.x
+declare module FS {
+  function Collection<T>(name:string, options?: FS.CollectionOptions);
+
+  interface Collection<T> {
+    ObjectID(hexString?: any): Object;
+    find(selector?: any, options?): Meteor.Cursor<T>;
+    findOne(selector?, options?):T;
+    insert(doc:T, callback?:Function):string;
+    update(selector: any, modifier: any, options?: {multi?: boolean; upsert?: boolean;}, callback?:Function): number;
+    upsert(selector: any, modifier: any, options?: {multi?: boolean;}, callback?:Function): {numberAffected?: number; insertedId?: string;}
+    remove(selector: any, callback?:Function);
+    allow(options:Meteor.AllowDenyOptions): boolean;
+    deny(options:Meteor.AllowDenyOptions): boolean;
+    fileHandlers(handlers: CollectionFS.FileHandlers): void;
+    filter(options: CollectionFS.FilterOptions): void;
+    fileIsAllowed(options: any): boolean;
+    events(events): void;
+    dispatch(...args: string[]): void;
+
+    // Client API
+    storeFile(file: File, metadata?: {}): string;
+    storeFiles(files: File[], metadata: {}, callback?: (file: File, fileID: string) => void): {}[];
+    retrieveBlob(fileId: string, callback: (fileItem: CollectionFS.FileItem) => void);
+    acceptDrops(templateName: string, selector: string, metadata?: {}, callback?: (file: File, fileID: string) => void): void;
+
+    // Server API
+    storeBuffer(fileName: string, buffer: IBuffer, options: CollectionFS.StoreBufferOptions): string;
+    retrieveBuffer(fileId: string): IBuffer;
+  }
+
+  interface CollectionOptions {
+    autopublish:boolean;
+    maxFileHandlers: number;
+  }
+
+  interface Store {
+    FileSystem(name: string, options?: {path: string;});
+  }
+}
