@@ -64,6 +64,8 @@ var createThirdPartyDefLibs = function() {
             var filename = lib.slice(lib.lastIndexOf('/') + 1);
             if (hasString(lib, '/core.d.ts')) filename = filename.replace('core', 'lib');
             definitionFilenames.push(filename);
+            body = body.replace('../jquery/jquery.d.ts', 'jquery.d.ts');
+            body = body.replace('../underscore/underscore.d.ts', 'underscore.d.ts');
             writeFileToDisk(DEF_DIR + filename, body);
         })
     });
