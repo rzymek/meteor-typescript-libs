@@ -3,9 +3,8 @@
 /// https://atmosphere.meteor.com/package/collectionFS
 /// https://github.com/CollectionFS/Meteor-CollectionFS
 
-
 /// <reference path='meteor.d.ts'/>
-
+/// <reference path='node.d.ts'/>
 
 declare function CollectionFS<T>(name:string, options?: CollectionFS.CollectionFSOptions);
 
@@ -109,46 +108,6 @@ declare module CollectionFS{
 }
 
 //Copied from node.d.ts since node.d.ts was giving me compile errors for overloading some signatures
-interface NodeBuffer {
-  [index: number]: number;
-  write(string: string, offset?: number, length?: number, encoding?: string): number;
-  toString(encoding?: string, start?: number, end?: number): string;
-  length: number;
-  copy(targetBuffer: NodeBuffer, targetStart?: number, sourceStart?: number, sourceEnd?: number): void;
-  slice(start?: number, end?: number): NodeBuffer;
-  readUInt8(offset: number, noAsset?: boolean): number;
-  readUInt16LE(offset: number, noAssert?: boolean): number;
-  readUInt16BE(offset: number, noAssert?: boolean): number;
-  readUInt32LE(offset: number, noAssert?: boolean): number;
-  readUInt32BE(offset: number, noAssert?: boolean): number;
-  readInt8(offset: number, noAssert?: boolean): number;
-  readInt16LE(offset: number, noAssert?: boolean): number;
-  readInt16BE(offset: number, noAssert?: boolean): number;
-  readInt32LE(offset: number, noAssert?: boolean): number;
-  readInt32BE(offset: number, noAssert?: boolean): number;
-  readFloatLE(offset: number, noAssert?: boolean): number;
-  readFloatBE(offset: number, noAssert?: boolean): number;
-  readDoubleLE(offset: number, noAssert?: boolean): number;
-  readDoubleBE(offset: number, noAssert?: boolean): number;
-  writeUInt8(value: number, offset: number, noAssert?: boolean): void;
-  writeUInt16LE(value: number, offset: number, noAssert?: boolean): void;
-  writeUInt16BE(value: number, offset: number, noAssert?: boolean): void;
-  writeUInt32LE(value: number, offset: number, noAssert?: boolean): void;
-  writeUInt32BE(value: number, offset: number, noAssert?: boolean): void;
-  writeInt8(value: number, offset: number, noAssert?: boolean): void;
-  writeInt16LE(value: number, offset: number, noAssert?: boolean): void;
-  writeInt16BE(value: number, offset: number, noAssert?: boolean): void;
-  writeInt32LE(value: number, offset: number, noAssert?: boolean): void;
-  writeInt32BE(value: number, offset: number, noAssert?: boolean): void;
-  writeFloatLE(value: number, offset: number, noAssert?: boolean): void;
-  writeFloatBE(value: number, offset: number, noAssert?: boolean): void;
-  writeDoubleLE(value: number, offset: number, noAssert?: boolean): void;
-  writeDoubleBE(value: number, offset: number, noAssert?: boolean): void;
-  fill(value: any, offset?: number, end?: number): void;
-  INSPECT_MAX_BYTES: number;
-}
-
-//Copied from node.d.ts since node.d.ts was giving me compile errors for overloading some signatures
 interface IBuffer extends NodeBuffer {
   new (str: string, encoding?: string): NodeBuffer;
   new (size: number): NodeBuffer;
@@ -158,9 +117,6 @@ interface IBuffer extends NodeBuffer {
   byteLength(string: string, encoding?: string): number;
   concat    (list: NodeBuffer[], totalLength?: number): NodeBuffer;
 }
-
-//Copied from node.d.ts since node.d.ts was giving me compile errors for overloading some signatures
-declare var Buffer: (size: number) => IBuffer;
 
 //Code below this point is for the devel branch that should be compatible with Meteor 0.8.x
 declare module FS {
