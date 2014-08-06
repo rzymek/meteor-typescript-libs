@@ -6,7 +6,7 @@
 /// <reference path='meteor.d.ts'/>
 /// <reference path='node.d.ts'/>
 
-declare function CollectionFS<T>(name:string, options?: CollectionFS.CollectionFSOptions);
+declare function CollectionFS<T>(name:string, options?: CollectionFS.CollectionFSOptions): void;
 
 interface CollectionFS<T> {
   ObjectID(hexString?: any): Object;
