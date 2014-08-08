@@ -344,7 +344,7 @@ declare module DDP {
 
 declare module Meteor {
 	interface Collection<T> {
-		find(selector?: any, options?: {
+		find(selector?, options?: {
 					sort?: any;
 					skip?: Number;
 					limit?: Number;
@@ -352,7 +352,7 @@ declare module Meteor {
 					reactive?: Boolean;
 					transform?: Function;
 				}); 
-		findOne(selector?: any, options?: {
+		findOne(selector?, options?: {
 					sort?: any;
 					skip?: Number;
 					fields?: Meteor.CollectionFieldSpecifier;

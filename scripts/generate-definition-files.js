@@ -15,6 +15,7 @@ var vm = require('vm'),
     fs = require('fs'),
     _ = require('lodash'),
     DEF_DIR = '../',
+    TEST_DIR = '../definition-tests/',
     METEOR_API_URL = 'https://raw.githubusercontent.com//meteor/meteor/devel/docs/client/api.js',
     MANUALLY_MAINTAINED_DEFS_FILE = '../lib/meteor-manually-maintained-definitions.d.ts',
     GLOBAL_VAR_DEFS = '../lib/meteor-global-var-declarations.d.ts',
@@ -22,6 +23,7 @@ var vm = require('vm'),
     DEBUG = false;
 
 var definitionFilenames = []; // References to these files will be written to the master definition file
+var testFilenames = ['meteor-tests.ts'];
 
 // Not currently used -- not sure how to automatically generate latest lib.d.ts
 var typescriptCoreLibs = [
@@ -34,6 +36,7 @@ var typescriptCoreLibs = [
     'https://github.com/Microsoft/TypeScript/raw/master/src/lib/webworker.importscripts.d.ts'
 ];
 
+// Not currently used -- not sure how to automatically generate latest lib.d.ts
 var createTypeScriptLibFile = function() {
     fs.truncate(DEF_DIR + 'lib.d.ts');
     _.each(typescriptCoreLibs, function(lib) {
@@ -68,6 +71,43 @@ var createThirdPartyDefLibs = function() {
             body = body.replace('../underscore/underscore.d.ts', 'underscore.d.ts');
             writeFileToDisk(DEF_DIR + filename, body);
         })
+    });
+};
+
+var thirdPartyDefTests = [
+    'https://github.com/borisyankov/DefinitelyTyped/raw/master/underscore/underscore-tests.ts',
+    'https://github.com/borisyankov/DefinitelyTyped/raw/master/underscore.string/underscore.string-tests.ts',
+    'https://github.com/borisyankov/DefinitelyTyped/raw/master/jquery/jquery-tests.ts',
+    'https://github.com/borisyankov/DefinitelyTyped/raw/master/backbone/backbone-tests.ts',
+    'https://github.com/borisyankov/DefinitelyTyped/raw/master/bootstrap/bootstrap-tests.ts',
+    'https://github.com/borisyankov/DefinitelyTyped/raw/master/d3/d3-tests.ts',
+    'https://github.com/borisyankov/DefinitelyTyped/raw/master/handlebars/handlebars-tests.ts',
+    'https://github.com/borisyankov/DefinitelyTyped/raw/master/node/node-tests.ts',
+    'https://github.com/borisyankov/DefinitelyTyped/raw/master/node-fibers/node-fibers-tests.ts'
+];
+
+var getThirdPartyDefTests = function() {
+    _.each(thirdPartyDefTests, function(test) {
+        require('request')(test, function(error, response, body) {
+            var filename = test.slice(test.lastIndexOf('/') + 1);
+            testFilenames.push(filename);
+            body = body.replace('../jquery/jquery.d.ts', 'jquery.d.ts');
+            body = body.replace('../underscore/underscore.d.ts', 'underscore.d.ts');
+            body = body.replace(/path=["'\.\/]+(.+\.d\.ts)["']\s?\/>/g, 'path="../$1" />');
+//            body = body.replace(/path=["'\.\/]+/g, 'path="../');
+//            body = body.replace(/'\s?\/>/g, '" />');
+            writeFileToDisk(TEST_DIR + filename, body);
+        })
+    });
+};
+
+var testThirdPartyDefs = function() {
+    _.each(testFilenames, function(filename) {
+        console.log('Running transpilation test: ' + filename);
+        var sys = require('sys')
+        var exec = require('child_process').exec;
+        function puts(error, stdout, stderr) { sys.puts(stdout) }
+        exec("tsc -m commonjs " + TEST_DIR + filename, puts);
     });
 };
 
@@ -621,4 +661,6 @@ var createMeteorDefFile = function() {
 createMeteorDefFile();
 //createTypeScriptLibFile();  Not currently working -- not sure how to generated latest typescript lib.d.ts file
 createThirdPartyDefLibs();
+getThirdPartyDefTests();
+setTimeout(testThirdPartyDefs, 8000);
 setTimeout(createMasterDefFile, 10000);

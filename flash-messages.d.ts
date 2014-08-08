@@ -3,6 +3,8 @@
 // https://atmosphere.meteor.com/package/flash-messages
 // https://github.com/camilosw/flash-messages
 
+/// <reference path='meteor.d.ts'/>
+
 declare module FlashMessages {
   function sendAlert(message: string, options?: ConfigurationOptions): void;
   function sendError(message: string, options?: ConfigurationOptions): void;
