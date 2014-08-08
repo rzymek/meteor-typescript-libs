@@ -86,6 +86,8 @@ var thirdPartyDefTests = [
     'https://github.com/borisyankov/DefinitelyTyped/raw/master/node-fibers/node-fibers-tests.ts'
 ];
 
+var testsWithModuleFlag = ['handlebars-tests.ts', 'node-tests.ts', 'node-fibers-tests.ts'];
+
 var getThirdPartyDefTests = function() {
     _.each(thirdPartyDefTests, function(test) {
         require('request')(test, function(error, response, body) {
@@ -94,8 +96,6 @@ var getThirdPartyDefTests = function() {
             body = body.replace('../jquery/jquery.d.ts', 'jquery.d.ts');
             body = body.replace('../underscore/underscore.d.ts', 'underscore.d.ts');
             body = body.replace(/path=["'\.\/]+(.+\.d\.ts)["']\s?\/>/g, 'path="../$1" />');
-//            body = body.replace(/path=["'\.\/]+/g, 'path="../');
-//            body = body.replace(/'\s?\/>/g, '" />');
             writeFileToDisk(TEST_DIR + filename, body);
         })
     });
@@ -106,8 +106,22 @@ var testThirdPartyDefs = function() {
         console.log('Running transpilation test: ' + filename);
         var sys = require('sys')
         var exec = require('child_process').exec;
-        function puts(error, stdout, stderr) { sys.puts(stdout) }
-        exec("tsc -m commonjs " + TEST_DIR + filename, puts);
+        function displayOutput(error, stdout, stderror) {
+            if (stdout) console.log(stdout);
+            if (error || stderror) { // Only display one of these to avoid duplication
+                if (stderror) {
+                    console.log('Error: ' + stderror);
+                } else {
+                    console.log('Error: ' + error);
+                }
+            }
+        }
+        if (_.contains(testsWithModuleFlag, filename)) {
+            exec("tsc -m commonjs " + TEST_DIR + filename, displayOutput);
+        } else {
+            exec("tsc " + TEST_DIR + filename, displayOutput);
+
+        }
     });
 };
 
@@ -160,15 +174,9 @@ var argTypeMappings = {
 
     // Argument and type parings
     'callback\\?\\)': 'callback?: Function)'
-//    'insert, update, remove\\?: Function;': 'insert?: (userId: string, doc) => boolean;\n' +
-//            '\t\t\t\t\tupdate?: (userId: string, doc, fieldNames, modifier) => boolean;\n' +
-//            '\t\t\t\t\tremove?: (userId: string, doc) => boolean;'
 };
 
 var replaceIrregularArgTypes = function(argSection) {
-//    if (hasString(argSection, 'insert')) {
-//        console.log('argSection = |' + argSection + '|');
-//    }
     for (var key in argTypeMappings) {
         argSection = argSection.replace(new RegExp(key, 'g'), argTypeMappings[key]);
     }

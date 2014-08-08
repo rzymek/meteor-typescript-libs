@@ -6,6 +6,7 @@
 /**
  * These are references to definition files that are maintained solely for Meteor
  */
+/// <reference path="meteor.d.ts" />
 /// <reference path="collectionfs.d.ts" />
 /// <reference path="flash-messages.d.ts" />
 /// <reference path="ironrouter.d.ts" />
@@ -18,13 +19,13 @@
 /**
  * These are references to third party definitions files that are maintained by the TypeScript community
  */
-/// <reference path="backbone.d.ts" />
-/// <reference path="underscore.d.ts" />
-/// <reference path="handlebars.d.ts" />
 /// <reference path="bootstrap.d.ts" />
-/// <reference path="google.maps.d.ts" />
 /// <reference path="underscore.string.d.ts" />
+/// <reference path="backbone.d.ts" />
 /// <reference path="node-fibers.d.ts" />
-/// <reference path="jquery.d.ts" />
+/// <reference path="handlebars.d.ts" />
+/// <reference path="underscore.d.ts" />
 /// <reference path="node.d.ts" />
+/// <reference path="google.maps.d.ts" />
+/// <reference path="jquery.d.ts" />
 /// <reference path="d3.d.ts" />

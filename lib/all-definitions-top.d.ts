@@ -6,6 +6,7 @@
 /**
  * These are references to definition files that are maintained solely for Meteor
  */
+/// <reference path="meteor.d.ts" />
 /// <reference path="collectionfs.d.ts" />
 /// <reference path="flash-messages.d.ts" />
 /// <reference path="ironrouter.d.ts" />
