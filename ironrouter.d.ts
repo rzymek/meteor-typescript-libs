@@ -72,6 +72,11 @@ declare module Router {
     function stop(): void;
     function redirect(): void;
 
+    function onRun(func: Function, params?: any): void;
+    function onBeforeAction(func: Function, params?: any): void;
+    function onAfterAction(func: Function, params?: any): void;
+    function onStop(func: Function, params?: any): void;
+
     var routes: {};
     var params: any;
 }
