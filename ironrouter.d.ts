@@ -19,21 +19,21 @@ declare module Router {
         loadingTemplate?: string;
     }
 
-	interface MapConfig {
-		path?:string;
-		// by default template is the route name, this field is the override
+    interface MapConfig {
+        path?:string;
+        // by default template is the route name, this field is the override
         template?:string;
         layoutTemplate?: string;
         yieldTemplates?: TemplateConfigDico;
-		// can be a Function or an object literal {}
-		data?: any;
-		// waitOn can be a subscription handle, an array of subscription handles or a function that returns a subscription handle
-		// or array of subscription handles. A subscription handle is what gets returned when you call Meteor.subscribe
-		waitOn?: any;
-		loadingTemplate?:string;
-		notFoundTemplate?: string;
-		controller?: string;
-		action?: Function;
+        // can be a Function or an object literal {}
+        data?: any;
+        // waitOn can be a subscription handle, an array of subscription handles or a function that returns a subscription handle
+        // or array of subscription handles. A subscription handle is what gets returned when you call Meteor.subscribe
+        waitOn?: any;
+        loadingTemplate?:string;
+        notFoundTemplate?: string;
+        controller?: string;
+        action?: Function;
 
         // The before and after hooks can be Functions or an array of Functions
         before?: any;
@@ -41,7 +41,7 @@ declare module Router {
         load?: Function;
         unload?: Function;
         reactive?: boolean;
-	}
+    }
 
     interface HookOptions {
         except?: string[];
