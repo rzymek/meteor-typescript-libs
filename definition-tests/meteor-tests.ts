@@ -544,3 +544,7 @@ Meteor.call('sendEmail',
     'Hello from Meteor!',
     'This is a test of Email.send.');
 
+UI.registerHelper('$concat', function (a, b, c, d, e) {
+    return '' + a + b + c + d + e;
+});
+

@@ -150,7 +150,7 @@ var argTypeMappings = {
     ': EJSON-compatible value': ': Meteor.EJSON',
     ': EJSON-compatible object': ': Meteor.EJSONObject',
     ': Template': ': Meteor.CreatedTemplate',
-    ': Rendered template object': ': RenderedTemplate',
+    ': Rendered template object': ': Meteor.RenderedTemplate',
     ': object': ': Object',
     ': JSON-compatible value': ': JSON',
     ': Mongo modifier': ': any',
@@ -350,7 +350,7 @@ var createReturnType = function(canonicalName) {
     }
 };
 
-var modules = ['Meteor', 'Deps', 'HTTP', 'Email', 'DDP', 'Assets', 'Random']; // Make these wrappers modules and not interfaces
+var modules = ['Meteor', 'Deps', 'HTTP', 'Email', 'DDP', 'Assets', 'Random', 'UI']; // Make these wrappers modules and not interfaces
 
 var interfacesTakingGenerics = ['Collection', 'Cursor'];  // Need to add a generic type to interface definition
 
