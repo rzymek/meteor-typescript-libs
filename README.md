@@ -1,6 +1,6 @@
 # Meteor TypeScript libraries
 
-This package adds Meteor TypeScript definitions to your project.  Definitions for Meteor core libraries are current for Meteor version 0.8.3.
+This package adds Meteor TypeScript definitions to your project.  Definitions for the Meteor core library are current for Meteor version 0.8.3.
 
 
 
@@ -22,20 +22,17 @@ This smart package can be installed with [Meteorite] (https://github.com/oortclo
     $ mrt add typescript-libs
 
 
-This will create a **packages/typescript-libs** folder in your project will all the required reference files.  You can reference all the definition files with a
+This will create a **packages/typescript-libs** folder in your project with all the required reference files.  You can reference all the definition files with a
 single line:
 
     ///<reference path="/path/to/packages/typescript-libs/all-definitions.d.ts" />
 
 
-Or you can reference an individual definition file:
+Or you can reference definition files individually:
 
     ///<reference path="/path/to/packages/typescript-libs/meteor.d.ts" />
     ///<reference path="/path/to/packages/typescript-libs/underscore.d.ts" />
     ///<reference path="/path/to/packages/typescript-libs/jquery.d.ts" />
-
-
-No files are added to the build.
 
 
 
@@ -62,23 +59,20 @@ Other third-party library definitions:
 * underscore-string
 * jquery
 * d3
-* ecma
 * node
 
 
 
 ## Usage Overview
-Talk about WebStorm or meteor-typescript-compiler
+For most applications, there are 4 specific steps you will have to take to write your Meteor application in TypeScript using this package:
 
-For most applications, there are 5 specific steps you will have to take to write your Meteor application in TypeScript using this package:
-
-1. [Reference the definitions] (#usage-type-definition-references) in TypeScript files
-2. Declare functions for [Templates] (#usage-templates) in a special way
-3. Declare [Collections](#usage-collections) in a special way
-4. [Create custom definitions](#usage-creating-definitions) for code you write
+1. [Reference the definitions in TypeScript files] (#usage-type-definition-references)
+2. [Declare functions for Templates in a special way] (#usage-templates)
+3. [Declare Collections in a special way] (#usage-collections)
+4. [Create custom definitions for code you write] (#usage-creating-definitions)
 
 
-## Usage: Type Definition references
+## Usage: Type Definition References
 Within any TypeScript file, you can reference all the definition files with a single line at the top:
 
     ///<reference path="/path/to/packages/typescript-libs/all-definitions.d.ts" />
@@ -150,7 +144,7 @@ Here is a guide to creating definitions: <http://www.typescriptlang.org/Handbook
 
 ## Usage: Transpilation
 WebStorm is good TypeScript-aware editor.  It can automatically transpile your TypeScript code into JavaScript every time you save a file.  To enable this
-feature in WebStorm on OSX, go to Preferences -> File Watchers -> Plus symbol and add TypeScript.
+feature in WebStorm on OSX, go to Preferences -> File Watchers -> "+" symbol and add TypeScript.
 
 If you are not using a TypeScript-aware editor, you can transpile the files using the [Meteor Typescript Compiler](https://github.com/orefalo/meteor-typescript-compiler).
 

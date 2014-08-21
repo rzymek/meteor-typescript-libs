@@ -506,16 +506,14 @@ declare module Meteor {
 	}
 }
 
-declare module Meteor {
-	interface UI {
-		registerHelper(name: string, func: Function): void;
-		body: Meteor.Template;
-		render(template): Meteor.RenderedTemplate;
-		renderWithData(template, data: Object): Meteor.RenderedTemplate;
-		insert(renderedTemplate: RenderedTemplate, parentNode, nextNode?): void;
-		remove(renderedTemplate: RenderedTemplate): void;
-		getElementData(el: HTMLElement): Meteor.DataContext;
-	}
+declare module UI {
+	function registerHelper(name: string, func: Function): void;
+	var body: Meteor.Template;
+	function render(template): Meteor.RenderedTemplate;
+	function renderWithData(template, data: Object): Meteor.RenderedTemplate;
+	function insert(renderedTemplate: Meteor.RenderedTemplate, parentNode, nextNode?): void;
+	function remove(renderedTemplate: Meteor.RenderedTemplate): void;
+	function getElementData(el: HTMLElement): Meteor.DataContext;
 }
 
 declare module Email {
