@@ -548,3 +548,10 @@ UI.registerHelper('$concat', function (a, b, c, d, e) {
     return '' + a + b + c + d + e;
 });
 
+declare var el: HTMLElement;
+var testBody = UI.body;
+UI.render(Template['adminDashboard']);
+UI.renderWithData(Template['adminDashboard'], {testData: 123});
+UI.insert(Template['adminDashboard'], el.firstChild, el.firstChild.firstChild);
+UI.remove(Template['adminDashboard']);
+UI.getElementData(el);
