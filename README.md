@@ -120,8 +120,8 @@ To define collections, you will need to create an interface representing the col
       queuedAt?: string;
     }
 
-    declare var Jobs: Meteor.Collection<JobDAO>;
-    Jobs = new Meteor.Collection<JobDAO>('jobs');
+    declare var Jobs: Mongo.Collection<JobDAO>;
+    Jobs = new Mongo.Collection<JobDAO>('jobs');
 
 
 Finally, any TypeScript file using collections will need to contain a reference at the top pointing to the collection definitions:
@@ -184,6 +184,6 @@ repo.
 
 ## Other Projects of Interest
 
-* [https://github.com/orefalo/meteor-typescript-compiler](https://github.com/orefalo/meteor-typescript-compiler)
-* [https://github.com/orefalo/meteor-typescript-demos](https://github.com/orefalo/meteor-typescript-demos)
+* [https://github.com/meteor-typescript/meteor-typescript-compiler](https://github.com/meteor-typescript/meteor-typescript-compiler)
+* [https://github.com/meteor-typescript/meteor-typescript-demos](https://github.com/meteor-typescript/meteor-typescript-demos)
 
