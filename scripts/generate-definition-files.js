@@ -1,7 +1,7 @@
 /**
  * This script downloads the third part typescript definitions, generates "meteor.d.ts" from
- * the meteor api.js file (on github), and creates "all-definitions.d.ts", which has references
- * to all of the typescript definition files.
+ * the meteor api.js file (https://github.com/meteor/meteor/blob/devel/docs/client/api.js),
+ * and creates "all-definitions.d.ts", which has references to all of the typescript definition files.
  *
  * You can execute this script from the command line: "$node typescript-file-generator.js"
  *
@@ -20,7 +20,7 @@ var vm = require('vm'),
     MANUALLY_MAINTAINED_DEFS_FILE = '../lib/meteor-manually-maintained-definitions.d.ts',
     GLOBAL_VAR_DEFS = '../lib/meteor-global-var-declarations.d.ts',
     METEOR_DEF_FILENAME = 'meteor.d.ts',
-    DEBUG = false;
+    DEBUG = true;
 
 var definitionFilenames = []; // References to these files will be written to the master definition file
 var testFilenames = ['meteor-tests.ts'];
@@ -132,7 +132,10 @@ var argNameMappings = {
     '\\]': '?',
     'arg1, arg2, ...': '...args',
     'param1, param2, ...': '...params',
-    'Template.<em>myTemplate</em>': 'template'
+    'Template.<em>myTemplate</em>': 'template',
+    '\\(f\\)': '(f: Function)',
+    'packagename@version': 'packageNameAndVersion',
+    '(\\w+)\\s\\|\\s[^\\)]+': '$1Or$1s: any'
 };
 
 var replaceIrregularArgNames = function(argSection) {
@@ -159,7 +162,7 @@ var argTypeMappings = {
     ': Array of String': ': string[]',
     ': Boolean, Integer, or String;': ': any; // boolean, integer, or string',
     ': Sort specifier': ': any',
-    ': Field specifier': ': Meteor.CollectionFieldSpecifier',
+    ': Field specifier': ': Mongo.CollectionFieldSpecifier',
     ': Event map': ': {[id:string]: Function}',
     ': DOM Element': ': HTMLElement',
     ': DOM Node': ': Node',
@@ -171,9 +174,15 @@ var argTypeMappings = {
     '\\{(.|[\r\n])+insert, update, remove(.|[\r\n])+\\}': 'Meteor.AllowDenyOptions',
 
     'function:': 'func:',
+    'Number':'number',
+    'Integer': 'number',
+    ': View': ': Blaze.View',
 
     // Argument and type parings
-    'callback\\?\\)': 'callback?: Function)'
+    'callback\\?\\)': 'callback?: Function)',
+    'renderFunction: Function': 'renderFunction?: Function',
+    'idGeneration\\?: string': 'idGeneration?: Mongo.CollectionIdGenerationEnum',
+    'transform\\?: Function': 'transform?: (document)=>any'
 };
 
 var replaceIrregularArgTypes = function(argSection) {
@@ -181,6 +190,12 @@ var replaceIrregularArgTypes = function(argSection) {
         argSection = argSection.replace(new RegExp(key, 'g'), argTypeMappings[key]);
     }
     return argSection;
+};
+
+var interfacesTakingGenerics = ['Collection', 'Cursor'];  // Need to add a generic type to interface definition
+
+var takesGeneric = function(wrapperName) {
+    return (_.contains(interfacesTakingGenerics, wrapperName));
 };
 
 var functionsWithGenericsMappings = {
@@ -192,7 +207,8 @@ var functionsWithGenericsMappings = {
 
     'function send(options)': 'function send(options: Email.EmailMessage)',
     'find(selector:': 'find(selector?:',
-    'findOne(selector:': 'findOne(selector?:'
+    'findOne(selector:': 'findOne(selector?:',
+    'Collection(name: string,': 'Collection<T>(name: string,'
 };
 
 var replaceSignaturesWithGenerics = function(funcSignature) {
@@ -202,17 +218,17 @@ var replaceSignaturesWithGenerics = function(funcSignature) {
     return funcSignature;
 };
 
-var interfaceExtensionMappings = {
-    'Accounts': 'Meteor.AccountsBase',
-    'Match': 'Meteor.MatchBase'
-};
-
 var getGenericDeclaration = function(moduleOrInterface) {
     if (takesGeneric(moduleOrInterface)) {
         return '<T>';
     } else {
         return '';
     }
+};
+
+var interfaceExtensionMappings = {
+    'Accounts': 'Meteor.AccountsBase',
+    'Match': 'Meteor.MatchBase'
 };
 
 var getInterfaceExtensions = function(interfaceOrModule) {
@@ -226,6 +242,8 @@ var getInterfaceExtensions = function(interfaceOrModule) {
 var functionReturnValues = {
     'Meteor.isClient': 'boolean',
     'Meteor.isServer': 'boolean',
+    'Meteor.isCordova': 'boolean',
+    'Meteor.wrapAsync': 'any',
     'Meteor.startup': 'void',
     'Meteor.absoluteUrl': 'string',
     'Meteor.settings': '{[id:string]: any}',
@@ -252,10 +270,9 @@ var functionReturnValues = {
     'Meteor.setInterval': 'number',
     'Meteor.status': 'Meteor.StatusEnum',
     'Meteor.user': 'Meteor.User',
-    'Meteor.users': 'Meteor.Collection<User>',
+    'Meteor.users': 'Mongo.Collection<User>',
     'Meteor.userId': 'string',
     'Meteor.onConnection': 'void',
-    'Meteor.Collection': 'void',
     'Meteor.withValue': 'void',
     'Meteor.bindEnvironment': 'Function',
     'Meteor.Error': 'void',   'Meteor.get': 'string',
@@ -273,24 +290,29 @@ var functionReturnValues = {
     'Accounts.sendEnrollmentEmail': 'void',
     'Accounts.sendVerificationEmail': 'void',
     'Accounts.emailTemplates': 'Meteor.EmailTemplates',
+    'Mongo.Collection': 'void',
+    'Collection.find': 'Mongo.Cursor<T>',
+    'Collection.findOne': 'Meteor.EJSONObject',
+    'Collection.insert': 'string',
     'Collection.update': 'number',
     'Collection.upsert': '{numberAffected?: number; insertedId?: string;}',
     'Collection.remove': 'void',
     'Collection.allow': 'boolean',
     'Collection.deny': 'boolean',
-    'Collection.ObjectID': 'Object',
+    'Mongo.ObjectID': 'void',
     'Cursor.forEach': 'void',
     'Cursor.map': 'void',
+    'Cursor.fetch': 'Array<T>',
     'Cursor.count': 'number',
     'Cursor.observe': 'Meteor.LiveQueryHandle',
     'Cursor.observeChanges': 'Meteor.LiveQueryHandle',
-    'Deps.flush': 'void',
-    'Deps.nonreactive': 'void',
-    'Deps.active': 'boolean',
-    'Deps.currentComputation': 'Deps.Computation',
-    'Deps.onInvalidate': 'void',
-    'Deps.afterFlush': 'void',
-    'Deps.autorun': 'Deps.Computation',
+    'Tracker.flush': 'void',
+    'Tracker.nonreactive': 'void',
+    'Tracker.active': 'boolean',
+    'Tracker.currentComputation': 'Tracker.Computation',
+    'Tracker.onInvalidate': 'void',
+    'Tracker.afterFlush': 'void',
+    'Tracker.autorun': 'Tracker.Computation',
     'Computation.stop': 'void',
     'Computation.invalidate': 'void',
     'Computation.onInvalidate': 'void',
@@ -321,13 +343,15 @@ var functionReturnValues = {
     'Template.destroyed': 'Function',
     'Template.events': 'void',
     'Template.helpers': 'void',
-    'UI.registerHelper': 'void',
-    'UI.body': 'Meteor.Template',
-    'UI.render': 'Meteor.RenderedTemplate',
-    'UI.renderWithData': 'Meteor.RenderedTemplate',
-    'UI.insert': 'void',
-    'UI.remove': 'void',
-    'UI.getElementData': 'Meteor.DataContext',
+    'Blaze.render': 'Blaze.View',
+    'Blaze.renderWithData': 'Blaze.View',
+    'Blaze.remove': 'void',
+    'Blaze.Data': 'Meteor.DataContext',
+    'Blaze.toHTML': 'string',
+    'Blaze.toHTMLWithData': 'string',
+    'Blaze.View': 'void',
+    'Blaze.Template': 'void',
+    'Blaze.isTemplate': 'boolean',
     'Match.test': 'boolean',
     'DDP.connect': 'DDP.DDPStatic',
     'Session.set': 'void',
@@ -335,6 +359,7 @@ var functionReturnValues = {
     'Session.get': 'any',
     'Session.equals': 'boolean',
     'Random.id': 'string'
+
 };
 
 var createReturnType = function(canonicalName) {
@@ -350,19 +375,13 @@ var createReturnType = function(canonicalName) {
     }
 };
 
-var modules = ['Meteor', 'Deps', 'HTTP', 'Email', 'DDP', 'Assets', 'Random', 'UI']; // Make these wrappers modules and not interfaces
-
-var interfacesTakingGenerics = ['Collection', 'Cursor'];  // Need to add a generic type to interface definition
-
-var takesGeneric = function(wrapperName) {
-    return (_.contains(interfacesTakingGenerics, wrapperName));
-};
+var modules = ['Meteor', 'Tracker', 'HTTP', 'Email', 'DDP', 'Assets', 'Random', 'UI', 'Blaze', 'Mongo', 'Package', 'api', 'ReactiveVar']; // Make these wrappers modules and not interfaces
 
 var writeFileToDisk = function(path, content) {
-    if (DEBUG) {
-        console.log(content);
-        return;
-    }
+//    if (DEBUG) {
+//        console.log(content);
+//        return;
+//    }
     fs.writeFile(path, content, function (err) {
         if (err) {
             console.log(err);
@@ -426,26 +445,32 @@ var removeHTML = function(name) {
     return name;
 };
 
-function hasBracket(str) {
+var hasBracket = function(str) {
     return str.indexOf('(') !== -1;
-}
+};
 
 var adjustCanonicalName = function(canonicalName) {
     canonicalName = removeHTML(canonicalName);
-    canonicalName = canonicalName.replace('new Meteor.Collection.', 'Collection.');
+    canonicalName = canonicalName.replace('new Meteor.Collection.ObjectID', 'Mongo.ObjectID');
+    canonicalName = canonicalName.replace('new Meteor.Collection', 'Mongo.Collection');
+    canonicalName = canonicalName.replace('new Mongo.Collection', 'Mongo.Collection');
+    canonicalName = canonicalName.replace('new Mongo.Collection', 'Mongo.Collection');
     canonicalName = canonicalName.replace('Template.myTemplate.', 'Template.');
     return canonicalName;
 };
 
-function getModuleOrInterfaceName(canonicalName) {
+var getModuleOrInterfaceName = function(canonicalName) {
     canonicalName = adjustCanonicalName(canonicalName);
 
     var moduleName = canonicalName.substring(0, canonicalName.indexOf('.'));
-    moduleName = moduleName[0].toUpperCase() + moduleName.substring(1);
+    if (moduleName !== 'api') {
+        moduleName = moduleName[0].toUpperCase() + moduleName.substring(1);
+    }
     moduleName = moduleName.replace('New Meteor','Meteor');
     moduleName = moduleName.replace('Env_var','Meteor');
+    moduleName = moduleName.replace('[new] Blaze','Blaze');
     return moduleName;
-}
+};
 
 var isDefinable = function(canonicalName) {
     if (hasString(canonicalName, '{{')) return false;
@@ -476,7 +501,17 @@ var isModule = function(wrapperName) {
     return (_.contains(modules, wrapperName));
 };
 
-var isDepsModule = function(moduleOrInterface) {
+var isMongoModule = function(moduleOrInterface) {
+    if (moduleOrInterface.indexOf('Collection') === 0) {
+        return true;
+    }
+    if (moduleOrInterface.indexOf('Cursor') === 0) {
+        return true;
+    }
+    return false;
+};
+
+var isTrackerModule = function(moduleOrInterface) {
     if (moduleOrInterface.indexOf('Computation') === 0) {
         return true;
     }
@@ -487,13 +522,16 @@ var isDepsModule = function(moduleOrInterface) {
 };
 
 var addArgTypes = function(arg, argSection) {
-    var argType =hasString(arg.type, ' or ') ? 'any' : arg.type;
+    var argType = hasString(arg.type, ' or ') ? 'any' : arg.type;
     if (hasString(argSection, arg.name + '?')) {
         argSection = argSection.replace(arg.name + '?', arg.name + ': ' + argType);
+    } else if (hasString(argSection, '[' + arg.name + ']')) {
+        argSection = argSection.replace('[' + arg.name + ']', arg.name + '?: ' + argType);
     } else {
         argSection = argSection.replace(arg.name + ')', arg.name + ': ' + argType + ')');
         argSection = argSection.replace(arg.name + ',', arg.name + ': ' + argType + ',');
     }
+
     return argSection;
 };
 
@@ -501,26 +539,31 @@ var replaceOptions = function(argSection, apiDef) {
     if (!hasString(argSection, 'options')) return argSection;
 
     var optionType = '{\n';
-    _.each(apiDef.options, function(options) {
+    _.each(apiDef.options, function (options) {
         optionType += '\t\t\t\t\t' + options.name + '?: ' + options.type + ';\n'
     });
     optionType += '\t\t\t\t}';
 
     if (hasString(argSection, 'options?')) {
         argSection = argSection.replace('options?', 'options?: ' + optionType);
+    } else if (hasString(argSection, '{options}')) {
+        argSection = argSection.replace('{options}', 'options?: ' + optionType);
     } else {
         argSection = argSection.replace('options', 'options: ' + optionType);
     }
+
     return argSection;
 };
 
 var createArgs = function(apiDef) {
     var argSection = sliceRegEx(apiDef.name, /\(/, /\)/);
-    if (!argSection || argSection.length < 4) return '()';
+
+    if (!argSection || argSection.length < 3) return '()';
 
     _.each(apiDef.args, function(arg) {
         argSection = addArgTypes(arg, argSection);
     });
+
     argSection = replaceIrregularArgNames(argSection);
     argSection = replaceOptions(argSection, apiDef);
     argSection = replaceIrregularArgTypes(argSection);
@@ -627,8 +670,10 @@ var parseClientMeteorApi = function(meteorClientApiFile) {
         if (isModule(moduleOrInterface)) {
             stubFileContent += 'declare module ' + moduleOrInterface + ' {\n';
         } else {
-            if (isDepsModule(moduleOrInterface)) {
-                stubFileContent += 'declare module Deps {\n';
+            if (isTrackerModule(moduleOrInterface)) {
+                stubFileContent += 'declare module Tracker {\n';
+            } else if (isMongoModule(moduleOrInterface)) {
+                stubFileContent += 'declare module Mongo {\n';
             } else {
                 stubFileContent += 'declare module Meteor {\n';
             }

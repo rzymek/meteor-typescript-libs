@@ -9,13 +9,13 @@ This package adds Meteor [TypeScript] (http://www.typescriptlang.org/) definitio
 often with more informative errors (e.g. a required property can't be found).  A TypeScript-aware editor, like WebStorm, will provide you with code completion and 
 code help/tips, as well as real-time type-checking and error information.  TypeScript code is much more self-documenting than straight-up, uncommented JavaScript code.
 
-TypeScript also enables you to use some of the new features for ECMAScript 6 (a.k.a. Harmony) that have already been finalized in the spec, such as Modules, 
+TypeScript also enables you to use some of the new features in the upcoming ECMAScript 6 (a.k.a. Harmony) release that have already been finalized in the spec, such as modules, 
 rest arguments, default arguments.  Finally, TypeScript allows you to leverage some features found in other languages, such as generics.
 
 There is some time investment required to use TypeScript, and the benefits will probably outweigh the costs when a code base is large and will be refactored
 many times, and/or will be worked on by multiple developers.
 
-While TypeScript can help simplify JavaScript code in some ways by replacing previously some verbose patterns (e.g. replacing the revealing Module Pattern with 
+While TypeScript can help simplify JavaScript code in some ways by replacing previously some verbose patterns (e.g. replacing the Revealing Module Pattern with 
 a TypeScript Module declaration), in general, TypeScript will NOT make JavaScript prettier (like CoffeeScript).
 
 

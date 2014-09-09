@@ -4,13 +4,11 @@
  *  author - Olivier Refalo - orefalo@yahoo.com
  *  author - David Allen - dave@fullflavedave.com
  *
- *  Thanks to Sam Hatoum for the base code for auto-generating this file
+ *  Thanks to Sam Hatoum for the base code for auto-generating this file.
  *
- *  supports Meteor 0.8.3
+ *  supports Meteor 0.9.1.1
  *
  */
-
-/// <reference path="lib.d.ts" />
 
 /**
  * These are the modules and interfaces that can't be automatically generated from the Meteor api.js file
@@ -52,10 +50,6 @@ declare module Meteor {
         ready(): boolean;
     }
 
-    interface CollectionFieldSpecifier {
-        [id: string]: Number;
-    }
-
     interface TemplateBase {
         [templateName: string]: Meteor.Template;
     }
@@ -63,19 +57,6 @@ declare module Meteor {
     interface RenderedTemplate extends Object {}
 
     interface DataContext extends Object {}
-
-    enum CollectionIdGenerationEnum {
-        STRING,
-        MONGO
-    }
-
-    interface CollectionOptions {
-        connection: Object;
-        idGeneration: Meteor.CollectionIdGenerationEnum;
-        transform?: (document)=>any;
-    }
-
-    function Collection<T>(name:string, options?:Meteor.CollectionOptions) : void;
 
     interface Tinytest {
         add(name:string, func:Function);
@@ -147,46 +128,73 @@ declare module Meteor {
     }
 }
 
-declare module Deps {
-    function Computation(): void;
-    function Dependency(): void;
+declare module Mongo {
+    interface CollectionFieldSpecifier {
+        [id: string]: Number;
+    }
+
+    enum CollectionIdGenerationEnum {
+        STRING,
+        MONGO
+    }
+
+//    interface CollectionOptions {
+//        connection: Object;
+//        idGeneration: Mongo.CollectionIdGenerationEnum;
+//        transform?: (document)=>any;
+//    }
+//
+//    function Collection<T>(name:string, options?: Mongo.CollectionOptions) : void;
 }
 
-declare module Package {
-    function describe(metadata:PackageDescribeAPI);
-    function on_use(func:{(api:Api, where?:string[]):void});
-    function on_use(func:{(api:Api, where?:string):void});
-    function on_test(func:{(api:Api):void}) ;
-    function register_extension(extension:string, options:PackageRegisterExtensionOptions);
-    interface PackageRegisterExtensionOptions {(bundle:Bundle, source_path:string, serve_path:string, where?:string[]):void}
-    interface PackageDescribeAPI {
-        summary: string;
+declare module Tracker {
+    function Computation(): void;
+    interface Computation {
+
     }
-    interface Api {
-        export(variable:string);
-        export(variables:string[]);
-        use(deps:string, where?:string[]);
-        use(deps:string, where?:string);
-        use(deps:string[], where?:string[]);
-        use(deps:string[], where?:string);
-        add_files(file:string, where?:string[]);
-        add_files(file:string, where?:string);
-        add_files(file:string[], where?:string[]);
-        add_files(file:string[], where?:string);
-        imply(package:string);
-        imply(packages:string[]);
-    }
-    interface BundleOptions {
-        type: string;
-        path: string;
-        data: any;
-        where: string[];
-    }
-    interface Bundle {
-        add_resource(options:BundleOptions);
-        error(diagnostics:string);
+    function Dependency(): void;
+    interface Dependency {
+        changed(): void;
+        depend(fromComputation: Tracker.Computation): boolean;
+        hasDependents(): boolean;
     }
 }
+
+//declare module Package {
+//    function describe(metadata:PackageDescribeAPI);
+//    function on_use(func:{(api:Api, where?:string[]):void});
+//    function on_use(func:{(api:Api, where?:string):void});
+//    function on_test(func:{(api:Api):void}) ;
+//    function register_extension(extension:string, options:PackageRegisterExtensionOptions);
+//    interface PackageRegisterExtensionOptions {(bundle:Bundle, source_path:string, serve_path:string, where?:string[]):void}
+//    interface PackageDescribeAPI {
+//        summary: string;
+//    }
+//    interface Api {
+//        export(variable:string);
+//        export(variables:string[]);
+//        use(deps:string, where?:string[]);
+//        use(deps:string, where?:string);
+//        use(deps:string[], where?:string[]);
+//        use(deps:string[], where?:string);
+//        add_files(file:string, where?:string[]);
+//        add_files(file:string, where?:string);
+//        add_files(file:string[], where?:string[]);
+//        add_files(file:string[], where?:string);
+//        imply(package:string);
+//        imply(packages:string[]);
+//    }
+//    interface BundleOptions {
+//        type: string;
+//        path: string;
+//        data: any;
+//        where: string[];
+//    }
+//    interface Bundle {
+//        add_resource(options:BundleOptions);
+//        error(diagnostics:string);
+//    }
+//}
 
 declare module Npm {
     function require(module:string);
@@ -263,6 +271,32 @@ declare module Random {
     function choice(array:any[]):string; // @param array, @return a random element in array
     function choice(str:string):string; // @param str, @return a random char in str
 }
+
+declare module Blaze {
+    interface View {
+        name: string;
+        parentView: Blaze.View;
+        isCreated: boolean;
+        isRendered: boolean;
+        isDestroyed: boolean;
+        renderCount: number;
+        autorun(runFunc: Function): void;
+        onViewCreated(func: Function): void;
+        onViewReady(func: Function): void;
+        onViewDestroyed(func: Function): void;
+        firstNode(): Node;
+        lastNode(): Node;
+        template: Blaze.Template;
+        templateInstance(): any;
+    }
+    interface Template {
+        viewName: string;
+        renderFunction: Function;
+        constructView(): Blaze.View;
+    }
+}
+
+declare function ReactiveVar(initialValue: any, equalsFunc?: (oldVal:any, newVal:any)=>boolean): void;
 
 /**
  * These modules and interfaces are automatically generated from the Meteor api.js file
