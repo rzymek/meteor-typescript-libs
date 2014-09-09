@@ -6,7 +6,7 @@
  *
  *  Thanks to Sam Hatoum for the base code for auto-generating this file
  *
- *  supports Meteor 0.8.3
+ *  supports Meteor 0.9.1.1
  *
  */
 
@@ -377,7 +377,7 @@ declare module Meteor {
 declare module Meteor {
 	interface Cursor<T> {
 		count(): number;
-		fetch(): Array<T>; 
+		fetch(): Array<T>;
 		forEach(callback: Function, thisArg?): void;
 		map(callback: Function, thisArg?): void;
 		observe(callbacks: Object): Meteor.LiveQueryHandle;
@@ -541,3 +541,73 @@ declare var Accounts: Meteor.Accounts;
 declare var Match: Meteor.Match;
 declare var EJSON: Meteor.EJSON;
 declare var Tinytest: Meteor.Tinytest;
+
+// v0.9.1
+declare module Mongo {
+
+	interface Collection<T> {
+		find(selector?, options?: {
+					sort?: any;
+					skip?: Number;
+					limit?: Number;
+					fields?: Meteor.CollectionFieldSpecifier;
+					reactive?: Boolean;
+					transform?: Function;
+				}); 
+		findOne(selector?, options?: {
+					sort?: any;
+					skip?: Number;
+					fields?: Meteor.CollectionFieldSpecifier;
+					reactive?: Boolean;
+					transform?: Function;
+				}); 
+		insert(doc: Object, callback?: Function); 
+		update(selector: any, modifier: any, options?: {
+					multi?: Boolean;
+					upsert?: Boolean;
+				}, callback?: Function): number;
+		upsert(selector: any, modifier: any, options?: {
+					multi?: Boolean;
+				}, callback?: Function): {numberAffected?: number; insertedId?: string;};
+		remove(selector: any, callback?: Function): void;
+		allow(options: Meteor.AllowDenyOptions): boolean;
+		deny(options: Meteor.AllowDenyOptions): boolean;
+		ObjectID(hexString: string): Object;
+    }
+
+	interface Cursor<T> {
+		count(): number;
+		fetch(): Array<T>;
+		forEach(callback: Function, thisArg?): void;
+		map(callback: Function, thisArg?): void;
+		observe(callbacks: Object): Meteor.LiveQueryHandle;
+		observeChanges(callbacks: Object): Meteor.LiveQueryHandle;
+	}
+
+    export function Collection<T>(name:string, options?:Meteor.CollectionOptions) : void;
+}
+
+declare module Tracker {
+    export function autorun(runFunc: Function);
+    export function flush();
+    export function nonreactive();
+    export var active: any;
+    export var currentComputation: any;
+    export function onInvalidate(callback: Function);
+    export function afterFlush(callback: Function);
+
+    export module Computation {
+        export function stop();
+        export function invalidate();
+        export function onInvalidate(callback: Function);
+        export var stopped: any;
+        export var invalidated: any;
+        export var firstRun: any;
+    }
+
+    export module Dependency {
+        export function changed();
+        export function depend(fromComputation?: any);
+        export function hasDependents();
+    }
+}
