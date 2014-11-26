@@ -27,13 +27,18 @@ For further reading about TypeScript please refer to the [TypeScript Handbook](h
 3. From the typescript files, add references as follows:
 
    Once the files are copied to your project, reference all the definition files with a single line:
-   ///<reference path="/path/to/all-definitions.d.ts" />
 
+    ```
+    /// <reference path="/path/to/all-definitions.d.ts" />
+    ```
+    
    Or you can reference definition files individually:
-    ///<reference path="/path/to/meteor.d.ts" />
-    ///<reference path="/path/to/underscore.d.ts" />
-    ///<reference path="/path/to/jquery.d.ts" />
-
+   
+    ```
+    /// <reference path="/path/to/meteor.d.ts" />
+    /// <reference path="/path/to/underscore.d.ts" />
+    /// <reference path="/path/to/jquery.d.ts" />
+    ```
 4. Be aware of differences in coding styles when using TypeScript (see below)
 
 
