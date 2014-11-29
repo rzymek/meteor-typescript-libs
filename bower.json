@@ -1,0 +1,22 @@
+{
+  "name": "meteor-typescript-libs",
+  "version": "0.8.6",
+  "homepage": "https://github.com/meteor-typescript/meteor-typescript-libs",
+  "authors": [
+    "Olivier Refalo"
+  ],
+  "description": "The most common Typescript definition files for meteor, including meteor.d.ts",
+  "main": "all-definitions.d.ts",
+  "keywords": [
+    "typescript",
+    "meteor"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
