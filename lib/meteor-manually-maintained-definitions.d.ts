@@ -13,8 +13,29 @@
 /**
  * These are the modules and interfaces that can't be automatically generated from the Meteor api.js file
  */
+//declare var Template: Meteor.TemplateBase;
+
+interface EJSON extends JSON {}
+interface MongoSelector extends Object {}
+interface MongoModifier {}
+interface MongoSortSpecifier {}
+interface MongoFieldSpecifier extends Object {}
+declare module Match {
+    var Any;
+    var String;
+    var Integer;
+    var Boolean;
+    var undefined;
+    //function null();  // not allowed in TypeScript
+    var Object;
+    function Optional(pattern):boolean;
+    function ObjectIncluding(dico):boolean;
+    function OneOf(...patterns);
+    function Where(condition);
+}
+
 declare module Meteor {
-    interface EJSONObject extends Object {}
+    //interface EJSONObject extends Object {}
 
     interface LoginWithExternalServiceOptions {
         requestPermissions?: string[];
@@ -52,6 +73,14 @@ declare module Meteor {
 
     interface TemplateBase {
         [templateName: string]: Meteor.Template;
+    }
+
+    interface Template {
+        rendered: Function;
+        created: Function;
+        destroyed: Function;
+        events(eventMap:{[id:string]: Function}): void;
+        helpers(helpers:{[id:string]: any}): void;
     }
 
     interface RenderedTemplate extends Object {}
@@ -97,20 +126,6 @@ declare module Meteor {
             verifyEmail:  Meteor.EmailFields;
         }
         loginServicesConfigured(): boolean;
-    }
-
-    interface MatchBase {
-        Any;
-        String;
-        Integer;
-        Boolean;
-        undefined;
-        null;
-        Object;
-        Optional(pattern):boolean;
-        ObjectIncluding(dico):boolean;
-        OneOf(...patterns);
-        Where(condition);
     }
 
     interface AllowDenyOptions {

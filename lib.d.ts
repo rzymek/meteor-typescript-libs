@@ -11902,10 +11902,10 @@ interface Document extends MSDocumentExtensions, GlobalEventHandlers {
 
 interface MimeTypeArray {
     length: number;
-    item(index: number): Plugin;
-    [index: number]: Plugin;
-    namedItem(type: string): Plugin;
-    //[type: string]: Plugin;
+    item(index: number): PluginInterface;
+    [index: number]: PluginInterface;
+    namedItem(type: string): PluginInterface;
+    //[type: string]: PluginInterface;
 }
 
 interface HTMLMediaElement {
@@ -12042,10 +12042,10 @@ interface DeviceRotationRate {
 interface PluginArray {
     length: number;
     refresh(reload?: boolean): void;
-    item(index: number): Plugin;
-    [index: number]: Plugin;
-    namedItem(name: string): Plugin;
-    //[name: string]: Plugin;
+    item(index: number): PluginInterface;
+    [index: number]: PluginInterface;
+    namedItem(name: string): PluginInterface;
+    //[name: string]: PluginInterface;
 }
 
 interface MSMediaKeyError {
@@ -12067,7 +12067,7 @@ declare var MSMediaKeyError: {
     MS_MEDIA_KEYERR_CLIENT: number;
 }
 
-interface Plugin {
+interface PluginInterface {
     length: number;
     filename: string;
     version: string;
@@ -12132,7 +12132,7 @@ interface DeviceMotionEvent extends Event {
 }
 
 interface MimeType {
-    enabledPlugin: Plugin;
+    enabledPlugin: PluginInterface;
     suffixes: string;
     type: string;
     description: string;

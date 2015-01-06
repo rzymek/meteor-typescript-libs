@@ -35,7 +35,7 @@ declare module Router {
         waitOn?: any;
         loadingTemplate?:string;
         notFoundTemplate?: string;
-        controller?: string;
+        controller?: RouteController;
         action?: Function;
 
         // The before and after hooks can be Functions or an array of Functions
@@ -62,7 +62,7 @@ declare module Router {
     // These are for Iron-Router
     export function configure(config:GlobalConfig);
     export function map(func:Function):void;
-    export function route(name:string, routeParams?:MapConfig, handler?:any);
+    export function route(name:string, handler?: any, routeParams?:MapConfig);
     export function path(route:string, params?:Object):string;
     export function url(route:string):string;
     export function go(route:string, params?:Object):void;
