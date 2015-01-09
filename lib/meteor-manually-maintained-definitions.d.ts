@@ -6,20 +6,19 @@
  *
  *  Thanks to Sam Hatoum for the base code for auto-generating this file.
  *
- *  supports Meteor 0.9.1.1
+ *  supports Meteor 1.0.2.1
  *
  */
 
 /**
- * These are the modules and interfaces that can't be automatically generated from the Meteor api.js file
+ * These are the modules and interfaces that can't be automatically generated from the Meteor data.js file
  */
-//declare var Template: Meteor.TemplateBase;
 
 interface EJSON extends JSON {}
-interface MongoSelector extends Object {}
-interface MongoModifier {}
-interface MongoSortSpecifier {}
-interface MongoFieldSpecifier extends Object {}
+interface Template {
+    [templateName: string]: Meteor.Template;
+}
+
 declare module Match {
     var Any;
     var String;
@@ -37,11 +36,58 @@ declare module Match {
 declare module Meteor {
     //interface EJSONObject extends Object {}
 
+    /** Start definitions for Template **/
+    // DA: "Template" needs to support these functions:
+        //         Template.<your template name>.rendered
+        //         Template.<your template name>.created
+        //         Template.<your template name>.destroyed
+        //         Template.<your template name>.helpers
+        //         Template.<your template name>.events
+        //                       and
+        //         Template.currentData
+        //         Template.parentData, etc.
+
+    interface Event {
+        type:string;
+        target:HTMLElement;
+        currentTarget:HTMLElement;
+        which: number;
+        stopPropagation():void;
+        stopImmediatePropagation():void;
+        preventDefault():void;
+        isPropagationStopped():boolean;
+        isImmediatePropagationStopped():boolean;
+        isDefaultPrevented():boolean;
+    }
+
+    interface EventHandlerFunction extends Function {
+        (event?:Meteor.Event):any;
+    }
+
+    interface EventMap {
+        [id:string]:Meteor.EventHandlerFunction;
+    }
+
+    // Same definition as top-level Template Interface
+    interface TemplateBase {
+        [templateName: string]: Meteor.Template;
+    }
+
+    interface Template {
+        rendered: Function;
+        created: Function;
+        destroyed: Function;
+        events(eventMap:Meteor.EventMap): void;
+        helpers(helpers:{[id:string]: any}): void;
+    }
+    /** End definitions for Template **/
+
     interface LoginWithExternalServiceOptions {
         requestPermissions?: string[];
         requestOfflineToken?: Boolean;
         forceApprovalPrompt?: Boolean;
         userEmail?: string;
+        loginStyle?: string;
     }
 
     function loginWithMeteorDeveloperAccount(options?: Meteor.LoginWithExternalServiceOptions, callback?: Function): void;
@@ -70,22 +116,6 @@ declare module Meteor {
         stop(): void;
         ready(): boolean;
     }
-
-    interface TemplateBase {
-        [templateName: string]: Meteor.Template;
-    }
-
-    interface Template {
-        rendered: Function;
-        created: Function;
-        destroyed: Function;
-        events(eventMap:{[id:string]: Function}): void;
-        helpers(helpers:{[id:string]: any}): void;
-    }
-
-    interface RenderedTemplate extends Object {}
-
-    interface DataContext extends Object {}
 
     interface Tinytest {
         add(name:string, func:Function);
@@ -117,113 +147,35 @@ declare module Meteor {
         verifyEmail:  Meteor.EmailFields;
     }
 
-    interface AccountsBase {
-        EmailTemplates: {
-            from: string;
-            siteName: string;
-            resetPassword:  Meteor.EmailFields;
-            enrollAccount:  Meteor.EmailFields;
-            verifyEmail:  Meteor.EmailFields;
-        }
-        loginServicesConfigured(): boolean;
-    }
-
-    interface AllowDenyOptions {
-        insert?: (userId:string, doc) => boolean;
-        update?: (userId, doc, fieldNames, modifier) => boolean;
-        remove?: (userId, doc) => boolean;
-        fetch?: string[];
-        transform?: Function;
-    }
-
     interface Error {
         error: number;
         reason?: string;
         details?: string;
     }
+
+    interface Connection {
+        id: string;
+        close: Function;
+        onClose: Function;
+        clientAddress: string;
+        httpHeaders: Object;
+    }
 }
 
 declare module Mongo {
-    interface CollectionFieldSpecifier {
+    interface Selector extends Object {}
+    interface Modifier {}
+    interface SortSpecifier {}
+    interface FieldSpecifier {
         [id: string]: Number;
     }
-
-    enum CollectionIdGenerationEnum {
+    enum IdGenerationEnum {
         STRING,
         MONGO
     }
-
-//    interface CollectionOptions {
-//        connection: Object;
-//        idGeneration: Mongo.CollectionIdGenerationEnum;
-//        transform?: (document)=>any;
-//    }
-//
-//    function Collection<T>(name:string, options?: Mongo.CollectionOptions) : void;
-}
-
-declare module Tracker {
-    function Computation(): void;
-    interface Computation {
-
-    }
-    function Dependency(): void;
-    interface Dependency {
-        changed(): void;
-        depend(fromComputation: Tracker.Computation): boolean;
-        hasDependents(): boolean;
-    }
-}
-
-//declare module Package {
-//    function describe(metadata:PackageDescribeAPI);
-//    function on_use(func:{(api:Api, where?:string[]):void});
-//    function on_use(func:{(api:Api, where?:string):void});
-//    function on_test(func:{(api:Api):void}) ;
-//    function register_extension(extension:string, options:PackageRegisterExtensionOptions);
-//    interface PackageRegisterExtensionOptions {(bundle:Bundle, source_path:string, serve_path:string, where?:string[]):void}
-//    interface PackageDescribeAPI {
-//        summary: string;
-//    }
-//    interface Api {
-//        export(variable:string);
-//        export(variables:string[]);
-//        use(deps:string, where?:string[]);
-//        use(deps:string, where?:string);
-//        use(deps:string[], where?:string[]);
-//        use(deps:string[], where?:string);
-//        add_files(file:string, where?:string[]);
-//        add_files(file:string, where?:string);
-//        add_files(file:string[], where?:string[]);
-//        add_files(file:string[], where?:string);
-//        imply(package:string);
-//        imply(packages:string[]);
-//    }
-//    interface BundleOptions {
-//        type: string;
-//        path: string;
-//        data: any;
-//        where: string[];
-//    }
-//    interface Bundle {
-//        add_resource(options:BundleOptions);
-//        error(diagnostics:string);
-//    }
-//}
-
-declare module Npm {
-    function require(module:string);
-    function depends(dependencies:{[id:string]:string});
 }
 
 declare module HTTP {
-    enum HTTPMethodEnum {
-        GET,
-        POST,
-        PUT,
-        DELETE
-    }
-
     interface HTTPRequest {
         content?:string;
         data?:any;
@@ -281,6 +233,8 @@ declare module DDP {
 }
 
 declare module Random {
+    function id(numberOfChars?: number): string;
+    function secret(numberOfChars?: number): string;
     function fraction():number;
     function hexString(numberOfDigits:number):string; // @param numberOfDigits, @returns a random hex string of the given length
     function choice(array:any[]):string; // @param array, @return a random element in array
@@ -310,8 +264,6 @@ declare module Blaze {
         constructView(): Blaze.View;
     }
 }
-
-declare function ReactiveVar(initialValue: any, equalsFunc?: (oldVal:any, newVal:any)=>boolean): void;
 
 /**
  * These modules and interfaces are automatically generated from the Meteor api.js file

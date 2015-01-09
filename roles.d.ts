@@ -20,6 +20,6 @@ declare module Roles {
   function removeUsersFromRoles(users: any, roles: any): void;
   function userIsInRole(user: any, roles: any): boolean;  //user can be user ID or user object
   function getRolesForUser(userId: string): string[];
-  function getAllRoles(): Meteor.Cursor<RolesDAO>;
-  function getUsersInRole(roleName: string): Meteor.Cursor<RolesDAO>;
+  function getAllRoles(): Mongo.Cursor<RolesDAO>;
+  function getUsersInRole(roleName: string): Mongo.Cursor<RolesDAO>;
 }

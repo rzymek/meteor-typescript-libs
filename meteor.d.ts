@@ -6,20 +6,19 @@
  *
  *  Thanks to Sam Hatoum for the base code for auto-generating this file.
  *
- *  supports Meteor 0.9.1.1
+ *  supports Meteor 1.0.2.1
  *
  */
 
 /**
- * These are the modules and interfaces that can't be automatically generated from the Meteor api.js file
+ * These are the modules and interfaces that can't be automatically generated from the Meteor data.js file
  */
-//declare var Template: Meteor.TemplateBase;
 
 interface EJSON extends JSON {}
-interface MongoSelector extends Object {}
-interface MongoModifier {}
-interface MongoSortSpecifier {}
-interface MongoFieldSpecifier extends Object {}
+interface Template {
+    [templateName: string]: Meteor.Template;
+}
+
 declare module Match {
     var Any;
     var String;
@@ -37,11 +36,58 @@ declare module Match {
 declare module Meteor {
     //interface EJSONObject extends Object {}
 
+    /** Start definitions for Template **/
+    // DA: "Template" needs to support these functions:
+        //         Template.<your template name>.rendered
+        //         Template.<your template name>.created
+        //         Template.<your template name>.destroyed
+        //         Template.<your template name>.helpers
+        //         Template.<your template name>.events
+        //                       and
+        //         Template.currentData
+        //         Template.parentData, etc.
+
+    interface Event {
+        type:string;
+        target:HTMLElement;
+        currentTarget:HTMLElement;
+        which: number;
+        stopPropagation():void;
+        stopImmediatePropagation():void;
+        preventDefault():void;
+        isPropagationStopped():boolean;
+        isImmediatePropagationStopped():boolean;
+        isDefaultPrevented():boolean;
+    }
+
+    interface EventHandlerFunction extends Function {
+        (event?:Meteor.Event):any;
+    }
+
+    interface EventMap {
+        [id:string]:Meteor.EventHandlerFunction;
+    }
+
+    // Same definition as top-level Template Interface
+    interface TemplateBase {
+        [templateName: string]: Meteor.Template;
+    }
+
+    interface Template {
+        rendered: Function;
+        created: Function;
+        destroyed: Function;
+        events(eventMap:Meteor.EventMap): void;
+        helpers(helpers:{[id:string]: any}): void;
+    }
+    /** End definitions for Template **/
+
     interface LoginWithExternalServiceOptions {
         requestPermissions?: string[];
         requestOfflineToken?: Boolean;
         forceApprovalPrompt?: Boolean;
         userEmail?: string;
+        loginStyle?: string;
     }
 
     function loginWithMeteorDeveloperAccount(options?: Meteor.LoginWithExternalServiceOptions, callback?: Function): void;
@@ -70,22 +116,6 @@ declare module Meteor {
         stop(): void;
         ready(): boolean;
     }
-
-    interface TemplateBase {
-        [templateName: string]: Meteor.Template;
-    }
-
-    interface Template {
-        rendered: Function;
-        created: Function;
-        destroyed: Function;
-        events(eventMap:{[id:string]: Function}): void;
-        helpers(helpers:{[id:string]: any}): void;
-    }
-
-    interface RenderedTemplate extends Object {}
-
-    interface DataContext extends Object {}
 
     interface Tinytest {
         add(name:string, func:Function);
@@ -117,113 +147,35 @@ declare module Meteor {
         verifyEmail:  Meteor.EmailFields;
     }
 
-    interface AccountsBase {
-        EmailTemplates: {
-            from: string;
-            siteName: string;
-            resetPassword:  Meteor.EmailFields;
-            enrollAccount:  Meteor.EmailFields;
-            verifyEmail:  Meteor.EmailFields;
-        }
-        loginServicesConfigured(): boolean;
-    }
-
-    interface AllowDenyOptions {
-        insert?: (userId:string, doc) => boolean;
-        update?: (userId, doc, fieldNames, modifier) => boolean;
-        remove?: (userId, doc) => boolean;
-        fetch?: string[];
-        transform?: Function;
-    }
-
     interface Error {
         error: number;
         reason?: string;
         details?: string;
     }
+
+    interface Connection {
+        id: string;
+        close: Function;
+        onClose: Function;
+        clientAddress: string;
+        httpHeaders: Object;
+    }
 }
 
 declare module Mongo {
-    interface CollectionFieldSpecifier {
+    interface Selector extends Object {}
+    interface Modifier {}
+    interface SortSpecifier {}
+    interface FieldSpecifier {
         [id: string]: Number;
     }
-
-    enum CollectionIdGenerationEnum {
+    enum IdGenerationEnum {
         STRING,
         MONGO
     }
-
-//    interface CollectionOptions {
-//        connection: Object;
-//        idGeneration: Mongo.CollectionIdGenerationEnum;
-//        transform?: (document)=>any;
-//    }
-//
-//    function Collection<T>(name:string, options?: Mongo.CollectionOptions) : void;
-}
-
-declare module Tracker {
-    function Computation(): void;
-    interface Computation {
-
-    }
-    function Dependency(): void;
-    interface Dependency {
-        changed(): void;
-        depend(fromComputation: Tracker.Computation): boolean;
-        hasDependents(): boolean;
-    }
-}
-
-//declare module Package {
-//    function describe(metadata:PackageDescribeAPI);
-//    function on_use(func:{(api:Api, where?:string[]):void});
-//    function on_use(func:{(api:Api, where?:string):void});
-//    function on_test(func:{(api:Api):void}) ;
-//    function register_extension(extension:string, options:PackageRegisterExtensionOptions);
-//    interface PackageRegisterExtensionOptions {(bundle:Bundle, source_path:string, serve_path:string, where?:string[]):void}
-//    interface PackageDescribeAPI {
-//        summary: string;
-//    }
-//    interface Api {
-//        export(variable:string);
-//        export(variables:string[]);
-//        use(deps:string, where?:string[]);
-//        use(deps:string, where?:string);
-//        use(deps:string[], where?:string[]);
-//        use(deps:string[], where?:string);
-//        add_files(file:string, where?:string[]);
-//        add_files(file:string, where?:string);
-//        add_files(file:string[], where?:string[]);
-//        add_files(file:string[], where?:string);
-//        imply(package:string);
-//        imply(packages:string[]);
-//    }
-//    interface BundleOptions {
-//        type: string;
-//        path: string;
-//        data: any;
-//        where: string[];
-//    }
-//    interface Bundle {
-//        add_resource(options:BundleOptions);
-//        error(diagnostics:string);
-//    }
-//}
-
-declare module Npm {
-    function require(module:string);
-    function depends(dependencies:{[id:string]:string});
 }
 
 declare module HTTP {
-    enum HTTPMethodEnum {
-        GET,
-        POST,
-        PUT,
-        DELETE
-    }
-
     interface HTTPRequest {
         content?:string;
         data?:any;
@@ -281,6 +233,8 @@ declare module DDP {
 }
 
 declare module Random {
+    function id(numberOfChars?: number): string;
+    function secret(numberOfChars?: number): string;
     function fraction():number;
     function hexString(numberOfDigits:number):string; // @param numberOfDigits, @returns a random hex string of the given length
     function choice(array:any[]):string; // @param array, @return a random element in array
@@ -311,8 +265,6 @@ declare module Blaze {
     }
 }
 
-declare function ReactiveVar(initialValue: any, equalsFunc?: (oldVal:any, newVal:any)=>boolean): void;
-
 /**
  * These modules and interfaces are automatically generated from the Meteor api.js file
  */
@@ -327,7 +279,7 @@ declare module Accounts {
 	};
 	var emailTemplates: Meteor.EmailTemplates;
 	function config(options: {
-				sendVerificationEmail?: Boolean;
+				sendVerificationEmail?: boolean;
 				forbidClientAccountCreation?: Boolean;
 				restrictCreationByEmailDomain?: string;
 				loginExpirationInDays?: number;
@@ -403,15 +355,15 @@ declare module EJSON {
 	function toJSONValue(val: EJSON): JSON;
 	function fromJSONValue(val: JSON): any;
 	function stringify(val: EJSON, options?: {
-				indent?: Boolean;
+				indent?: boolean;
 				canonical?: Boolean;
 			}): string;
 	function parse(str: string): EJSON;
 	function isBinary(x: Object): boolean;
 	function equals(a: EJSON, b: EJSON, options?: {
-				keyOrderSensitive?: Boolean;
+				keyOrderSensitive?: boolean;
 			}): boolean;
-	function clone<T>(val:T): T; /** TODO: add return value **/
+	function clone<T>(val:T): T;
 	function CustomType(): void;
 	interface CustomType {
 			typeName(): string;
@@ -436,7 +388,7 @@ declare module Meteor {
 	function logoutOtherClients(callback?: Function): void;
 	function loginWith<ExternalService>(options?: {
 				requestPermissions?: string[];
-				requestOfflineToken?: Boolean;
+				requestOfflineToken?: boolean;
 				forceApprovalPrompt?: Boolean;
 				userEmail?: string;
 				loginStyle?: string;
@@ -445,7 +397,7 @@ declare module Meteor {
 	function subscribe(name: string, ...args): SubscriptionHandle;
 	function call(name: string, ...args): void;
 	function apply(name: string, args: EJSON[], options?: {
-				wait?: Boolean;
+				wait?: boolean;
 				onResultReceived?: Function;
 			}, asyncCallback?: Function): void;
 	function status(): Meteor.StatusEnum;
@@ -461,7 +413,7 @@ declare module Meteor {
 	function clearInterval(id: number): void;
 	function clearTimeout(id: number): void;
 	function absoluteUrl(path?: string, options?: {
-				secure?: Boolean;
+				secure?: boolean;
 				replaceLocalhost?: Boolean;
 				rootUrl?: string;
 			}): string;
@@ -471,47 +423,47 @@ declare module Meteor {
 declare module Mongo {
 	function Collection<T>(name: string, options?: {
 				connection?: Object;
-				idGeneration?: Mongo.CollectionIdGenerationEnum;
-				transform?: (document)=>any;
+				idGeneration?: string;
+				transform?: Function;
 			}): void;
 	interface Collection<T> {
 			insert(doc: Object, callback?: Function): string;
-		update(selector: MongoSelector, modifier: MongoModifier, options?: {
-				multi?: Boolean;
+		update(selector: Mongo.Selector, modifier: Mongo.Modifier, options?: {
+				multi?: boolean;
 				upsert?: Boolean;
 			}, callback?: Function): number;
-		find(selector?: MongoSelector, options?: {
-				sort?: MongoSortSpecifier;
+		find(selector?: Mongo.Selector, options?: {
+				sort?: Mongo.SortSpecifier;
 				skip?: number;
 				limit?: number;
-				fields?: MongoFieldSpecifier;
-				reactive?: Boolean;
-				transform?: (document)=>any;
+				fields?: Mongo.FieldSpecifier;
+				reactive?: boolean;
+				transform?: Function;
 			}): Mongo.Cursor<T>;
-		findOne(selector?: MongoSelector, options?: {
-				sort?: MongoSortSpecifier;
+		findOne(selector?: Mongo.Selector, options?: {
+				sort?: Mongo.SortSpecifier;
 				skip?: number;
-				fields?: MongoFieldSpecifier;
-				reactive?: Boolean;
-				transform?: (document)=>any;
+				fields?: Mongo.FieldSpecifier;
+				reactive?: boolean;
+				transform?: Function;
 			}): EJSON;
-		remove(selector: MongoSelector, callback?: Function): void;
-		upsert(selector: MongoSelector, modifier: MongoModifier, options?: {
-				multi?: Boolean;
+		remove(selector: Mongo.Selector, callback?: Function): void;
+		upsert(selector: Mongo.Selector, modifier: Mongo.Modifier, options?: {
+				multi?: boolean;
 			}, callback?: Function): {numberAffected?: number; insertedId?: string;};
 		allow(options: {
-				insert?: Function;
-				 update?: Function;
-				 remove?: Function;
+				insert?: (userId:string, doc) => boolean;
+				 update?: (userId, doc, fieldNames, modifier) => boolean;
+				 remove?: (userId, doc) => boolean;
 				fetch?: string[];
-				transform?: (document)=>any;
+				transform?: Function;
 			}): boolean;
 		deny(options: {
-				insert?: Function;
-				 update?: Function;
-				 remove?: Function;
+				insert?: (userId:string, doc) => boolean;
+				 update?: (userId, doc, fieldNames, modifier) => boolean;
+				 remove?: (userId, doc) => boolean;
 				fetch?: string[];
-				transform?: (document)=>any;
+				transform?: Function;
 			}): boolean;
 	}
 
@@ -548,9 +500,9 @@ declare module Tracker {
 	function afterFlush(callback: Function): void;
 	function Dependency(): void;
 	interface Dependency {
-			depend(fromComputation?: Tracker.Computation): boolean;
+			depend(fromComputation?: Tracker.Computation): boolean
 		changed(): void;
-		hasDependents(): boolean;
+		hasDependents(): boolean
 	}
 
 }
@@ -594,25 +546,12 @@ declare module Package {
 }
 
 declare module Npm {
-	function depends(dependencies: Object): void;
+	function depends(dependencies:{[id:string]:string}): void;
 	function require(name: string): void;
 }
 
 declare module Cordova {
-	function depends(dependencies: Object): void;
-}
-
-declare module Template {
-	var created: Function;
-	var rendered: Function;
-	var destroyed: Function;
-	var body: Meteor.TemplateBase;
-	function helpers(helpers:{[id:string]: any}): void;
-	function events(eventMap: {[actions: string]: Function}): void;
-	function instance(): Blaze.TemplateInstance;
-	function currentData(): {};
-	function parentData(numLevels?: number): {};
-	function registerHelper(name: string, func: Function): void;
+	function depends(dependencies:{[id:string]:string}): void;
 }
 
 declare module Session {
@@ -631,7 +570,7 @@ declare module HTTP {
 				auth?: string;
 				headers?: Object;
 				timeout?: number;
-				followRedirects?: Boolean;
+				followRedirects?: boolean;
 			}, asyncCallback?: Function): HTTP.HTTPResponse;
 	function get(url: string, callOptions?: Object, asyncCallback?: Function): HTTP.HTTPResponse;
 	function post(url: string, callOptions?: Object, asyncCallback?: Function): HTTP.HTTPResponse;
@@ -653,8 +592,77 @@ declare module Email {
 			}): void;
 }
 
+declare function Subscription(): void;
+declare module Subscription {
+	var connection: Meteor.Connection;
+	var userId: string;
+	function error(error: Error): void;
+	function stop(): void;
+	function onStop(func: Function): void;
+	function added(collection: string, id: string, fields: Object): void;
+	function changed(collection: string, id: string, fields: Object): void;
+	function removed(collection: string, id: string): void;
+	function ready(): void;
+}
+
+declare function ReactiveVar(initialValue: any, equalsFunc?: (oldVal:any, newVal:any)=>boolean): void;
 declare module ReactiveVar {
-	function get(); /** TODO: add return value **/
-	function set(newValue: any); /** TODO: add return value **/
+	function get(): any;
+	function set(newValue: any): void;
+}
+
+declare function Template(): void;
+declare module Template {
+	var created: Function;
+	var rendered: Function;
+	var destroyed: Function;
+	var body: Meteor.TemplateBase;
+	function helpers(helpers:{[id:string]: any}): void;
+	function events(eventMap: {[actions: string]: Function}): void;
+	function instance(): Blaze.TemplateInstance;
+	function currentData(): {};
+	function parentData(numLevels?: number): {};
+	function registerHelper(name: string, func: Function): void;
+}
+
+declare function CompileStep(): void;
+declare module CompileStep {
+	var inputSize; /** TODO: add return value **/
+	var inputPath; /** TODO: add return value **/
+	var fullInputPath; /** TODO: add return value **/
+	var pathForSourceMap; /** TODO: add return value **/
+	var packageName; /** TODO: add return value **/
+	var rootOutputPath; /** TODO: add return value **/
+	var arch; /** TODO: add return value **/
+	var fileOptions; /** TODO: add return value **/
+	var declaredExports; /** TODO: add return value **/
+	function read(n?: number); /** TODO: add return value **/
+	function addHtml(options: {
+				section?: string;
+				data?: string;
+			}); /** TODO: add return value **/
+	function addStylesheet(options: {
+			}, path: string, data: string, sourceMap: string); /** TODO: add return value **/
+	function addJavaScript(options: {
+				path?: string;
+				data?: string;
+				sourcePath?: string;
+			}); /** TODO: add return value **/
+	function addAsset(options: {
+			}, path: string, data: any); /** TODO: add return value **/
+	function error(options: {
+			}, message: string, sourcePath?: string, line?: number, func?: string); /** TODO: add return value **/
+}
+
+declare function PackageAPI(): void;
+declare module PackageAPI {
+	function use(packageNames: any, architecture?: string, options?: {
+				weak?: boolean;
+				unordered?: Boolean;
+			}): void;
+	function imply(packageSpecs: any): void;
+	function addFiles(filename: any, architecture?: string): void;
+	function versionsFrom(meteorRelease: any): void;
+	// function export(exportedObject: string, architecture?: string): void;
 }
 

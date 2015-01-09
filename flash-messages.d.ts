@@ -26,4 +26,4 @@ interface FlashMessagesDAO {
   options?: FlashMessages.ConfigurationOptions;
 }
 
-declare var flashMessages: Meteor.Collection<FlashMessagesDAO>;
+declare var flashMessages: Mongo.Collection<FlashMessagesDAO>;

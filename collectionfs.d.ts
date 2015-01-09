@@ -10,7 +10,7 @@ declare function CollectionFS<T>(name:string, options?: CollectionFS.CollectionF
 
 interface CollectionFS<T> {
   ObjectID(hexString?: any): Object;
-  find(selector?: any, options?): Meteor.Cursor<T>;
+  find(selector?: any, options?): Mongo.Cursor<T>;
   findOne(selector?, options?):T;
   insert(doc:T, callback?:Function):string;
   update(selector: any, modifier: any, options?: {multi?: boolean; upsert?: boolean;}, callback?:Function): number;
@@ -124,7 +124,7 @@ declare module FS {
 
   interface Collection<T> {
     ObjectID(hexString?: any): Object;
-    find(selector?: any, options?): Meteor.Cursor<T>;
+    find(selector?: any, options?): Mongo.Cursor<T>;
     findOne(selector?, options?):T;
     insert(doc:T, callback?:Function):string;
     update(selector: any, modifier: any, options?: {multi?: boolean; upsert?: boolean;}, callback?:Function): number;

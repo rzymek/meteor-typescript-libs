@@ -9,11 +9,19 @@
 
 declare module Meteor {
 
-	function SmartCollection<T>(name:string, options?:Meteor.CollectionOptions);
+	function SmartCollection<T>(name:string, options?: {
+		connection?: Object;
+		idGeneration?: Mongo.CollectionIdGenerationEnum;
+		transform?: (document)=>any;
+	}): void;
 
-	interface SmartCollection<T> extends Meteor.Collection<T> {
+	interface SmartCollection<T> extends Mongo.Collection<T> {
 
-		new(name:string, options?:Meteor.CollectionOptions):T;
+		new(name:string, options?: {
+			connection?: Object;
+			idGeneration?: Mongo.CollectionIdGenerationEnum;
+			transform?: (document)=>any;
+		}):T;
 
 		// keys can only be strings at this time - per author
 		ObjectID(hexString?:string);
