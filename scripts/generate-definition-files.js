@@ -49,7 +49,7 @@ var thirdPartyDefLibs = [
     'https://github.com/borisyankov/DefinitelyTyped/raw/master/node/node.d.ts',
     'https://github.com/borisyankov/DefinitelyTyped/raw/master/node-fibers/node-fibers.d.ts',
     'https://github.com/borisyankov/DefinitelyTyped/raw/master/googlemaps/google.maps.d.ts',
-    'https://github.com/borisyankov/DefinitelyTyped/raw/master/lodash/lodash.d.ts'
+    //'https://github.com/borisyankov/DefinitelyTyped/raw/master/lodash/lodash.d.ts'
 ];
 
 var thirdPartyDefTests = [
@@ -63,7 +63,7 @@ var thirdPartyDefTests = [
     'https://github.com/borisyankov/DefinitelyTyped/raw/master/handlebars/handlebars-tests.ts',
     'https://github.com/borisyankov/DefinitelyTyped/raw/master/node/node-tests.ts',
     'https://github.com/borisyankov/DefinitelyTyped/raw/master/node-fibers/node-fibers-tests.ts',
-    'https://github.com/borisyankov/DefinitelyTyped/raw/master/lodash/lodash-tests.ts'
+    //'https://github.com/borisyankov/DefinitelyTyped/raw/master/lodash/lodash-tests.ts'
 ];
 
 var testsWithModuleFlag = ['handlebars-tests.ts', 'node-tests.ts', 'node-fibers-tests.ts'];
@@ -89,41 +89,11 @@ var argTypeMappings = {
     'renderFunction:': 'renderFunction?:',
     'MongoSelector': 'Mongo.Selector',
     'MongoModifier': 'Mongo.Modifier',
-    'MongoSortSpecifier': 'Mongo.SortSpecifier'
-
-    // Not sure if anything below is necessary
-    //': anything': ': any',
-    //': EJSON-compatible value': ': EJSON',
-    //': EJSON-compatible object': ': Meteor.EJSONObject',
-    //': Template': ': Blaze.Template',
-    //': Rendered template object': ': Meteor.RenderedTemplate',
-    //': object': ': Object',
-    //': JSON-compatible value': ': JSON',
-    //': Mongo modifier': ': any',
-    //': Match pattern': ': any',
-    //': Array of Strings': ': string[]',
-    //': Array of String': ': string[]',
-
-    //': Boolean, Integer, or String;': ': any; // boolean, integer, or string',
-    //': Sort specifier': ': any',
-    //': Field specifier': ': Mongo.CollectionFieldSpecifier',
-    //': Event map': ': {[id:string]: Function}',
-    //': DOM Element': ': HTMLElement',
-    //': DOM Node': ': Node',
-
-    //'\\.\\.\\.args.+\\)': '...args)',
-    //'\\.\\.\\.params.+\\)': '...params)',
-    //': String or Function;': ': any; // string or Function',
-    //': String or Array of strings;': ': any; // string or string[]',
-    //'\\{(.|[\r\n])+insert, update, remove(.|[\r\n])+\\}': 'Meteor.AllowDenyOptions',
-
-
-    //': View': ': Blaze.View',
-
-    // Argument and type parings
-    //'callback\\?\\)': 'callback?: Function)',
-    //'idGeneration\\?: string': 'idGeneration?: Mongo.IdGenerationEnum',
-    //'transform\\?: Function': 'transform?: (document)=>any'
+    'MongoSortSpecifier': 'Mongo.SortSpecifier',
+    'EJSONable': 'EJSON',
+    'null': 'any /** Null **/',
+    'undefined': 'any /** Undefined **/',
+    'Buffer': 'any /** Buffer **/'
 };
 
 var signatureElementMappings = {
@@ -144,6 +114,9 @@ var signatureElementMappings = {
     'insert?: Function;': 'insert?: (userId:string, doc) => boolean;',
     'update?: Function;': 'update?: (userId, doc, fieldNames, modifier) => boolean;',
     'remove?: Function;': 'remove?: (userId, doc) => boolean;',
+    'arg1, arg2...?: any, callbacks?: Function)': '...args)',
+    'arg1, arg2...?: any, callbacks?: Object)': '...args)',
+    'arg1, arg2...?: EJSON, asyncCallback?: Function)': '...args)',
 
     'function send(options)': 'function send(options: Email.EmailMessage)',
     'find(selector:': 'find(selector?:',
@@ -191,7 +164,7 @@ var propertyAndReturnTypeMappings = {
     //'Meteor.EnvironmentVariable': 'void',
 
     'Mongo.Collection#find': 'Mongo.Cursor<T>',
-    'Mongo.Collection#findOne': 'EJSON',
+    'Mongo.Collection#findOne': 'T',
     'Mongo.Collection#insert': 'string',
     'Mongo.Collection#update': 'number',
     'Mongo.Collection#upsert': '{numberAffected?: number; insertedId?: string;}',
@@ -474,12 +447,18 @@ var replaceOptions = function(argSection, options) {
 
     var optionType = '{\n';
     _.each(options, function (option) {
-        if (option.name.indexOf(',') > -1) {     // Special case for App.info, Mongo.Collection#allow, Mongo.Collection#deny
+        //if (option.type && option.type.names && option.type.names.length > 1) {
+        //    console.log("options = " + JSON.stringify(options));
+        //    console.log("types = " + JSON.stringify(option.type.names));
+        //}
+
+        if (hasString(option.name, ',')) {     // Special case for App.info, Mongo.Collection#allow, Mongo.Collection#deny
             var optionsArray = option.name.split(',');
             optionsArray.forEach(function(singleOptionName) {
                 optionType += '\t\t\t\t' + singleOptionName + '?: ' + option.type.names[0] + ';\n';
             });
         } else {
+
             optionType += '\t\t\t\t' + option.name + '?: ' + option.type.names[0] + ';\n'
         }
     });
@@ -502,6 +481,8 @@ var createArgs = function(apiDef) {
         if (param.optional) argSection += '?';
         if (param.name !== 'options') {
             if (param.type.names.length > 1) {
+                //console.log("Def with multiple types = " + apiDef.longname);
+                //console.log('param = ' + param.name + ', types = ' + JSON.stringify(param.type.names));
                 argSection += ': any';   // TODO: possibly overload the signature with 1 signature per type -- think this is allowed in TypeScript
             } else {
                 argSection += ': ' + param.type.names[0];
@@ -517,32 +498,32 @@ var createArgs = function(apiDef) {
     return argSection;
 };
 
-// It appears that def.kind can be namespace, class, member, or function (but namespaces are not passed into this function)
-var createSignature = function(def, tabs, isInInterface) {
+// It appears that apiDef.kind can be namespace, class, member, or function (but namespaces are not passed into this function)
+var createSignature = function(apiDef, tabs, isInInterface) {
     var signature = tabs || '';
 
-    if (def.kind === 'function' || isInInterface || def.kind === 'class') {
+    if (apiDef.kind === 'function' || isInInterface || apiDef.kind === 'class') {
         if (!isInInterface) signature += 'function ';
-        signature += def.name;
-        signature += addGenerics(def.longname);
-        signature += createArgs(def);
-    } else if (def.kind === 'member') {
-        signature += 'var ' + def.name;
-        if (def.types && def.types.names) {
-            if (def.types.names.length > 1) {
+        signature += apiDef.name;
+        signature += addGenerics(apiDef.longname);
+        signature += createArgs(apiDef);
+    } else if (apiDef.kind === 'member') {
+        signature += 'var ' + apiDef.name;
+        if (apiDef.types && apiDef.types.names) {
+            if (apiDef.types.names.length > 1) {  // This situation doesn't currently exist, but I suppose it could exist in the future
                 signature += ': any;';   // TODO: possibly overload the signature with 1 signature per type -- think this is allowed in TypeScript
             } else {
-                signature += ': ' + def.types.names[0] + ';';
+                signature += ': ' + apiDef.types.names[0] + ';';
             }
         }
     } else {
-        console.log('No "kind" property found: ' + JSON.stringify(def, null, 4));
+        console.log('No "kind" property found: ' + JSON.stringify(apiDef, null, 4));
     }
 
-    if (def.kind === 'class') {
+    if (apiDef.kind === 'class') {
         signature += ': void;';    // since this will be a constructor and constructors in TypeScript must always have a void return type
     } else {
-        signature += addPropertyOrReturnTypeAndComplete(def.longname, def.returns);
+        signature += addPropertyOrReturnTypeAndComplete(apiDef.longname, apiDef.returns);
     }
     signature = replaceSignatureElements(signature);    // This is the nuclear option: replace anything missed earlier
     signature += '\n';
@@ -573,27 +554,70 @@ var populateModuleAndClassNames = function(meteorClientApiFile) {
 
 };
 
+var findParamsWithMultipleTypes = function(apiDef) {
+    var paramsWithMultipleTypes = [];
+    _.each(apiDef.params, function(param, index) {
+        if (param.type.names.length > 1) {
+            //console.log("Def with multiple types = " + apiDef.longname + ', param = ' + param.name + ', types = ' + JSON.stringify(param.type.names));
+            paramsWithMultipleTypes.push(index);
+        }
+    });
+    return paramsWithMultipleTypes;
+};
+
 // Recursively create contents for each module
 var createModuleInnerContent = function(moduleName, apiDoc, tabs, isInterface) {
     tabs = tabs || '';
     var content = '';
-    _.forIn(apiDoc, function (value) {
-        if (value.memberof === moduleName) {
-            if (value.longname === 'Template.dynamic') return;  // Special case since it's just for use in templates
-            if (value.kind === 'namespace') {
-                content += '\tvar ' + value.name + ': {\n';
-                content += '\t' + createModuleInnerContent(value.longname, apiDoc, '', true);
+    _.forIn(apiDoc, function (apiDef) {
+        if (apiDef.memberof === moduleName) {
+            if (apiDef.longname === 'Template.dynamic') return;  // Special case since it's just for use in templates
+            if (apiDef.kind === 'namespace') {
+                content += '\tvar ' + apiDef.name + ': {\n';
+                content += '\t' + createModuleInnerContent(apiDef.longname, apiDoc, '', true);
                 content += '\t};\n';
-            } else {  // value.kind === members, functions, and classes
-                content += createSignature(value, '\t' + tabs, isInterface);
+            } else {  // apiDef.kind === members, functions, and classes
+                var paramIndexes = findParamsWithMultipleTypes(apiDef);
+
+                if (paramIndexes.length > 0) {
+                    var originalApiDef = JSON.parse(JSON.stringify(apiDef));
+
+                    // start section to make recursive
+                    _.each(apiDef.params, function(param1, paramIndex1) {
+                        if (paramIndex1 === paramIndexes[0]) {
+                            _.each(param1.type.names, function(type1) {
+                                apiDef.params[paramIndex1].type.names = [type1];
+                                if (paramIndexes[1]) {
+                                    _.each(originalApiDef.params, function(param2, paramIndex2) {
+
+                                        _.each(param2.type.names, function(type2) {
+                                            if (paramIndex2 === paramIndexes[1]) {
+                                                apiDef.params[paramIndex2].type.names = [type2];
+                                                content += createSignature(apiDef, '\t' + tabs, isInterface);
+                                            }
+                                        });
+
+                                    });
+                                } else {
+                                    content += createSignature(apiDef, '\t' + tabs, isInterface);
+                                }
+                            });
+                        }
+                    });
+                    // end section to make recursive
+
+                    //content += createSignature(apiDef, '\t' + tabs, isInterface);
+                } else {
+                    content += createSignature(apiDef, '\t' + tabs, isInterface);
+                }
             }
             // Special cases
-            if (value.longname === 'Mongo.Collection' || value.longname === 'Mongo.Cursor'
-                || value.longname === 'Tracker.Computation' || value.longname === 'Tracker.Dependency'
-                || value.longname === 'Blaze.TemplateInstance' || value.longname === 'EJSON.CustomType') {
-                content += '\tinterface ' + value.name;
-                if (value.longname === 'Mongo.Collection' || value.longname === 'Mongo.Cursor') content += '<T>';
-                content += ' {\n\t' + createModuleInnerContent(value.longname, apiDoc, '\t', true);
+            if (apiDef.longname === 'Mongo.Collection' || apiDef.longname === 'Mongo.Cursor'
+                || apiDef.longname === 'Tracker.Computation' || apiDef.longname === 'Tracker.Dependency'
+                || apiDef.longname === 'Blaze.TemplateInstance' || apiDef.longname === 'EJSON.CustomType') {
+                content += '\tinterface ' + apiDef.name;
+                if (apiDef.longname === 'Mongo.Collection' || apiDef.longname === 'Mongo.Cursor') content += '<T>';
+                content += ' {\n\t' + createModuleInnerContent(apiDef.longname, apiDoc, '\t', true);
                 content += '\t}\n\n'
             }
         }

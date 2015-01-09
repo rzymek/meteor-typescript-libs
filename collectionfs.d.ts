@@ -16,8 +16,8 @@ interface CollectionFS<T> {
   update(selector: any, modifier: any, options?: {multi?: boolean; upsert?: boolean;}, callback?:Function): number;
   upsert(selector: any, modifier: any, options?: {multi?: boolean;}, callback?:Function): {numberAffected?: number; insertedId?: string;}
   remove(selector: any, callback?:Function);
-  allow(options:Meteor.AllowDenyOptions): boolean;
-  deny(options:Meteor.AllowDenyOptions): boolean;
+  allow(options:Mongo.AllowDenyOptions): boolean;
+  deny(options:Mongo.AllowDenyOptions): boolean;
   fileHandlers(handlers: CollectionFS.FileHandlers): void;
   filter(options: CollectionFS.FilterOptions): void;
   fileIsAllowed(options: any): boolean;
@@ -130,8 +130,8 @@ declare module FS {
     update(selector: any, modifier: any, options?: {multi?: boolean; upsert?: boolean;}, callback?:Function): number;
     upsert(selector: any, modifier: any, options?: {multi?: boolean;}, callback?:Function): {numberAffected?: number; insertedId?: string;}
     remove(selector: any, callback?:Function);
-    allow(options:Meteor.AllowDenyOptions): boolean;
-    deny(options:Meteor.AllowDenyOptions): boolean;
+    allow(options:Mongo.AllowDenyOptions): boolean;
+    deny(options:Mongo.AllowDenyOptions): boolean;
     fileHandlers(handlers: CollectionFS.FileHandlers): void;
     filter(options: CollectionFS.FilterOptions): void;
     fileIsAllowed(options: any): boolean;

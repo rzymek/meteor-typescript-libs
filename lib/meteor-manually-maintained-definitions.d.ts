@@ -173,6 +173,13 @@ declare module Mongo {
         STRING,
         MONGO
     }
+    interface AllowDenyOptions {
+        insert?: (userId:string, doc) => boolean;
+        update?: (userId, doc, fieldNames, modifier) => boolean;
+        remove?: (userId, doc) => boolean;
+        fetch?: string[];
+        transform?: Function;
+    }
 }
 
 declare module HTTP {

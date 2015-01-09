@@ -11,7 +11,7 @@ declare module Meteor {
 
 	function SmartCollection<T>(name:string, options?: {
 		connection?: Object;
-		idGeneration?: Mongo.CollectionIdGenerationEnum;
+		idGeneration?: Mongo.IdGenerationEnum;
 		transform?: (document)=>any;
 	}): void;
 
@@ -19,7 +19,7 @@ declare module Meteor {
 
 		new(name:string, options?: {
 			connection?: Object;
-			idGeneration?: Mongo.CollectionIdGenerationEnum;
+			idGeneration?: Mongo.IdGenerationEnum;
 			transform?: (document)=>any;
 		}):T;
 

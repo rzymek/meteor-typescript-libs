@@ -173,6 +173,13 @@ declare module Mongo {
         STRING,
         MONGO
     }
+    interface AllowDenyOptions {
+        insert?: (userId:string, doc) => boolean;
+        update?: (userId, doc, fieldNames, modifier) => boolean;
+        remove?: (userId, doc) => boolean;
+        fetch?: string[];
+        transform?: Function;
+    }
 }
 
 declare module HTTP {
@@ -313,17 +320,27 @@ declare module Accounts {
 
 declare module Blaze {
 	var currentView: Blaze.View;
-	function With(data: any, contentFunc: Function): Blaze.View;
+	function With(data: Object, contentFunc: Function): Blaze.View;
+	function With(data: Function, contentFunc: Function): Blaze.View;
 	function If(conditionFunc: Function, contentFunc: Function, elseFunc?: Function): Blaze.View;
 	function Unless(conditionFunc: Function, contentFunc: Function, elseFunc?: Function): Blaze.View;
 	function Each(argFunc: Function, contentFunc: Function, elseFunc?: Function): Blaze.View;
 	function isTemplate(value: any): boolean;
-	function render(templateOrView: any, parentNode: Node, nextNode?: Node, parentView?: Blaze.View): Blaze.View;
-	function renderWithData(templateOrView: any, data: any, parentNode: Node, nextNode?: Node, parentView?: Blaze.View): Blaze.View;
+	function render(templateOrView: Template, parentNode: Node, nextNode?: Node, parentView?: Blaze.View): Blaze.View;
+	function render(templateOrView: Blaze.View, parentNode: Node, nextNode?: Node, parentView?: Blaze.View): Blaze.View;
+	function renderWithData(templateOrView: Template, data: Object, parentNode: Node, nextNode?: Node, parentView?: Blaze.View): Blaze.View;
+	function renderWithData(templateOrView: Template, data: Function, parentNode: Node, nextNode?: Node, parentView?: Blaze.View): Blaze.View;
+	function renderWithData(templateOrView: Blaze.View, data: Object, parentNode: Node, nextNode?: Node, parentView?: Blaze.View): Blaze.View;
+	function renderWithData(templateOrView: Blaze.View, data: Function, parentNode: Node, nextNode?: Node, parentView?: Blaze.View): Blaze.View;
 	function remove(renderedView: Blaze.View): void;
-	function toHTML(templateOrView: any): string;
-	function toHTMLWithData(templateOrView: any, data: any): string;
-	function getData(elementOrView?: any): Object;
+	function toHTML(templateOrView: Template): string;
+	function toHTML(templateOrView: Blaze.View): string;
+	function toHTMLWithData(templateOrView: Template, data: Object): string;
+	function toHTMLWithData(templateOrView: Template, data: Function): string;
+	function toHTMLWithData(templateOrView: Blaze.View, data: Object): string;
+	function toHTMLWithData(templateOrView: Blaze.View, data: Function): string;
+	function getData(elementOrView?: HTMLElement): Object;
+	function getData(elementOrView?: Blaze.View): Object;
 	function getView(element?: HTMLElement): Blaze.View;
 	function Template(viewName?: string, renderFunction?: Function): void;
 	function TemplateInstance(view: Blaze.View): void;
@@ -393,7 +410,9 @@ declare module Meteor {
 				userEmail?: string;
 				loginStyle?: string;
 			}, callback?: Function): void;
-	function loginWithPassword(user: any, password: string, callback?: Function): void;
+	function loginWithPassword(user: Object, password: string, callback?: Function): void;
+	function loginWithPassword(user: string, password: string, callback?: Function): void;
+	function subscribe(name: string, ...args): SubscriptionHandle;
 	function subscribe(name: string, ...args): SubscriptionHandle;
 	function call(name: string, ...args): void;
 	function apply(name: string, args: EJSON[], options?: {
@@ -446,7 +465,7 @@ declare module Mongo {
 				fields?: Mongo.FieldSpecifier;
 				reactive?: boolean;
 				transform?: Function;
-			}): EJSON;
+			}): T;
 		remove(selector: Mongo.Selector, callback?: Function): void;
 		upsert(selector: Mongo.Selector, modifier: Mongo.Modifier, options?: {
 				multi?: boolean;
@@ -555,10 +574,16 @@ declare module Cordova {
 }
 
 declare module Session {
-	function set(key: string, value: any): void;
-	function setDefault(key: string, value: any): void;
+	function set(key: string, value: EJSON): void;
+	function set(key: string, value: any /** Undefined **/): void;
+	function setDefault(key: string, value: EJSON): void;
+	function setDefault(key: string, value: any /** Undefined **/): void;
 	function get(key: string): any;
-	function equals(key: string, value: any): boolean;
+	function equals(key: string, value: string): boolean;
+	function equals(key: string, value: number): boolean;
+	function equals(key: string, value: boolean): boolean;
+	function equals(key: string, value: any /** Null **/): boolean;
+	function equals(key: string, value: any /** Undefined **/): boolean;
 }
 
 declare module HTTP {
@@ -649,20 +674,29 @@ declare module CompileStep {
 				sourcePath?: string;
 			}); /** TODO: add return value **/
 	function addAsset(options: {
-			}, path: string, data: any); /** TODO: add return value **/
+			}, path: string, data: any /** Buffer **/); /** TODO: add return value **/
+	function addAsset(options: {
+			}, path: string, data: string); /** TODO: add return value **/
 	function error(options: {
 			}, message: string, sourcePath?: string, line?: number, func?: string); /** TODO: add return value **/
 }
 
 declare function PackageAPI(): void;
 declare module PackageAPI {
-	function use(packageNames: any, architecture?: string, options?: {
+	function use(packageNames: string, architecture?: string, options?: {
 				weak?: boolean;
 				unordered?: Boolean;
 			}): void;
-	function imply(packageSpecs: any): void;
-	function addFiles(filename: any, architecture?: string): void;
-	function versionsFrom(meteorRelease: any): void;
+	function use(packageNames: string[], architecture?: string, options?: {
+				weak?: boolean;
+				unordered?: Boolean;
+			}): void;
+	function imply(packageSpecs: string): void;
+	function imply(packageSpecs: string[]): void;
+	function addFiles(filename: string, architecture?: string): void;
+	function addFiles(filename: string[], architecture?: string): void;
+	function versionsFrom(meteorRelease: string): void;
+	function versionsFrom(meteorRelease: string[]): void;
 	// function export(exportedObject: string, architecture?: string): void;
 }
 
