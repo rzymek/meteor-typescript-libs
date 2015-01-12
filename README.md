@@ -1,7 +1,7 @@
 # Meteor TypeScript libraries
 
-This project is a placeholder for typescript definition files related to Meteor.
- You will find, among others **meteor.d.ts** plus many others.
+This project is a placeholder for typescript definition files related to Meteor.  It includes **meteor.d.ts** plus many others.
+
 
 ## Why use TypeScript?
 [TypeScript] (http://www.typescriptlang.org/) allows you to specify and enforce variable types and interfaces.  It will inform you of errors before deployment/runtime, 
@@ -28,29 +28,27 @@ For further reading about TypeScript please refer to the [TypeScript Handbook](h
 
    Once the files are copied to your project, reference all the definition files with a single line:
 
-    ```
     /// <reference path="/path/to/all-definitions.d.ts" />
-    ```
+
     
    Or you can reference definition files individually:
    
-    ```
     /// <reference path="/path/to/meteor.d.ts" />
     /// <reference path="/path/to/underscore.d.ts" />
     /// <reference path="/path/to/jquery.d.ts" />
-    ```
+
 4. Be aware of differences in coding styles when using TypeScript (see below)
 
 
 ##  TypeScript/Meteor coding style
 
-### Reference
+### References
 
 Try to stay away from referencing **file.ts**, rather generate a **file.d.ts** using `tsc --reference file.ts`, and reference it in your file. Compilation will be much faster and code cleaner - it's always better to split definition from implemention.
 
 ### Templates
 
-When specifying template helper, you will need to use a "bracket notation" instead of the "dot notation":
+When specifying template helpers, events, and functions for created, rendered, and destroyed, you will need to use a "bracket notation" instead of the "dot notation":
 
     Template['myTemplateName'].helpers({
       foo: function () {
@@ -58,11 +56,21 @@ When specifying template helper, you will need to use a "bracket notation" inste
       }
     });
 
+    Template['myTemplateName']['rendered'] = function ( ) { ... }
+
 That's because Typescript enforces typing and it will throw an error saying "myTemplateName" does not exist when using the dot notation.
 
 ### Accessing a Form field
 
 Trying to read a form field value? use `(<HTMLInputElement>evt.target).value`.
+
+### Global variables
+
+Preface any global variable definitions with a "declare var" statement:
+
+    declare var NavbarHelpers;
+    NavbarHelpers = {};
+    NavbarHelpers.someMethod = function() {...}
 
 ### Collections
 
@@ -88,22 +96,31 @@ Finally, any TypeScript file using collections will need to contain a reference 
     /// <reference path="/path/to/underscore.d.ts"/>
     /// <reference path="models/models.ts"/>
 
+### Creating definition files
 
-If you choose to define collections (using the code above) in a separate file (e.g. collections/models/models.ts) and then create a separate file per collection 
-with the methods and permissions for that collection (e.g. collections/jobs.ts), the collection definitions should be one directory deeper than the collection 
-method/permission declarations so that Meteor can find the variable declarations before use. (e.g. collections/models/models.ts).
+Here is a guide to creating definitions: <http://www.typescriptlang.org/Handbook#writing-dts-files>
+
+If you have lots of custom definitions for a project, you can:
+
+- Create multiple definition files and include individual references to each definition file.
+- Create one huge monolithic definition file so you only have to refer to that file.
+- Create multiple definition files, and create a definition file with references to the other definitions files so that you only have to maintain one reference
+for all of you custom definitions.
+
+        e.g. Contents of lib/typescript/custom-definitions.d.ts:
+
+        /// <reference path='../collections/models/models.ts' />
+        /// <reference path='paraview_helpers.d.ts'/>
+        /// <reference path='handsontable.d.ts'/>
+        /// <reference path='utility_helpers.ts'/>
 
 
-
-
-
-
-## Compiling TypeScript
+## Transpiling TypeScript
 
 ### Meteor plugin
-An elegant solution is to install the following meteor package [https://github.com/meteor-typescript/meteor-typescript-compiler](https://github.com/meteor-typescript/meteor-typescript-compiler)
+One solution for transpiling typescript is to install the following meteor package [https://github.com/meteor-typescript/meteor-typescript-compiler](https://github.com/meteor-typescript/meteor-typescript-compiler)
 
-### Transpilation
+### IDE/Editor Transpilation
 WebStorm is a good TypeScript-aware editor.  It can automatically transpile your TypeScript code into JavaScript every time you save a file.  To enable this
 feature in WebStorm on OSX, first install the TypeScript transpiler on your system:
 
@@ -125,6 +142,7 @@ Contributions are welcome. Remember that this project is about typing meteor pac
 Changes to the definitions for any third party libraries (e.g. jquery.d.ts) should be made on the [DefinitelyTyped] (https://github.com/borisyankov/DefinitelyTyped)
 repo.
 
+
 ### Creating Definitions
 Here is a guide to creating definitions: <http://www.typescriptlang.org/Handbook#writing-dts-files>
 
@@ -137,12 +155,12 @@ All definition files are generated by executing a file generation script:
     $ node generate-definition-files.js
 
 
-This script generates the meteor.d.ts file from the [Meteor api.js file] (https://raw.githubusercontent.com//meteor/meteor/devel/docs/client/api.js) that is used
+This script generates the meteor.d.ts file from the [Meteor data.js file] (https://github.com/meteor/meteor/blob/devel/docs/client/data.js) that is used
 to generate the official [Meteor docs] (http://docs.meteor.com/). 
 
-This script gets the latest of all third-party libraries from the [DefinitelyTyped] (https://github.com/borisyankov/DefinitelyTyped) repo, which is the 
-semi-official repository for TypeScript definition files.  Running this script will also run any specified transpilation tests found on [DefinitelyTyped] (https://github.com/borisyankov/DefinitelyTyped).
-All tests that are run can be found in "definition-tests/".
+This script also retrieves the latest third-party library definitions from the [DefinitelyTyped] (https://github.com/borisyankov/DefinitelyTyped) repo, which is the
+semi-official repository for TypeScript definition files.  Running this script will also run any specified tests found on [DefinitelyTyped] (https://github.com/borisyankov/DefinitelyTyped),
+as well as the tests for meteor.d.ts and any other meteor packages.  All tests that are run can be found in "definition-tests/".
 
 The script depends on node modules lodash and request, so these must be installed on your system before running the script (along with the [Typescript Transpiler] (http://www.typescriptlang.org/)): 
  
