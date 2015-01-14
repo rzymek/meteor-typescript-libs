@@ -1,11 +1,12 @@
 {
   "name": "meteor-typescript-libs",
-  "version": "0.8.6",
+  "version": "1.0.2.1",
   "homepage": "https://github.com/meteor-typescript/meteor-typescript-libs",
   "authors": [
-    "Olivier Refalo"
+    "Olivier Refalo",
+    "Dave Allen"
   ],
-  "description": "The most common Typescript definition files for meteor, including meteor.d.ts",
+  "description": "The most common TypeScript definition files for Meteor, including meteor.d.ts and third party library definitions.",
   "main": "all-definitions.d.ts",
   "keywords": [
     "typescript",

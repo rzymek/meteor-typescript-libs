@@ -1,4 +1,4 @@
-/// <reference path="../handlebars.d.ts" />
+/// <reference path="../definitions/handlebars.d.ts" />
 var Handlebars = require('handlebars');
 var context = {
     author: { firstName: 'Alan', lastName: 'Johnson' },

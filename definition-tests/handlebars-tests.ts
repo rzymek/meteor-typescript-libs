@@ -1,4 +1,4 @@
-/// <reference path="../handlebars.d.ts" />
+/// <reference path="../definitions/handlebars.d.ts" />
 import Handlebars = require('handlebars');
 
 

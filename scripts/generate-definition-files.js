@@ -14,7 +14,7 @@
 var vm = require('vm'),
     fs = require('fs'),
     _ = require('lodash'),
-    DEF_DIR = '../',
+    DEF_DIR = '../definitions/',
     TEST_DIR = '../definition-tests/',
     METEOR_API_URL = 'https://raw.githubusercontent.com//meteor/meteor/devel/docs/client/data.js',
     MANUALLY_MAINTAINED_DEFS_FILE = '../lib/meteor-manually-maintained-definitions.d.ts',
@@ -340,7 +340,7 @@ var getThirdPartyDefTests = function() {
             testFilenames.push(filename);
             body = body.replace('../jquery/jquery.d.ts', 'jquery.d.ts');
             body = body.replace('../underscore/underscore.d.ts', 'underscore.d.ts');
-            body = body.replace(/path=["'\.\/]+(.+\.d\.ts)["']\s?\/>/g, 'path="../$1" />');
+            body = body.replace(/path=["'\.\/]+(.+\.d\.ts)["']\s?\/>/g, 'path="../definitions/$1" />');
             writeFileToDisk(TEST_DIR + filename, body);
         })
     });
@@ -361,7 +361,7 @@ var createTypeScriptLibFile = function() {
 var testThirdPartyDefs = function() {
     _.each(testFilenames, function(filename) {
         console.log('Running transpilation test: ' + filename);
-        var sys = require('sys')
+        //var sys = require('sys');
         var exec = require('child_process').exec;
         function displayOutput(error, stdout, stderror) {
             if (stdout) console.log(stdout);

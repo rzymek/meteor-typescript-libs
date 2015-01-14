@@ -1,5 +1,5 @@
-/// <reference path="../backbone.d.ts" />
-/// <reference path="../jquery.d.ts" />
+/// <reference path="../definitions/backbone.d.ts" />
+/// <reference path="../definitions/jquery.d.ts" />
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }

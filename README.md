@@ -1,6 +1,6 @@
 # Meteor TypeScript libraries
 
-This project is a placeholder for typescript definition files related to Meteor.  It includes **meteor.d.ts** plus many others.
+This project is a placeholder for TypeScript definition files related to Meteor.  It includes **meteor.d.ts** plus many others.
 
 
 ## Why use TypeScript?

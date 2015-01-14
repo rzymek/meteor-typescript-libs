@@ -1,5 +1,5 @@
-/// <reference path="../underscore.d.ts" />
-/// <reference path="../underscore.string.d.ts" />
+/// <reference path="../definitions/underscore.d.ts" />
+/// <reference path="../definitions/underscore.string.d.ts" />
 _.mixin(_.string.exports());
 _.numberFormat(1000, 2);
 _.numberFormat(123456789.123, 5, '.', ',');

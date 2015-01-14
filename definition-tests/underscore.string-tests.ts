@@ -1,5 +1,5 @@
-/// <reference path="../underscore.d.ts" />
-/// <reference path="../underscore.string.d.ts" />
+/// <reference path="../definitions/underscore.d.ts" />
+/// <reference path="../definitions/underscore.string.d.ts" />
 
 _.mixin(_.string.exports());
 interface UnderscoreStatic extends UnderscoreStringStaticExports { }

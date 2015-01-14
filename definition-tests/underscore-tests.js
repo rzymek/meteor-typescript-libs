@@ -1,4 +1,4 @@
-/// <reference path="../underscore.d.ts" />
+/// <reference path="../definitions/underscore.d.ts" />
 _.each([1, 2, 3], function (num) { return alert(num.toString()); });
 _.each({ one: 1, two: 2, three: 3 }, function (value, key) { return alert(value.toString()); });
 _.map([1, 2, 3], function (num) { return num * 3; });

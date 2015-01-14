@@ -1,4 +1,4 @@
-///<reference path="../node-fibers.d.ts" />
+///<reference path="../definitions/node-fibers.d.ts" />
 // node-fibers tests
 // compile with --module=common
 

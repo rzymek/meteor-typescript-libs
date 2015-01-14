@@ -1,4 +1,4 @@
-/// <reference path="../d3.d.ts" />
+/// <reference path="../definitions/d3.d.ts" />
 
 //Example from http://bl.ocks.org/3887235
 function testPieChart() {
