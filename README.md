@@ -42,6 +42,7 @@ For further reading about TypeScript please refer to the [TypeScript Handbook](h
 
 5. Alternatively, you can pull down the definitions from github and add the ones you like to your project: <https://github.com/meteor-typescript/meteor-typescript-libs>.
 
+
 ##  TypeScript/Meteor coding style
 
 ### References
