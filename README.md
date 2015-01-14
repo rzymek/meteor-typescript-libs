@@ -1,6 +1,6 @@
 # Meteor TypeScript libraries
 
-This project is a placeholder for TypeScript definition files related to Meteor.  It includes **meteor.d.ts** plus many others.
+This project adds TypeScript definition files related to Meteor.  It includes **meteor.d.ts** plus many others.
 
 
 ## Why use TypeScript?
@@ -22,23 +22,25 @@ For further reading about TypeScript please refer to the [TypeScript Handbook](h
 
 ## Usage
 
-1. Look for the typescript library you are interested in and copy it to your project.
+1. Add symbolic link to the definitions from within some directory within your project (e.g. "lib" or ".typescript").  The definitions can be found somewhere deep within "<project_root_dir>/.meteor/...".  The following will probably work:
+
+        $ ln -s ../.meteor/local/build/programs/server/assets/packages/meteortypescript_typescript-libs/definitions typescript/package_defs
+
 2. Ensure you installed the [Typescript compiler for Meteor](https://github.com/meteor-typescript/meteor-typescript-compiler) or an [IDE which can transpile code](#transpilation).
-3. From the typescript files, add references as follows:
+3. From the typescript files, add references.  Reference the definition files with a single line:
 
-   Once the files are copied to your project, reference all the definition files with a single line:
+        /// <reference path="/lib/typescript/package_defs/all-definitions.d.ts" />  (substitute path in your project)
 
-    /// <reference path="/path/to/all-definitions.d.ts" />
 
-    
    Or you can reference definition files individually:
    
-    /// <reference path="/path/to/meteor.d.ts" />
-    /// <reference path="/path/to/underscore.d.ts" />
-    /// <reference path="/path/to/jquery.d.ts" />
+        /// <reference path="/lib/typescript/package_defs/meteor.d.ts" />  (substitue path in your project)
+        /// <reference path="/lib/typescript/package_defs/underscore.d.ts" />
+        /// <reference path="/lib/typescript/package_defs/jquery.d.ts" />
 
 4. Be aware of differences in coding styles when using TypeScript (see below)
 
+5. Alternatively, you can pull down the definitions from github and add the ones you like to your project: <https://github.com/meteor-typescript/meteor-typescript-libs>.
 
 ##  TypeScript/Meteor coding style
 
@@ -66,7 +68,7 @@ Trying to read a form field value? use `(<HTMLInputElement>evt.target).value`.
 
 ### Global variables
 
-Preface any global variable definitions with a "declare var" statement:
+Preface any global variable declarations with a TypeScript "declare var" statement:
 
     declare var NavbarHelpers;
     NavbarHelpers = {};
@@ -92,9 +94,8 @@ To define collections, you will need to create an interface representing the col
 
 Finally, any TypeScript file using collections will need to contain a reference at the top pointing to the collection definitions:
 
-    /// <reference path="/path/to/meteor.d.ts"/>
-    /// <reference path="/path/to/underscore.d.ts"/>
-    /// <reference path="models/models.ts"/>
+    /// <reference path="../lib/typescript/package_defs/meteor.d.ts"/>
+    /// <reference path="../lib/typescript/custom_defs/collections.ts"/>
 
 ### Creating definition files
 
@@ -105,11 +106,9 @@ If you have lots of custom definitions for a project, you can:
 - Create multiple definition files and include individual references to each definition file.
 - Create one huge monolithic definition file so you only have to refer to that file.
 - Create multiple definition files, and create a definition file with references to the other definitions files so that you only have to maintain one reference
-for all of you custom definitions.
+for all of you custom definitions.  e.g. contents of "lib/typescript/custom_defs/custom-definitions.d.ts":
 
-        e.g. Contents of lib/typescript/custom-definitions.d.ts:
-
-        /// <reference path='../collections/models/models.ts' />
+        /// <reference path='collections.ts' />
         /// <reference path='paraview_helpers.d.ts'/>
         /// <reference path='handsontable.d.ts'/>
         /// <reference path='utility_helpers.ts'/>
