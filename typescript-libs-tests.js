@@ -1,4 +1,4 @@
-TEST_DIR = 'assets/packages/local-test_meteortypescript_typescript-libs/definition-tests/';
+var TEST_DIR = 'assets/packages/local-test_meteortypescript_typescript-libs/tinytest-definition-tests/';
 
 var testFilenames = [
   'meteor-tests.ts',

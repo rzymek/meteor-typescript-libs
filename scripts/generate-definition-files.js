@@ -15,7 +15,9 @@ var vm = require('vm'),
     fs = require('fs'),
     _ = require('lodash'),
     DEF_DIR = '../definitions/',
-    TEST_DIR = '../definition-tests/',
+    SCRIPT_TEST_DIR = '../script-definition-tests/',
+    TINYTEST_TEST_DIR = '../tinytest-definition-tests/',
+    TINYTEST_DEF_BASE_PATH = '../../meteortypescript_typescript-libs/',
     METEOR_API_URL = 'https://raw.githubusercontent.com//meteor/meteor/devel/docs/client/data.js',
     MANUALLY_MAINTAINED_DEFS_FILE = '../lib/meteor-manually-maintained-definitions.d.ts',
     METEOR_DEF_FILENAME = 'meteor.d.ts',
@@ -338,10 +340,15 @@ var getThirdPartyDefTests = function() {
         require('request')(test, function(error, response, body) {
             var filename = test.slice(test.lastIndexOf('/') + 1);
             testFilenames.push(filename);
+            //var originalBody = JSON.parse(JSON.stringify(body));
             body = body.replace('../jquery/jquery.d.ts', 'jquery.d.ts');
             body = body.replace('../underscore/underscore.d.ts', 'underscore.d.ts');
             body = body.replace(/path=["'\.\/]+(.+\.d\.ts)["']\s?\/>/g, 'path="../definitions/$1" />');
-            writeFileToDisk(TEST_DIR + filename, body);
+            writeFileToDisk(SCRIPT_TEST_DIR + filename, body);
+
+            // for Tinytest
+            body = body.replace(/path=["'\.\/]+(.+\.d\.ts)["']\s?\/>/g, 'path="' + TINYTEST_DEF_BASE_PATH + '$1" />');
+            writeFileToDisk(TINYTEST_TEST_DIR + filename, body);
         })
     });
 };
@@ -374,9 +381,9 @@ var testThirdPartyDefs = function() {
             }
         }
         if (_.contains(testsWithModuleFlag, filename)) {
-            exec("tsc -m commonjs " + TEST_DIR + filename, displayOutput);
+            exec("tsc -m commonjs " + SCRIPT_TEST_DIR + filename, displayOutput);
         } else {
-            exec("tsc " + TEST_DIR + filename, displayOutput);
+            exec("tsc " + SCRIPT_TEST_DIR + filename, displayOutput);
 
         }
     });
