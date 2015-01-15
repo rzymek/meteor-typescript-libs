@@ -22,7 +22,7 @@ For further reading about TypeScript please refer to the [TypeScript Handbook](h
 
 ## Usage
 
-1. Add a symbolic link to the definitions from within some directory within your project (e.g. "lib" or ".typescript").  The definitions can be found somewhere deep within "<project_root_dir>/.meteor/...".  The following will probably work:
+1. Add a symbolic link to the definitions from within some directory within your project (e.g. "lib" or ".typescript").  The definitions can be found somewhere deep within `<project_root_dir>/.meteor/...`.  The following will probably work:
 
         $ ln -s ../.meteor/local/build/programs/server/assets/packages/meteortypescript_typescript-libs/definitions typescript/package_defs
 
