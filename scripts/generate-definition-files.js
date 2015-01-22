@@ -11,6 +11,7 @@
  * The original modifications to webstorm-converter to create this file were made by Dave Allen:  https://github.com/fullflavedave
  */
 
+// All paths should be relative to this directory, "scripts"
 var vm = require('vm'),
     fs = require('fs'),
     _ = require('lodash'),
@@ -19,6 +20,7 @@ var vm = require('vm'),
     TINYTEST_TEST_DIR = '../tinytest-definition-tests/',
     TINYTEST_DEF_BASE_PATH = '../../meteortypescript_typescript-libs/',
     METEOR_API_URL = 'https://raw.githubusercontent.com//meteor/meteor/devel/docs/client/data.js',
+    SAVED_METEOR_API_FILE_PATH = '../lib/data.js';
     MANUALLY_MAINTAINED_DEFS_FILE = '../lib/meteor-manually-maintained-definitions.d.ts',
     METEOR_DEF_FILENAME = 'meteor.d.ts',
     DEBUG = true,
@@ -72,11 +74,11 @@ var testsWithModuleFlag = ['handlebars-tests.ts', 'node-tests.ts', 'node-fibers-
 
 // keys are strings that will be sent into new RegExp(<regexp string>)
 var argTypeMappings = {
-    ': function': ': Function',
-    ': MatchPattern': ': any',
-    ': String': ': string',
-    'clone<T>\\(val: EJSON': 'clone<T>(val: T',
+    'function': 'Function',
+    'MatchPattern': 'any',
     'Array.<String>': 'string[]',
+    'String': 'string',
+    'clone<T>\\(val: EJSON': 'clone<T>(val: T',
     'JSONCompatible': 'JSON',
     'Array.<EJSON>': 'EJSON[]',
     'Array.<EJSONable>': 'EJSON[]',
@@ -86,7 +88,7 @@ var argTypeMappings = {
     'MongoFieldSpecifier': 'Mongo.FieldSpecifier',
     'Number':'number',
     'Integer': 'number',
-    ': Any': ': any',
+    'Any': 'any',
     'function:': 'func:',
     'renderFunction:': 'renderFunction?:',
     'MongoSelector': 'Mongo.Selector',
@@ -116,9 +118,11 @@ var signatureElementMappings = {
     'insert?: Function;': 'insert?: (userId:string, doc) => boolean;',
     'update?: Function;': 'update?: (userId, doc, fieldNames, modifier) => boolean;',
     'remove?: Function;': 'remove?: (userId, doc) => boolean;',
-    'arg1, arg2...?: any, callbacks?: Function)': '...args)',
+    'arg1, arg2...?: any, callbacks?: Function | Object)': '...args)',
     'arg1, arg2...?: any, callbacks?: Object)': '...args)',
     'arg1, arg2...?: EJSON, asyncCallback?: Function)': '...args)',
+    'function: Function)': 'helperFunction: Function)',
+    'renderFunction: Function)': 'renderFunction?: Function)',
 
     'function send(options)': 'function send(options: Email.EmailMessage)',
     'find(selector:': 'find(selector?:',
@@ -392,7 +396,7 @@ var testThirdPartyDefs = function() {
 var replaceIrregularArgTypes = function(argSection) {
     for (var key in argTypeMappings) {
         // Needs to use the RegExp form of replace so can be global in case of multiple arg types
-        argSection = argSection.replace(new RegExp(key, 'g'), argTypeMappings[key]);
+        argSection = argSection.replace(key, argTypeMappings[key]);
     }
     return argSection;
 };
@@ -400,6 +404,8 @@ var replaceIrregularArgTypes = function(argSection) {
 var replaceSignatureElements = function(funcSignature) {
     for (var key in signatureElementMappings) {
         funcSignature = funcSignature.replace(key, signatureElementMappings[key]);
+        //eventually should be:
+        //funcSignature = funcSignature.replace(new RegExp(key, 'g'), signatureElementMappings[key]);
     }
     return funcSignature;
 };
@@ -449,36 +455,48 @@ var hasString = function(haystack, needle) {
     return haystack.indexOf(needle) !== -1;
 };
 
-var replaceOptions = function(argSection, options) {
-    if (!hasString(argSection, 'options')) return argSection;
+//var replaceOptions = function(argSection, options) {
+//    if (!hasString(argSection, 'options')) return argSection;
+//
+//    var optionType = '{\n';
+//    options.forEach(function (option) {
+//        //if (option.type && option.type.names && option.type.names.length > 1) {
+//        //    console.log("options = " + JSON.stringify(options));
+//        //    console.log("types = " + JSON.stringify(option.type.names));
+//        //}
+//
+//        if (hasString(option.name, ',')) {     // Special case for App.info, Mongo.Collection#allow, Mongo.Collection#deny
+//            var optionsArray = option.name.split(',');
+//            optionsArray.forEach(function(singleOptionName) {
+//                optionType += '\t\t\t\t' + singleOptionName + '?: ' + option.type.names[0] + ';\n';
+//            });
+//        } else {
+//            optionType += '\t\t\t\t' + option.name + '?: ' + option.type.names[0] + ';\n'
+//        }
+//    });
+//    optionType += '\t\t\t}';
+//
+//
+//    if (hasString(argSection, 'options?')) {
+//        argSection = argSection.replace('options?', 'options?: ' + optionType);
+//    } else {
+//        argSection = argSection.replace('options', 'options: ' + optionType);
+//    }
+//
+//    return argSection;
+//};
 
-    var optionType = '{\n';
-    _.each(options, function (option) {
-        //if (option.type && option.type.names && option.type.names.length > 1) {
-        //    console.log("options = " + JSON.stringify(options));
-        //    console.log("types = " + JSON.stringify(option.type.names));
-        //}
-
-        if (hasString(option.name, ',')) {     // Special case for App.info, Mongo.Collection#allow, Mongo.Collection#deny
-            var optionsArray = option.name.split(',');
-            optionsArray.forEach(function(singleOptionName) {
-                optionType += '\t\t\t\t' + singleOptionName + '?: ' + option.type.names[0] + ';\n';
-            });
+var createArgTypes = function(argTypes) {
+    var argTypesSection = '';
+    argTypes.forEach(function(type, index) {
+        type = replaceIrregularArgTypes(type);
+        if (index === 0) {
+            argTypesSection += type;
         } else {
-
-            optionType += '\t\t\t\t' + option.name + '?: ' + option.type.names[0] + ';\n'
+            argTypesSection += ' | ' + type;
         }
     });
-    optionType += '\t\t\t}';
-
-
-    if (hasString(argSection, 'options?')) {
-        argSection = argSection.replace('options?', 'options?: ' + optionType);
-    } else {
-        argSection = argSection.replace('options', 'options: ' + optionType);
-    }
-
-    return argSection;
+    return argTypesSection;
 };
 
 var createArgs = function(apiDef) {
@@ -487,20 +505,34 @@ var createArgs = function(apiDef) {
         argSection += param.name;
         if (param.optional) argSection += '?';
         if (param.name !== 'options') {
-            if (param.type.names.length > 1) {
-                //console.log("Def with multiple types = " + apiDef.longname);
-                //console.log('param = ' + param.name + ', types = ' + JSON.stringify(param.type.names));
-                argSection += ': any';   // TODO: possibly overload the signature with 1 signature per type -- think this is allowed in TypeScript
-            } else {
-                argSection += ': ' + param.type.names[0];
-            }
+            //if (param.type.names.length > 1) {
+            //    //console.log("Def with multiple types = " + apiDef.longname);
+            //    //console.log('param = ' + param.name + ', types = ' + JSON.stringify(param.type.names));
+            //    argSection += ': any';   // TODO: possibly overload the signature with 1 signature per type -- think this is allowed in TypeScript
+            //} else {
+            //    argSection += ': ' + param.type.names[0];
+            //}
+            argSection += ': ' + createArgTypes(param.type.names);
+        } else {
+            argSection += ': {\n';
+            apiDef.options.forEach(function(optionParam) {
+                if (hasString(optionParam.name, ',')) {     // Special case for App.info, Mongo.Collection#allow, Mongo.Collection#deny
+                    var optionsArray = optionParam.name.split(',');
+                    optionsArray.forEach(function(singleOptionName) {
+                        argSection += '\t\t\t\t' + singleOptionName + '?: ' + createArgTypes(optionParam.type.names) + ';\n';
+                    });
+                } else {
+                    argSection += '\t\t\t\t' + optionParam.name + '?: ' + createArgTypes(optionParam.type.names) + ';\n'
+                }
+            });
+            argSection += '\t\t\t}';
         }
         if (index !== apiDef.params.length - 1) argSection += ', ';
     });
     argSection += ')';
 
-    argSection = replaceOptions(argSection, apiDef.options);
-    argSection = replaceIrregularArgTypes(argSection);
+    //argSection = replaceOptions(argSection, apiDef.options);
+    //argSection = replaceIrregularArgTypes(argSection);
 
     return argSection;
 };
@@ -584,39 +616,39 @@ var createModuleInnerContent = function(moduleName, apiDoc, tabs, isInterface) {
                 content += '\t' + createModuleInnerContent(apiDef.longname, apiDoc, '', true);
                 content += '\t};\n';
             } else {  // apiDef.kind === members, functions, and classes
-                var paramIndexes = findParamsWithMultipleTypes(apiDef);
-
-                if (paramIndexes.length > 0) {
-                    var originalApiDef = JSON.parse(JSON.stringify(apiDef));
-
-                    // start section to make recursive
-                    _.each(apiDef.params, function(param1, paramIndex1) {
-                        if (paramIndex1 === paramIndexes[0]) {
-                            _.each(param1.type.names, function(type1) {
-                                apiDef.params[paramIndex1].type.names = [type1];
-                                if (paramIndexes[1]) {
-                                    _.each(originalApiDef.params, function(param2, paramIndex2) {
-
-                                        _.each(param2.type.names, function(type2) {
-                                            if (paramIndex2 === paramIndexes[1]) {
-                                                apiDef.params[paramIndex2].type.names = [type2];
-                                                content += createSignature(apiDef, '\t' + tabs, isInterface);
-                                            }
-                                        });
-
-                                    });
-                                } else {
-                                    content += createSignature(apiDef, '\t' + tabs, isInterface);
-                                }
-                            });
-                        }
-                    });
-                    // end section to make recursive
-
-                    //content += createSignature(apiDef, '\t' + tabs, isInterface);
-                } else {
+                //var paramIndexes = findParamsWithMultipleTypes(apiDef);
+                //
+                //if (paramIndexes.length > 0) {
+                //    var originalApiDef = JSON.parse(JSON.stringify(apiDef));
+                //
+                //    // start section to make recursive
+                //    _.each(apiDef.params, function(param1, paramIndex1) {
+                //        if (paramIndex1 === paramIndexes[0]) {
+                //            _.each(param1.type.names, function(type1) {
+                //                apiDef.params[paramIndex1].type.names = [type1];
+                //                if (paramIndexes[1]) {
+                //                    _.each(originalApiDef.params, function(param2, paramIndex2) {
+                //
+                //                        _.each(param2.type.names, function(type2) {
+                //                            if (paramIndex2 === paramIndexes[1]) {
+                //                                apiDef.params[paramIndex2].type.names = [type2];
+                //                                content += createSignature(apiDef, '\t' + tabs, isInterface);
+                //                            }
+                //                        });
+                //
+                //                    });
+                //                } else {
+                //                    content += createSignature(apiDef, '\t' + tabs, isInterface);
+                //                }
+                //            });
+                //        }
+                //    });
+                //    // end section to make recursive
+                //
+                //    //content += createSignature(apiDef, '\t' + tabs, isInterface);
+                //} else {
                     content += createSignature(apiDef, '\t' + tabs, isInterface);
-                }
+                //}
             }
             // Special cases
             if (apiDef.longname === 'Mongo.Collection' || apiDef.longname === 'Mongo.Cursor'
@@ -660,6 +692,7 @@ var parseClientMeteorApi = function(meteorClientApiFile) {
 
 var createMeteorDefFile = function() {
     require('request')(METEOR_API_URL, function (error, response, body) {
+        writeFileToDisk(SAVED_METEOR_API_FILE_PATH, body);
         populateModuleAndClassNames(body);
         var meteorDefsContent = parseClientMeteorApi(body);
         writeFileToDisk(DEF_DIR + METEOR_DEF_FILENAME, meteorDefsContent);

@@ -1,35 +1,41 @@
 # Meteor TypeScript libraries
 
-This project adds TypeScript definition files related to Meteor.  It includes **meteor.d.ts** plus many others.
+This project adds TypeScript definition files related to Meteor.  It includes **meteor.d.ts** plus many others.  These are definitions for Meteor 1.0.3.1, and
+they require TypeScript 1.4 or higher (to allow Union types).
 
 
 ## Why use TypeScript?
-[TypeScript] (http://www.typescriptlang.org/) allows you to specify and enforce variable types and interfaces.  It will inform you of errors before deployment/runtime, 
-often with more informative errors (e.g. a required property can't be found).  A TypeScript-aware editor, like WebStorm, will provide you with code completion and 
-code help/tips, as well as real-time type-checking and error information.  TypeScript code is much more self-documenting than straight-up, uncommented JavaScript code.
+[TypeScript] (http://www.typescriptlang.org/) allows you to specify and enforce variable types and interfaces.  A TypeScript-aware editor, like WebStorm, will
+provide you with code completion and code help/tips, real-time type-checking, and *informative* error information (e.g. a required property can't be found) -- all before
+deployment/runtime.  TypeScript code is much more self-documenting than straight-up, uncommented JavaScript code.
 
-TypeScript also enables you to use some of the new features in the upcoming ECMAScript 6 (a.k.a. Harmony) release that have already been finalized in the spec, such as modules, 
+TypeScript also enables you to use some of the new features in the upcoming ECMAScript 6 release that have already been finalized in the spec, such as modules,
 rest arguments, default arguments.  Finally, TypeScript allows you to leverage some features found in other languages, such as generics.
 
 There is some time investment required to use TypeScript, and the benefits will probably outweigh the costs when a code base is large and will be refactored
 many times, and/or will be worked on by multiple developers.
 
-While TypeScript can help simplify JavaScript code in some ways by replacing previously some verbose patterns (e.g. replacing the Revealing Module Pattern with 
-a TypeScript Module declaration), in general, TypeScript will NOT make JavaScript prettier (like CoffeeScript).
+In general, TypeScript will NOT make JavaScript prettier (like CoffeeScript).  However, it can help simplify JavaScript code in some ways by replacing previously
+some verbose patterns (e.g. replacing the Revealing Module Pattern with a TypeScript Module declaration).
 
 For further reading about TypeScript please refer to the [TypeScript Handbook](http://www.typescriptlang.org/Handbook)
 
 
 ## Usage
 
-1. Add a symbolic link to the definitions from within some directory within your project (e.g. "lib" or ".typescript").  The definitions can be found somewhere deep within `<project_root_dir>/.meteor/...`.  The following will probably work:
+1. Add a symbolic link to the definitions from within some directory within your project (e.g. ".typescript" or "lib").  The definitions can be found somewhere
+deep within `<project_root_dir>/.meteor/...`.  The following will probably work:
 
-        $ ln -s ../.meteor/local/build/programs/server/assets/packages/meteortypescript_typescript-libs/definitions typescript/package_defs
+        $ ln -s ../.meteor/local/build/programs/server/assets/packages/meteortypescript_typescript-libs/definitions package_defs
 
-2. Ensure you installed the [Typescript compiler for Meteor](https://github.com/meteor-typescript/meteor-typescript-compiler) or an [IDE which can transpile TypeScript to JavaScript](#transpiling-typescript).
+
+   If the definitions can't be found within the .meteor directory, you will have to manually pull down the definitions from github and add them to your project:
+    <https://github.com/meteor-typescript/meteor-typescript-libs>
+
+2. Install the [Typescript compiler for Meteor](https://github.com/meteor-typescript/meteor-typescript-compiler) or an [IDE which can transpile TypeScript to JavaScript](#transpiling-typescript).
 3. From the typescript files, add references.  Reference the definition files with a single line:
 
-        /// <reference path="/lib/typescript/package_defs/all-definitions.d.ts" />  (substitute path in your project)
+        /// <reference path=".typescript/package_defs/all-definitions.d.ts" />  (substitute path in your project)
 
 
    Or you can reference definition files individually:
@@ -40,20 +46,19 @@ For further reading about TypeScript please refer to the [TypeScript Handbook](h
 
 4. Be aware of differences in coding styles when using TypeScript (see below)
 
-5. Alternatively, you can pull down the definitions from github and add the ones you like to your project: <https://github.com/meteor-typescript/meteor-typescript-libs>.
-
 
 ##  TypeScript/Meteor coding style
 
 ### References
 
-Try to stay away from referencing **file.ts**, rather generate a **file.d.ts** using `tsc --reference file.ts`, and reference it in your file. Compilation will be much faster and code cleaner - it's always better to split definition from implemention.
+Try to stay away from referencing **file.ts**, rather generate a **file.d.ts** using `tsc --reference file.ts`, and reference it in your file. Compilation will
+be much faster and code cleaner - it's always better to split definition from implemention.
 
 ### Templates
 
-When specifying template helpers, events, and functions for created, rendered, and destroyed, you will need to use a "bracket notation" instead of the "dot notation":
+When specifying template **helpers**, **events**, and functions for **created**, **rendered**, and **destroyed**, you will need to use a "bracket notation" instead of the "dot notation":
 
-    Template['myTemplateName'].helpers({
+    Template['myTemplateName']['helpers']({
       foo: function () {
         return Session.get("foo");
       }
@@ -61,7 +66,7 @@ When specifying template helpers, events, and functions for created, rendered, a
 
     Template['myTemplateName']['rendered'] = function ( ) { ... }
 
-That's because Typescript enforces typing and it will throw an error saying "myTemplateName" does not exist when using the dot notation.
+This is because TypeScript enforces typing and it will throw an error saying "myTemplateName" does not exist when using the dot notation.
 
 ### Accessing a Form field
 

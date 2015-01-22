@@ -1,7 +1,7 @@
 Package.describe({
     name: 'meteortypescript:typescript-libs',
     summary: 'Common TypeScript definition files for Meteor, including meteor.d.ts and much more.',
-    version: '1.0.2',
+    version: '1.0.3',
     git: 'https://github.com/meteor-typescript/meteor-typescript-libs'
 });
 
@@ -10,7 +10,7 @@ Npm.depends({
 });
 
 Package.onUse(function (api, where) {
-    api.versionsFrom('1.0.2.1');
+    api.versionsFrom('1.0.3.1');
     api.addFiles([
         'definitions/all-definitions.d.ts',
         'definitions/meteor.d.ts',
