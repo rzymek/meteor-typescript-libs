@@ -152,10 +152,6 @@ var propertyAndReturnTypeMappings = {
     'Meteor.loginWithPassword': 'void',
     'Meteor.loginWith<ExternalService>': 'void',
     'Meteor.methods': 'void',
-    //'Meteor.onReconnect': 'void',
-    //'Meteor.defer': 'void',
-    //'Meteor.render': 'void',
-    //'Meteor.renderList': 'void',
     'Meteor.reconnect': 'void',
     'Meteor.setTimeout': 'number',
     'Meteor.setInterval': 'number',
@@ -164,10 +160,6 @@ var propertyAndReturnTypeMappings = {
     'Meteor.users': 'Mongo.Collection<User>',
     'Meteor.userId': 'string',
     'Meteor.onConnection': 'void',
-    //'Meteor.withValue': 'void',
-    //'Meteor.bindEnvironment': 'Function',
-    //'Meteor.get': 'string',
-    //'Meteor.EnvironmentVariable': 'void',
 
     'Mongo.Collection#find': 'Mongo.Cursor<T>',
     'Mongo.Collection#findOne': 'T',
@@ -321,9 +313,6 @@ var propertyAndReturnTypeMappings = {
 
     'DDP.connect': 'DDP.DDPStatic'
 
-    // Some of these below this point may no longer be needed
-
-    //'Random.id': 'string'
 };
 
 var createThirdPartyDefLibs = function() {
@@ -455,37 +444,6 @@ var hasString = function(haystack, needle) {
     return haystack.indexOf(needle) !== -1;
 };
 
-//var replaceOptions = function(argSection, options) {
-//    if (!hasString(argSection, 'options')) return argSection;
-//
-//    var optionType = '{\n';
-//    options.forEach(function (option) {
-//        //if (option.type && option.type.names && option.type.names.length > 1) {
-//        //    console.log("options = " + JSON.stringify(options));
-//        //    console.log("types = " + JSON.stringify(option.type.names));
-//        //}
-//
-//        if (hasString(option.name, ',')) {     // Special case for App.info, Mongo.Collection#allow, Mongo.Collection#deny
-//            var optionsArray = option.name.split(',');
-//            optionsArray.forEach(function(singleOptionName) {
-//                optionType += '\t\t\t\t' + singleOptionName + '?: ' + option.type.names[0] + ';\n';
-//            });
-//        } else {
-//            optionType += '\t\t\t\t' + option.name + '?: ' + option.type.names[0] + ';\n'
-//        }
-//    });
-//    optionType += '\t\t\t}';
-//
-//
-//    if (hasString(argSection, 'options?')) {
-//        argSection = argSection.replace('options?', 'options?: ' + optionType);
-//    } else {
-//        argSection = argSection.replace('options', 'options: ' + optionType);
-//    }
-//
-//    return argSection;
-//};
-
 var createArgTypes = function(argTypes) {
     var argTypesSection = '';
     argTypes.forEach(function(type, index) {
@@ -505,13 +463,6 @@ var createArgs = function(apiDef) {
         argSection += param.name;
         if (param.optional) argSection += '?';
         if (param.name !== 'options') {
-            //if (param.type.names.length > 1) {
-            //    //console.log("Def with multiple types = " + apiDef.longname);
-            //    //console.log('param = ' + param.name + ', types = ' + JSON.stringify(param.type.names));
-            //    argSection += ': any';   // TODO: possibly overload the signature with 1 signature per type -- think this is allowed in TypeScript
-            //} else {
-            //    argSection += ': ' + param.type.names[0];
-            //}
             argSection += ': ' + createArgTypes(param.type.names);
         } else {
             argSection += ': {\n';
@@ -530,9 +481,6 @@ var createArgs = function(apiDef) {
         if (index !== apiDef.params.length - 1) argSection += ', ';
     });
     argSection += ')';
-
-    //argSection = replaceOptions(argSection, apiDef.options);
-    //argSection = replaceIrregularArgTypes(argSection);
 
     return argSection;
 };
@@ -580,28 +528,15 @@ var populateModuleAndClassNames = function(meteorClientApiFile) {
             classNames.push(key);
         }
     });
-    //moduleNames.push('Template'); // TODO: fix exception
     moduleNames.push('Session'); // TODO: fix exception
     moduleNames.push('HTTP'); // TODO: fix exception
     moduleNames.push('Email'); // TODO: fix exception
-    //moduleNames.push('ReactiveVar'); // TODO: fix exception
     moduleNames = _.filter(moduleNames, function(modName) {
         return modName !== 'Plugin';
     });
     console.log('Modules: ' + JSON.stringify(moduleNames));
     console.log('Classes: ' + JSON.stringify(classNames));
 
-};
-
-var findParamsWithMultipleTypes = function(apiDef) {
-    var paramsWithMultipleTypes = [];
-    _.each(apiDef.params, function(param, index) {
-        if (param.type.names.length > 1) {
-            //console.log("Def with multiple types = " + apiDef.longname + ', param = ' + param.name + ', types = ' + JSON.stringify(param.type.names));
-            paramsWithMultipleTypes.push(index);
-        }
-    });
-    return paramsWithMultipleTypes;
 };
 
 // Recursively create contents for each module
@@ -616,39 +551,7 @@ var createModuleInnerContent = function(moduleName, apiDoc, tabs, isInterface) {
                 content += '\t' + createModuleInnerContent(apiDef.longname, apiDoc, '', true);
                 content += '\t};\n';
             } else {  // apiDef.kind === members, functions, and classes
-                //var paramIndexes = findParamsWithMultipleTypes(apiDef);
-                //
-                //if (paramIndexes.length > 0) {
-                //    var originalApiDef = JSON.parse(JSON.stringify(apiDef));
-                //
-                //    // start section to make recursive
-                //    _.each(apiDef.params, function(param1, paramIndex1) {
-                //        if (paramIndex1 === paramIndexes[0]) {
-                //            _.each(param1.type.names, function(type1) {
-                //                apiDef.params[paramIndex1].type.names = [type1];
-                //                if (paramIndexes[1]) {
-                //                    _.each(originalApiDef.params, function(param2, paramIndex2) {
-                //
-                //                        _.each(param2.type.names, function(type2) {
-                //                            if (paramIndex2 === paramIndexes[1]) {
-                //                                apiDef.params[paramIndex2].type.names = [type2];
-                //                                content += createSignature(apiDef, '\t' + tabs, isInterface);
-                //                            }
-                //                        });
-                //
-                //                    });
-                //                } else {
-                //                    content += createSignature(apiDef, '\t' + tabs, isInterface);
-                //                }
-                //            });
-                //        }
-                //    });
-                //    // end section to make recursive
-                //
-                //    //content += createSignature(apiDef, '\t' + tabs, isInterface);
-                //} else {
                     content += createSignature(apiDef, '\t' + tabs, isInterface);
-                //}
             }
             // Special cases
             if (apiDef.longname === 'Mongo.Collection' || apiDef.longname === 'Mongo.Cursor'
