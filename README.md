@@ -5,7 +5,7 @@ they require TypeScript 1.4 or higher (to allow Union types).
 
 
 ## Why use TypeScript?
-[TypeScript] (http://www.typescriptlang.org/) allows you to specify and enforce variable types and interfaces.  A TypeScript-aware editor, like WebStorm, will
+[TypeScript](http://www.typescriptlang.org/) allows you to specify and enforce variable types and interfaces.  A TypeScript-aware editor, like WebStorm, will
 provide you with code completion and code help/tips, real-time type-checking, and *informative* error information (e.g. a required property can't be found) -- all before
 deployment/runtime.  TypeScript code is much more self-documenting than straight-up, uncommented JavaScript code.
 
