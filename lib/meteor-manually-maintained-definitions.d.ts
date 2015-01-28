@@ -15,8 +15,9 @@
  */
 
 interface EJSON extends JSON {}
-interface Template {
-    [templateName: string]: Meteor.Template;
+interface TemplateStatic {
+    new(): TemplateInstance;
+    [templateName: string]: Meteor.TemplatePage;
 }
 
 declare module Match {
@@ -68,12 +69,7 @@ declare module Meteor {
         [id:string]:Meteor.EventHandlerFunction;
     }
 
-    // Same definition as top-level Template Interface
-    interface TemplateBase {
-        [templateName: string]: Meteor.Template;
-    }
-
-    interface Template {
+    interface TemplatePage {
         rendered: Function;
         created: Function;
         destroyed: Function;

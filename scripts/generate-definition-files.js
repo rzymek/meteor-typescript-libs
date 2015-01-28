@@ -108,7 +108,7 @@ var signatureElementMappings = {
     'insert(doc: Object, callback?);': 'insert(doc: T, callback?: Function): string;',
     'subscribe(name: string, arg1, arg2...?: any, callbacks?: any)': 'subscribe(name: string, ...args)',
     'call(name: string, arg1, arg2...?: EJSONable, asyncCallback?: Function)': 'call(name: string, ...args)',
-    'function body()': 'body: Meteor.TemplateBase',
+    'function body()': 'body: TemplateStaic',
     'helpers(helpers: Object)': 'helpers(helpers:{[id:string]: any})',
     'sourcePath?: string, line: number, func: string': 'sourcePath?: string, line?: number, func?: string',
     'function export': '// function export',
@@ -247,12 +247,15 @@ var propertyAndReturnTypeMappings = {
     'App.icons': 'void',
     'App.launchScreens': 'void',
 
+    'Template#onCreated': 'void',
+    'Template#onRendered': 'void',
+    'Template#onDestroyed': 'void',
     'Template#created': 'Function',
     'Template#rendered': 'Function',
     'Template#destroyed': 'Function',
     'Template#events': 'void',
     'Template#helpers': 'void',
-    'Template.body': 'Meteor.TemplateBase',
+    'Template.body': 'TemplateStatic',
     'Template.instance': 'Blaze.TemplateInstance',
     'Template.currentData': '{}',
     'Template.parentData': '{}',
@@ -315,7 +318,7 @@ var propertyAndReturnTypeMappings = {
 
 };
 
-var createThirdPartyDefLibs = function() {
+var getThirdPartyDefLibs = function() {
     _.each(thirdPartyDefLibs, function(lib) {
         require('request')(lib, function(error, response, body) {
             var filename = lib.slice(lib.lastIndexOf('/') + 1);
@@ -486,11 +489,11 @@ var createArgs = function(apiDef) {
 };
 
 // It appears that apiDef.kind can be namespace, class, member, or function (but namespaces are not passed into this function)
-var createSignature = function(apiDef, tabs, isInInterface) {
+var createSignature = function(apiDef, tabs, isInInterfaceOrClass) {
     var signature = tabs || '';
 
-    if (apiDef.kind === 'function' || isInInterface || apiDef.kind === 'class') {
-        if (!isInInterface) signature += 'function ';
+    if (apiDef.kind === 'function' || isInInterfaceOrClass || apiDef.kind === 'class') {
+        if (!isInInterfaceOrClass) signature += 'function ';
         signature += apiDef.name;
         signature += addGenerics(apiDef.longname);
         signature += createArgs(apiDef);
@@ -540,7 +543,7 @@ var populateModuleAndClassNames = function(meteorClientApiFile) {
 };
 
 // Recursively create contents for each module
-var createModuleInnerContent = function(moduleName, apiDoc, tabs, isInterface) {
+var createModuleInnerContent = function(moduleName, apiDoc, tabs, isInterfaceOrClass) {
     tabs = tabs || '';
     var content = '';
     _.forIn(apiDoc, function (apiDef) {
@@ -551,7 +554,7 @@ var createModuleInnerContent = function(moduleName, apiDoc, tabs, isInterface) {
                 content += '\t' + createModuleInnerContent(apiDef.longname, apiDoc, '', true);
                 content += '\t};\n';
             } else {  // apiDef.kind === members, functions, and classes
-                    content += createSignature(apiDef, '\t' + tabs, isInterface);
+                    content += createSignature(apiDef, '\t' + tabs, isInterfaceOrClass);
             }
             // Special cases
             if (apiDef.longname === 'Mongo.Collection' || apiDef.longname === 'Mongo.Cursor'
@@ -567,29 +570,53 @@ var createModuleInnerContent = function(moduleName, apiDoc, tabs, isInterface) {
     return content;
 };
 
-var parseClientMeteorApi = function(meteorClientApiFile) {
-    runApiFileInThisContext(meteorClientApiFile);
-    var stubFileContent = '';
-    stubFileContent += addManuallyMaintainedDefs();
-
+var createModules = function(DocsData) {
+    var allModulesContent = '';
     _.each(moduleNames, function(moduleName) {
         var moduleContent = '';
         moduleContent += 'declare module ' + moduleName + ' {\n';
         moduleContent += createModuleInnerContent(moduleName, DocsData);  //DocsData is root element within meteorClientApiFile
         moduleContent += '}\n\n';
-        stubFileContent += moduleContent;
+        allModulesContent += moduleContent;
     });
 
-    // Classes are separated out since they need a constructor, and we may want to define them as
-    // interfaces instead of modules in the future
+    return allModulesContent;
+};
+
+// Following Class Decomposition strategy found here https://typescript.codeplex.com/wikipage?title=Writing%20Definition%20(.d.ts)%20Files
+// This serves two purposes:
+//     - enables ambient declaration of class
+//     - enables separation of static and instance vars and methods (for the case of Template)
+var createClasses = function(DocsData) {
+    var allClassesContent = '';
+
     _.each(classNames, function(className) {
-        var classContent = 'declare ' + createSignature(DocsData[className], '', false);
-        classContent += 'declare module ' + className + ' {\n';
-        classContent += createModuleInnerContent(className, DocsData); //DocsData is root element meteorClientApiFile
+        var classContent = 'declare var ' + className + ': ' + className + 'Static;\n';
+
+        if (className != 'Template') {  // Creating TemplateStatic interface manually since it actually contains static methods
+            classContent += 'interface ' + className + 'Static {\n';
+            classContent += '\t new' + createArgs(DocsData[className]) + ': ' + className + 'Instance;\n';
+            classContent += '}\n';
+        } else {
+            classContent += '// TemplateStatic interface defined separately at top\n';
+        }
+
+        classContent += 'interface ' + className + 'Instance {\n';
+        classContent += createModuleInnerContent(className, DocsData, '', true); //DocsData is root element meteorClientApiFile
         classContent += '}\n\n';
-        stubFileContent += classContent;
+
+        allClassesContent += classContent;
     });
 
+    return allClassesContent;
+};
+
+var parseClientMeteorApi = function(meteorClientApiFile) {
+    runApiFileInThisContext(meteorClientApiFile); // Makes var DocsData in meterClientApiFile accessible as a global var
+    var stubFileContent = '';
+    stubFileContent += addManuallyMaintainedDefs();
+    stubFileContent += createModules(DocsData);
+    stubFileContent += createClasses(DocsData);
     return stubFileContent;
 };
 
@@ -604,7 +631,7 @@ var createMeteorDefFile = function() {
 
 createMeteorDefFile();
 //createTypeScriptLibFile();  Not currently working -- not sure how to generated latest typescript lib.d.ts file
-createThirdPartyDefLibs();
+getThirdPartyDefLibs();
 getThirdPartyDefTests();
 setTimeout(testThirdPartyDefs, 8000);
 //setTimeout(createMasterDefFile, 10000);

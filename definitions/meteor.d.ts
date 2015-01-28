@@ -15,8 +15,9 @@
  */
 
 interface EJSON extends JSON {}
-interface Template {
-    [templateName: string]: Meteor.Template;
+interface TemplateStatic {
+    new(): TemplateInstance;
+    [templateName: string]: Meteor.TemplatePage;
 }
 
 declare module Match {
@@ -68,12 +69,7 @@ declare module Meteor {
         [id:string]:Meteor.EventHandlerFunction;
     }
 
-    // Same definition as top-level Template Interface
-    interface TemplateBase {
-        [templateName: string]: Meteor.Template;
-    }
-
-    interface Template {
+    interface TemplatePage {
         rendered: Function;
         created: Function;
         destroyed: Function;
@@ -600,80 +596,93 @@ declare module Email {
 			}): void;
 }
 
-declare function Subscription(): void;
-declare module Subscription {
-	var connection: Meteor.Connection;
-	var userId: string;
-	function error(error: Error): void;
-	function stop(): void;
-	function onStop(func: Function): void;
-	function added(collection: string, id: string, fields: Object): void;
-	function changed(collection: string, id: string, fields: Object): void;
-	function removed(collection: string, id: string): void;
-	function ready(): void;
+declare var Subscription: SubscriptionStatic;
+interface SubscriptionStatic {
+	 new(): SubscriptionInstance;
+}
+interface SubscriptionInstance {
+	connection(): Meteor.Connection;
+	userId(): string;
+	error(error: Error): void;
+	stop(): void;
+	onStop(func: Function): void;
+	added(collection: string, id: string, fields: Object): void;
+	changed(collection: string, id: string, fields: Object): void;
+	removed(collection: string, id: string): void;
+	ready(): void;
 }
 
-declare function ReactiveVar(initialValue: any, equalsFunc?: (oldVal:any, newVal:any)=>boolean): void;
-declare module ReactiveVar {
-	function get(): any;
-	function set(newValue: any): void;
+declare var ReactiveVar: ReactiveVarStatic;
+interface ReactiveVarStatic {
+	 new(initialValue: any, equalsFunc?: Function): ReactiveVarInstance;
+}
+interface ReactiveVarInstance {
+	get(): any;
+	set(newValue: any): void;
 }
 
-declare function Template(): void;
-declare module Template {
-	var onCreated; /** TODO: add return value **/
-	var onRendered; /** TODO: add return value **/
-	var onDestroyed; /** TODO: add return value **/
-	var created: Function;
-	var rendered: Function;
-	var destroyed: Function;
-	var body: Meteor.TemplateBase;
-	function helpers(helpers:{[id:string]: any}): void;
-	function events(eventMap: {[actions: string]: Function}): void;
-	function instance(): Blaze.TemplateInstance;
-	function currentData(): {};
-	function parentData(numLevels?: number): {};
-	function registerHelper(name: string, helperFunction: Function): void;
+declare var Template: TemplateStatic;
+// TemplateStatic interface defined separately at top
+interface TemplateInstance {
+	onCreated(callback: Function): void;
+	onRendered(callback: Function): void;
+	onDestroyed(callback: Function): void;
+	created(): Function;
+	rendered(): Function;
+	destroyed(): Function;
+	body(): TemplateStatic;
+	helpers(helpers:{[id:string]: any}): void;
+	events(eventMap: {[actions: string]: Function}): void;
+	instance(): Blaze.TemplateInstance;
+	currentData(): {};
+	parentData(numLevels?: number): {};
+	registerHelper(name: string, helperFunction: Function): void;
 }
 
-declare function CompileStep(): void;
-declare module CompileStep {
-	var inputSize; /** TODO: add return value **/
-	var inputPath; /** TODO: add return value **/
-	var fullInputPath; /** TODO: add return value **/
-	var pathForSourceMap; /** TODO: add return value **/
-	var packageName; /** TODO: add return value **/
-	var rootOutputPath; /** TODO: add return value **/
-	var arch; /** TODO: add return value **/
-	var fileOptions; /** TODO: add return value **/
-	var declaredExports; /** TODO: add return value **/
-	function read(n?: number); /** TODO: add return value **/
-	function addHtml(options: {
+declare var CompileStep: CompileStepStatic;
+interface CompileStepStatic {
+	 new(): CompileStepInstance;
+}
+interface CompileStepInstance {
+	inputSize(); /** TODO: add return value **/
+	inputPath(); /** TODO: add return value **/
+	fullInputPath(); /** TODO: add return value **/
+	pathForSourceMap(); /** TODO: add return value **/
+	packageName(); /** TODO: add return value **/
+	rootOutputPath(); /** TODO: add return value **/
+	arch(); /** TODO: add return value **/
+	fileOptions(); /** TODO: add return value **/
+	declaredExports(); /** TODO: add return value **/
+	read(n?: number); /** TODO: add return value **/
+	addHtml(options: {
 				section?: string;
 				data?: string;
 			}); /** TODO: add return value **/
-	function addStylesheet(options: {
+	addStylesheet(options: {
 			}, path: string, data: string, sourceMap: string); /** TODO: add return value **/
-	function addJavaScript(options: {
+	addJavaScript(options: {
 				path?: string;
 				data?: string;
 				sourcePath?: string;
 			}); /** TODO: add return value **/
-	function addAsset(options: {
+	addAsset(options: {
 			}, path: string, data: any /** Buffer **/ | string); /** TODO: add return value **/
-	function error(options: {
+	error(options: {
 			}, message: string, sourcePath?: string, line?: number, func?: string); /** TODO: add return value **/
 }
 
-declare function PackageAPI(): void;
-declare module PackageAPI {
-	function use(packageNames: string | string[], architecture?: string, options?: {
+declare var PackageAPI: PackageAPIStatic;
+interface PackageAPIStatic {
+	 new(): PackageAPIInstance;
+}
+interface PackageAPIInstance {
+	use(packageNames: string | string[], architecture?: string, options?: {
 				weak?: boolean;
 				unordered?: Boolean;
 			}): void;
-	function imply(packageSpecs: string | string[]): void;
-	function addFiles(filename: string | string[], architecture?: string): void;
-	function versionsFrom(meteorRelease: string | string[]): void;
-	// function export(exportedObject: string, architecture?: string): void;
+	imply(packageSpecs: string | string[]): void;
+	addFiles(filename: string | string[], architecture?: string): void;
+	versionsFrom(meteorRelease: string | string[]): void;
+	export(exportedObject: string, architecture?: string): void;
 }
 

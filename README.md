@@ -1,6 +1,6 @@
 # Meteor TypeScript libraries
 
-This project adds TypeScript definition files related to Meteor.  It includes **meteor.d.ts** plus many others.  These are definitions for Meteor 1.0.3.1, and
+This project adds TypeScript definition files related to Meteor.  It includes *meteor.d.ts* plus many others.  These are definitions for Meteor 1.0.3.1, and
 they require TypeScript 1.4 or higher (to allow Union types).
 
 
@@ -10,7 +10,7 @@ provide you with code completion and code help/tips, real-time type-checking, an
 deployment/runtime.  TypeScript code is much more self-documenting than straight-up, uncommented JavaScript code.
 
 TypeScript also enables you to use some of the new features in the upcoming ECMAScript 6 release that have already been finalized in the spec, such as modules,
-rest arguments, default arguments.  Finally, TypeScript allows you to leverage some features found in other languages, such as generics.
+rest arguments, and default arguments.  Finally, TypeScript allows you to leverage some features found in other languages, such as generics.
 
 There is some time investment required to use TypeScript, and the benefits will probably outweigh the costs when a code base is large and will be refactored
 many times, and/or will be worked on by multiple developers.
@@ -18,7 +18,7 @@ many times, and/or will be worked on by multiple developers.
 In general, TypeScript will NOT make JavaScript prettier (like CoffeeScript).  However, it can help simplify JavaScript code in some ways by replacing previously
 some verbose patterns (e.g. replacing the Revealing Module Pattern with a TypeScript Module declaration).
 
-For further reading about TypeScript please refer to the [TypeScript Handbook](http://www.typescriptlang.org/Handbook)
+For further reading about TypeScript, please refer to the [TypeScript Handbook](http://www.typescriptlang.org/Handbook).
 
 
 ## Usage
@@ -40,9 +40,9 @@ deep within `<project_root_dir>/.meteor/...`.  The following will probably work:
 
    Or you can reference definition files individually:
    
-        /// <reference path="/lib/typescript/package_defs/meteor.d.ts" />  (substitue path in your project)
-        /// <reference path="/lib/typescript/package_defs/underscore.d.ts" />
-        /// <reference path="/lib/typescript/package_defs/jquery.d.ts" />
+        /// <reference path=".typescript/package_defs/meteor.d.ts" />  (substitue path in your project)
+        /// <reference path=".typescript/package_defs/underscore.d.ts" />
+        /// <reference path=".typescript/package_defs/jquery.d.ts" />
 
 4. Be aware of differences in coding styles when using TypeScript (see below)
 
@@ -51,12 +51,12 @@ deep within `<project_root_dir>/.meteor/...`.  The following will probably work:
 
 ### References
 
-Try to stay away from referencing **file.ts**, rather generate a **file.d.ts** using `tsc --reference file.ts`, and reference it in your file. Compilation will
+Try to stay away from referencing *file.ts*, rather generate a *file.d.ts* using `tsc --reference file.ts`, and reference it in your file. Compilation will
 be much faster and code cleaner - it's always better to split definition from implemention.
 
 ### Templates
 
-When specifying template **helpers**, **events**, and functions for **created**, **rendered**, and **destroyed**, you will need to use a "bracket notation" instead of the "dot notation":
+When specifying template *helpers*, *events*, and functions for *created*, *rendered*, and *destroyed*, you will need to use a "bracket notation" instead of the "dot notation":
 
     Template['myTemplateName']['helpers']({
       foo: function () {
@@ -100,8 +100,8 @@ To define collections, you will need to create an interface representing the col
 
 Finally, any TypeScript file using collections will need to contain a reference at the top pointing to the collection definitions:
 
-    /// <reference path="../lib/typescript/package_defs/meteor.d.ts"/>
-    /// <reference path="../lib/typescript/custom_defs/collections.ts"/>
+    /// <reference path=".typescript/package_defs/meteor.d.ts"/>
+    /// <reference path=".typescript/custom_defs/collections.ts"/>
 
 ### Creating definition files
 
@@ -112,7 +112,7 @@ If you have lots of custom definitions for a project, you can:
 - Create multiple definition files and include individual references to each definition file.
 - Create one huge monolithic definition file so you only have to refer to that file.
 - Create multiple definition files, and create a definition file with references to the other definitions files so that you only have to maintain one reference
-for all of you custom definitions.  e.g. contents of "lib/typescript/custom_defs/custom-definitions.d.ts":
+for all of you custom definitions.  e.g. contents of ".typescript/custom_defs/custom-definitions.d.ts":
 
         /// <reference path='collections.ts' />
         /// <reference path='paraview_helpers.d.ts'/>
