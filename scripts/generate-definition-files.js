@@ -27,7 +27,7 @@ var vm = require('vm'),
     definitionFilenames = [], // References to these files will be written to the master definition file
     testFilenames = ['meteor-tests.ts'],
     moduleNames = [],
-    classNames = [];
+    globalClassNames = [];
 
 
 // Not currently called -- not sure how to automatically generate latest lib.d.ts
@@ -127,7 +127,9 @@ var signatureElementMappings = {
     'function send(options)': 'function send(options: Email.EmailMessage)',
     'find(selector:': 'find(selector?:',
     'findOne(selector:': 'findOne(selector?:',
-    'Collection(name: string,': 'Collection<T>(name: string,'
+    'Collection(name: string,': 'Collection<T>(name: string,',
+    '(initialValue: any,': '(initialValue: T,',
+    'set(newValue: any)': 'set(newValue: T)'
 };
 
 var propertyAndReturnTypeMappings = {
@@ -247,9 +249,9 @@ var propertyAndReturnTypeMappings = {
     'App.icons': 'void',
     'App.launchScreens': 'void',
 
-    'Template#onCreated': 'void',
-    'Template#onRendered': 'void',
-    'Template#onDestroyed': 'void',
+    'Template#onCreated': 'Function',
+    'Template#onRendered': 'Function',
+    'Template#onDestroyed': 'Function',
     'Template#created': 'Function',
     'Template#rendered': 'Function',
     'Template#destroyed': 'Function',
@@ -261,7 +263,7 @@ var propertyAndReturnTypeMappings = {
     'Template.parentData': '{}',
     'Template.registerHelper': 'void',
 
-    'ReactiveVar#get': 'any',
+    'ReactiveVar#get': 'T',
     'ReactiveVar#set': 'void',
 
     'Subscription#connection': 'Meteor.Connection',
@@ -402,10 +404,10 @@ var replaceSignatureElements = function(funcSignature) {
     return funcSignature;
 };
 
-var constructorsTakingGenerics = ['Mongo.Collection', 'Mongo.Cursor'];  // Need to add a generic type to interface definition
+var classesWithGenerics = ['Mongo.Collection', 'Mongo.Cursor', 'ReactiveVar'];  // Need to add a generic type to interface definition
 
 var addGenerics = function(longName) {
-    if (_.contains(constructorsTakingGenerics, longName)) {
+    if (_.contains(classesWithGenerics, longName)) {
         return '<T>';
     } else {
         return '';
@@ -445,6 +447,27 @@ var runApiFileInThisContext = function(meteorClientApiFile) {
 
 var hasString = function(haystack, needle) {
     return haystack.indexOf(needle) !== -1;
+};
+
+var populateModuleAndGlobalClassNames = function(meteorClientApiFile) {
+    runApiFileInThisContext(meteorClientApiFile);
+    _.forIn(DocsData, function (value, key) {
+        if (value.kind === 'namespace' && !value.memberof) {
+            moduleNames.push(key);
+        }
+        if (value.kind === 'class' && !value.memberof) {
+            globalClassNames.push(key);
+        }
+    });
+    moduleNames.push('Session'); // TODO: fix exception
+    moduleNames.push('HTTP'); // TODO: fix exception
+    moduleNames.push('Email'); // TODO: fix exception
+    moduleNames = _.filter(moduleNames, function(modName) {
+        return modName !== 'Plugin';
+    });
+    console.log('Global Modules: ' + JSON.stringify(moduleNames));
+    console.log('Global Classes: ' + JSON.stringify(globalClassNames));
+
 };
 
 var createArgTypes = function(argTypes) {
@@ -488,82 +511,77 @@ var createArgs = function(apiDef) {
     return argSection;
 };
 
-// It appears that apiDef.kind can be namespace, class, member, or function (but namespaces are not passed into this function)
-var createSignature = function(apiDef, tabs, isInInterfaceOrClass) {
+var createInnerVar = function createInnerVar(apiDef, apiDoc) {
+    var content = '\tvar ' + apiDef.name + ': {\n';
+    content += '\t' + createModuleInnerContent(apiDef.longname, apiDoc, '', true);
+    content += '\t};\n';
+    return content;
+};
+
+var createSimpleClass = function createSimpleClass(apiDef, apiDoc, tabs) {
+    tabs = tabs || '';
+    //var argSection = createArgs(apiDef);
+    var constructorSignature = tabs + 'function ' + apiDef.name + addGenerics(apiDef.longname) + createArgs(apiDef) + ': void;\n';
+    content = replaceSignatureElements(constructorSignature);
+    content += tabs + 'interface ' + apiDef.name + addGenerics(apiDef.longname) + '{\n';
+    content += createModuleInnerContent(apiDef.longname, apiDoc, tabs, true);
+    content += tabs + '}\n\n';
+    return content;
+};
+
+var createVar = function createVar(apiDef, tabs, isInInterface) {
     var signature = tabs || '';
 
-    if (apiDef.kind === 'function' || isInInterfaceOrClass || apiDef.kind === 'class') {
-        if (!isInInterfaceOrClass) signature += 'function ';
-        signature += apiDef.name;
-        signature += addGenerics(apiDef.longname);
-        signature += createArgs(apiDef);
-    } else if (apiDef.kind === 'member') {
-        signature += 'var ' + apiDef.name;
-        if (apiDef.types && apiDef.types.names) {
-            if (apiDef.types.names.length > 1) {  // This situation doesn't currently exist, but I suppose it could exist in the future
-                signature += ': any;';   // TODO: possibly overload the signature with 1 signature per type -- think this is allowed in TypeScript
-            } else {
-                signature += ': ' + apiDef.types.names[0] + ';';
-            }
-        }
-    } else {
-        console.log('No "kind" property found: ' + JSON.stringify(apiDef, null, 4));
-    }
-
-    if (apiDef.kind === 'class') {
-        signature += ': void;';    // since this will be a constructor and constructors in TypeScript must always have a void return type
-    } else {
-        signature += addPropertyOrReturnTypeAndComplete(apiDef.longname, apiDef.returns);
-    }
+    if (!isInInterface) signature += 'var ';
+    signature += apiDef.name;
+    signature += addPropertyOrReturnTypeAndComplete(apiDef.longname, apiDef.returns);
     signature = replaceSignatureElements(signature);    // This is the nuclear option: replace anything missed earlier
     signature += '\n';
 
     return signature;
 };
 
-var populateModuleAndClassNames = function(meteorClientApiFile) {
-    runApiFileInThisContext(meteorClientApiFile);
-    _.forIn(DocsData, function (value, key) {
-        if (value.kind === 'namespace' && !value.memberof) {
-            moduleNames.push(key);
-        }
-        if (value.kind === 'class' && !value.memberof) {
-            classNames.push(key);
-        }
-    });
-    moduleNames.push('Session'); // TODO: fix exception
-    moduleNames.push('HTTP'); // TODO: fix exception
-    moduleNames.push('Email'); // TODO: fix exception
-    moduleNames = _.filter(moduleNames, function(modName) {
-        return modName !== 'Plugin';
-    });
-    console.log('Modules: ' + JSON.stringify(moduleNames));
-    console.log('Classes: ' + JSON.stringify(classNames));
+var createFunction= function createFunction(apiDef, tabs, isInInterface) {
+    var signature = tabs || '';
 
+    if (!isInInterface) signature += 'function ';
+    signature += apiDef.name;
+    signature += addGenerics(apiDef.longname);
+    signature += createArgs(apiDef);
+    signature += addPropertyOrReturnTypeAndComplete(apiDef.longname, apiDef.returns);
+    signature = replaceSignatureElements(signature);    // This is the nuclear option: replace anything missed earlier
+    signature += '\n';
+
+    return signature;
 };
 
 // Recursively create contents for each module
-var createModuleInnerContent = function(moduleName, apiDoc, tabs, isInterfaceOrClass) {
+var createModuleInnerContent = function(moduleOrInterfaceName, apiDoc, tabs, isInterface) {
+    //console.log('createModuleInnerContent(), moduleOrInterfaceName = ' + moduleOrInterfaceName);
     tabs = tabs || '';
     var content = '';
     _.forIn(apiDoc, function (apiDef) {
-        if (apiDef.memberof === moduleName) {
+        if (apiDef.memberof === moduleOrInterfaceName) {
             if (apiDef.longname === 'Template.dynamic') return;  // Special case since it's just for use in templates
-            if (apiDef.kind === 'namespace') {
-                content += '\tvar ' + apiDef.name + ': {\n';
-                content += '\t' + createModuleInnerContent(apiDef.longname, apiDoc, '', true);
-                content += '\t};\n';
-            } else {  // apiDef.kind === members, functions, and classes
-                    content += createSignature(apiDef, '\t' + tabs, isInterfaceOrClass);
-            }
-            // Special cases
-            if (apiDef.longname === 'Mongo.Collection' || apiDef.longname === 'Mongo.Cursor'
-                || apiDef.longname === 'Tracker.Computation' || apiDef.longname === 'Tracker.Dependency'
-                || apiDef.longname === 'Blaze.TemplateInstance' || apiDef.longname === 'EJSON.CustomType') {
-                content += '\tinterface ' + apiDef.name;
-                if (apiDef.longname === 'Mongo.Collection' || apiDef.longname === 'Mongo.Cursor') content += '<T>';
-                content += ' {\n\t' + createModuleInnerContent(apiDef.longname, apiDoc, '\t', true);
-                content += '\t}\n\n'
+            switch (apiDef.kind) {
+                case 'namespace':
+                    //console.log('Found namespace, longname = ' + apiDef.longname);
+                    content += createInnerVar(apiDef, apiDoc);
+                    break;
+                case 'class':
+                    //console.log('Found class, longname = ' + apiDef.longname);
+                    content += createSimpleClass(apiDef, apiDoc, '\t' + tabs);
+                    break;
+                case 'member':
+                    content += createVar(apiDef, '\t' + tabs, isInterface);
+                    break;
+                case 'function':
+                    if (apiDef.longname === 'Tracker.Computation') {  // TODO: better handle special case where function has members
+                        content += createSimpleClass(apiDef, apiDoc, '\t' + tabs);
+                        break;
+                    }
+                    content += createFunction(apiDef, '\t' + tabs, isInterface);
+                    break;
             }
         }
     });
@@ -572,6 +590,7 @@ var createModuleInnerContent = function(moduleName, apiDoc, tabs, isInterfaceOrC
 
 var createModules = function(DocsData) {
     var allModulesContent = '';
+
     _.each(moduleNames, function(moduleName) {
         var moduleContent = '';
         moduleContent += 'declare module ' + moduleName + ' {\n';
@@ -583,29 +602,29 @@ var createModules = function(DocsData) {
     return allModulesContent;
 };
 
+var createDecomposedClass = function(className, longName, tabs) {
+    tabs = tabs || '';
+    var classContent = 'declare var ' + className + ': ' + className + 'Static;\n';
+    classContent += '// ' + className + 'Static interface should be defined separately at top with static methods\n';
+    classContent += tabs + 'interface ' + className + addGenerics(longName) + '{\n';
+    classContent += createModuleInnerContent(longName, DocsData, tabs, true); //DocsData is root element meteorClientApiFile
+    classContent += tabs + '}\n\n';
+    return classContent;
+};
+
 // Following Class Decomposition strategy found here https://typescript.codeplex.com/wikipage?title=Writing%20Definition%20(.d.ts)%20Files
 // This serves two purposes:
 //     - enables ambient declaration of class
 //     - enables separation of static and instance vars and methods (for the case of Template)
-var createClasses = function(DocsData) {
+var createGlobalClasses = function(DocsData) {
     var allClassesContent = '';
 
-    _.each(classNames, function(className) {
-        var classContent = 'declare var ' + className + ': ' + className + 'Static;\n';
-
-        if (className != 'Template') {  // Creating TemplateStatic interface manually since it actually contains static methods
-            classContent += 'interface ' + className + 'Static {\n';
-            classContent += '\t new' + createArgs(DocsData[className]) + ': ' + className + 'Instance;\n';
-            classContent += '}\n';
+    _.each(globalClassNames, function(className) {
+        if (className !== 'Template') { // Special case since Template has static and instance members
+            allClassesContent += 'declare ' + createSimpleClass(DocsData[className], DocsData, '');
         } else {
-            classContent += '// TemplateStatic interface defined separately at top\n';
+            allClassesContent += createDecomposedClass(className, className);
         }
-
-        classContent += 'interface ' + className + 'Instance {\n';
-        classContent += createModuleInnerContent(className, DocsData, '', true); //DocsData is root element meteorClientApiFile
-        classContent += '}\n\n';
-
-        allClassesContent += classContent;
     });
 
     return allClassesContent;
@@ -616,14 +635,18 @@ var parseClientMeteorApi = function(meteorClientApiFile) {
     var stubFileContent = '';
     stubFileContent += addManuallyMaintainedDefs();
     stubFileContent += createModules(DocsData);
-    stubFileContent += createClasses(DocsData);
+    stubFileContent += createGlobalClasses(DocsData);
     return stubFileContent;
 };
 
 var createMeteorDefFile = function() {
     require('request')(METEOR_API_URL, function (error, response, body) {
+        if (error || body.length < 10) {
+            console.log('Error retrieving data.js from ' + METEOR_API_URL + ': ' + error);
+            return;
+        }
         writeFileToDisk(SAVED_METEOR_API_FILE_PATH, body);
-        populateModuleAndClassNames(body);
+        populateModuleAndGlobalClassNames(body);
         var meteorDefsContent = parseClientMeteorApi(body);
         writeFileToDisk(DEF_DIR + METEOR_DEF_FILENAME, meteorDefsContent);
     });

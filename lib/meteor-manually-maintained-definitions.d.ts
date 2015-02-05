@@ -16,7 +16,7 @@
 
 interface EJSON extends JSON {}
 interface TemplateStatic {
-    new(): TemplateInstance;
+    new(): Template;
     [templateName: string]: Meteor.TemplatePage;
 }
 

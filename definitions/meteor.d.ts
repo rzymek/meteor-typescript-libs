@@ -16,7 +16,7 @@
 
 interface EJSON extends JSON {}
 interface TemplateStatic {
-    new(): TemplateInstance;
+    new(): Template;
     [templateName: string]: Meteor.TemplatePage;
 }
 
@@ -329,12 +329,15 @@ declare module Blaze {
 	function getData(elementOrView?: HTMLElement | Blaze.View): Object;
 	function getView(element?: HTMLElement): Blaze.View;
 	function Template(viewName?: string, renderFunction?: Function): void;
+	interface Template{
+	}
+
 	function TemplateInstance(view: Blaze.View): void;
-	interface TemplateInstance {
-			data(): Object;
-		view(): Object;
-		firstNode(): Object;
-		lastNode(): Object;
+	interface TemplateInstance{
+		data: Object;
+		view: Object;
+		firstNode: Object;
+		lastNode: Object;
 		$(selector: string): Node[];
 		findAll(selector: string): HTMLElement[];
 		find(selector?: string): HTMLElement;
@@ -342,6 +345,9 @@ declare module Blaze {
 	}
 
 	function View(name?: string, renderFunction?: Function): void;
+	interface View{
+	}
+
 }
 
 declare module Match {
@@ -368,8 +374,8 @@ declare module EJSON {
 			}): boolean;
 	function clone<T>(val:T): T;
 	function CustomType(): void;
-	interface CustomType {
-			typeName(): string;
+	interface CustomType{
+		typeName(): string;
 		toJSONValue(): JSON;
 		clone(): EJSON.CustomType;
 		equals(other: Object): boolean;
@@ -421,6 +427,9 @@ declare module Meteor {
 				rootUrl?: string;
 			}): string;
 	function Error(error: string, reason?: string, details?: string): void;
+	interface Error{
+	}
+
 }
 
 declare module Mongo {
@@ -429,8 +438,8 @@ declare module Mongo {
 				idGeneration?: string;
 				transform?: Function;
 			}): void;
-	interface Collection<T> {
-			insert(doc: Object, callback?: Function): string;
+	interface Collection<T>{
+		insert(doc: Object, callback?: Function): string;
 		update(selector: Mongo.Selector, modifier: Mongo.Modifier, options?: {
 				multi?: boolean;
 				upsert?: Boolean;
@@ -471,9 +480,12 @@ declare module Mongo {
 	}
 
 	function ObjectID(hexString: string): void;
+	interface ObjectID{
+	}
+
 	function Cursor<T>(): void;
-	interface Cursor<T> {
-			forEach(callback: Function, thisArg?: any): void;
+	interface Cursor<T>{
+		forEach(callback: Function, thisArg?: any): void;
 		map(callback: Function, thisArg?: any): void;
 		fetch(): Array<T>;
 		count(): number;
@@ -487,10 +499,10 @@ declare module Tracker {
 	var active: boolean;
 	var currentComputation: Tracker.Computation;
 	function Computation(): void;
-	interface Computation {
-			stopped(): boolean;
-		invalidated(): boolean;
-		firstRun(): boolean;
+	interface Computation{
+		stopped: boolean;
+		invalidated: boolean;
+		firstRun: boolean;
 		onInvalidate(callback: Function): void;
 		invalidate(): void;
 		stop(): void;
@@ -502,8 +514,8 @@ declare module Tracker {
 	function onInvalidate(callback: Function): void;
 	function afterFlush(callback: Function): void;
 	function Dependency(): void;
-	interface Dependency {
-			depend(fromComputation?: Tracker.Computation): boolean
+	interface Dependency{
+		depend(fromComputation?: Tracker.Computation): boolean
 		changed(): void;
 		hasDependents(): boolean
 	}
@@ -596,13 +608,10 @@ declare module Email {
 			}): void;
 }
 
-declare var Subscription: SubscriptionStatic;
-interface SubscriptionStatic {
-	 new(): SubscriptionInstance;
-}
-interface SubscriptionInstance {
-	connection(): Meteor.Connection;
-	userId(): string;
+declare function Subscription(): void;
+interface Subscription{
+	connection: Meteor.Connection;
+	userId: string;
 	error(error: Error): void;
 	stop(): void;
 	onStop(func: Function): void;
@@ -612,25 +621,22 @@ interface SubscriptionInstance {
 	ready(): void;
 }
 
-declare var ReactiveVar: ReactiveVarStatic;
-interface ReactiveVarStatic {
-	 new(initialValue: any, equalsFunc?: Function): ReactiveVarInstance;
-}
-interface ReactiveVarInstance {
-	get(): any;
-	set(newValue: any): void;
+declare function ReactiveVar<T>(initialValue: T, equalsFunc?: Function): void;
+interface ReactiveVar<T>{
+	get(): T;
+	set(newValue: T): void;
 }
 
 declare var Template: TemplateStatic;
-// TemplateStatic interface defined separately at top
-interface TemplateInstance {
-	onCreated(callback: Function): void;
-	onRendered(callback: Function): void;
-	onDestroyed(callback: Function): void;
-	created(): Function;
-	rendered(): Function;
-	destroyed(): Function;
-	body(): TemplateStatic;
+// TemplateStatic interface should be defined separately at top with static methods
+interface Template{
+	onCreated: Function;
+	onRendered: Function;
+	onDestroyed: Function;
+	created: Function;
+	rendered: Function;
+	destroyed: Function;
+	body: TemplateStatic;
 	helpers(helpers:{[id:string]: any}): void;
 	events(eventMap: {[actions: string]: Function}): void;
 	instance(): Blaze.TemplateInstance;
@@ -639,20 +645,17 @@ interface TemplateInstance {
 	registerHelper(name: string, helperFunction: Function): void;
 }
 
-declare var CompileStep: CompileStepStatic;
-interface CompileStepStatic {
-	 new(): CompileStepInstance;
-}
-interface CompileStepInstance {
-	inputSize(); /** TODO: add return value **/
-	inputPath(); /** TODO: add return value **/
-	fullInputPath(); /** TODO: add return value **/
-	pathForSourceMap(); /** TODO: add return value **/
-	packageName(); /** TODO: add return value **/
-	rootOutputPath(); /** TODO: add return value **/
-	arch(); /** TODO: add return value **/
-	fileOptions(); /** TODO: add return value **/
-	declaredExports(); /** TODO: add return value **/
+declare function CompileStep(): void;
+interface CompileStep{
+	inputSize; /** TODO: add return value **/
+	inputPath; /** TODO: add return value **/
+	fullInputPath; /** TODO: add return value **/
+	pathForSourceMap; /** TODO: add return value **/
+	packageName; /** TODO: add return value **/
+	rootOutputPath; /** TODO: add return value **/
+	arch; /** TODO: add return value **/
+	fileOptions; /** TODO: add return value **/
+	declaredExports; /** TODO: add return value **/
 	read(n?: number); /** TODO: add return value **/
 	addHtml(options: {
 				section?: string;
@@ -671,11 +674,8 @@ interface CompileStepInstance {
 			}, message: string, sourcePath?: string, line?: number, func?: string); /** TODO: add return value **/
 }
 
-declare var PackageAPI: PackageAPIStatic;
-interface PackageAPIStatic {
-	 new(): PackageAPIInstance;
-}
-interface PackageAPIInstance {
+declare function PackageAPI(): void;
+interface PackageAPI{
 	use(packageNames: string | string[], architecture?: string, options?: {
 				weak?: boolean;
 				unordered?: Boolean;
