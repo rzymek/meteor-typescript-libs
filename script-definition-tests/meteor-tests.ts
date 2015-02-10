@@ -18,9 +18,13 @@
 
 var Rooms = new Mongo.Collection('rooms');
 var Messages = new Mongo.Collection('messages');
-var Monkeys = new Mongo.Collection('monkeys');
-var x = new Mongo.Collection('x');
-var y = new Mongo.Collection('y');
+interface MonkeyDAO {
+    _id: string;
+    name: string;
+}
+var Monkeys = new Mongo.Collection<MonkeyDAO>('monkeys');
+//var x = new Mongo.Collection<xDAO>('x');
+//var y = new Mongo.Collection<yDAO>('y');
 
 var check = function(str1, str2) {};
 /********************************** End setup for tests *********************************/
@@ -154,7 +158,7 @@ interface MessagesDAO {
 var Chatrooms = new Mongo.Collection<ChatroomsDAO>("chatrooms");
 Messages = new Mongo.Collection<MessagesDAO>("messages");
 
-var myMessages = Messages.find({userId: Session.get('myUserId')}).fetch();
+var myMessages = <MessagesDAO> Messages.find({userId: Session.get('myUserId')}).fetch();
 
 Messages.insert({text: "Hello, world!"});
 
@@ -185,11 +189,16 @@ Animal.prototype = {
   makeNoise: function () {
     console.log(this.sound);
   }
+};
+
+
+interface AnimalDAO {
+    _id: string;
+    makeNoise: () => void;
 }
 
-
 // Define a Collection that uses Animal as its document
-var Animals = new Mongo.Collection("Animals", {
+var Animals = new Mongo.Collection<AnimalDAO>("Animals", {
   transform: function (doc) { return new Animal(doc); }
 });
 
@@ -482,8 +491,7 @@ Tracker.autorun(function (c) {
  */
 if (Tracker.active) {
     Tracker.onInvalidate(function () {
-        x.destroy();
-        y.finalize();
+        console.log('invalidated');
     });
 }
 
@@ -562,8 +570,8 @@ Blaze.toHTMLWithData(testTemplate, function() {});
 Blaze.toHTMLWithData(testView, {test: 1});
 Blaze.toHTMLWithData(testView, function() {});
 
-var reactiveVar1 = new ReactiveVar('test value');
-var reactiveVar2 = new ReactiveVar('test value', function(oldVal) { return true; });
+var reactiveVar1 = new ReactiveVar<string>('test value');
+var reactiveVar2 = new ReactiveVar<string>('test value', function(oldVal) { return true; });
 
 var varValue: string = reactiveVar1.get();
 reactiveVar1.set('new value');

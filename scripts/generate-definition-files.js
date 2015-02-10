@@ -28,6 +28,7 @@ var vm = require('vm'),
     testFilenames = ['meteor-tests.ts'],
     moduleNames = [],
     globalClassNames = [];
+// Global var DocsData created in function runApiFileInThisContext()
 
 
 // Not currently called -- not sure how to automatically generate latest lib.d.ts
@@ -183,7 +184,7 @@ var propertyAndReturnTypeMappings = {
     'Package.onTest': 'void',
     'Package.registerBuildPlugin': 'void',
     'Npm.depends': 'void',
-    'Npm.require': 'void',
+    'Npm.require': 'any',
     'Cordova.depends': 'void',
     'Blaze.TemplateInstance#$': 'Node[]',
     'Blaze.TemplateInstance#findAll': 'HTMLElement[]',
@@ -441,6 +442,7 @@ var addManuallyMaintainedDefs = function() {
     return interfaces;
 };
 
+// Creates global var DocsData with contents of meteorClientApiFile
 var runApiFileInThisContext = function(meteorClientApiFile) {
     vm.runInThisContext("DocsData = {};" + meteorClientApiFile);
 };
@@ -451,7 +453,7 @@ var hasString = function(haystack, needle) {
 
 var populateModuleAndGlobalClassNames = function(meteorClientApiFile) {
     runApiFileInThisContext(meteorClientApiFile);
-    _.forIn(DocsData, function (value, key) {
+    _.forIn(DocsData, function (value, key) {  // Global var DocsData created in function runApiFileInThisContext()
         if (value.kind === 'namespace' && !value.memberof) {
             moduleNames.push(key);
         }
@@ -511,22 +513,51 @@ var createArgs = function(apiDef) {
     return argSection;
 };
 
-var createInnerVar = function createInnerVar(apiDef, apiDoc) {
+var createInnerVar = function createInnerVar(apiDef) {
     var content = '\tvar ' + apiDef.name + ': {\n';
-    content += '\t' + createModuleInnerContent(apiDef.longname, apiDoc, '', true);
+    content += '\t' + createModuleInnerContent(apiDef.longname, '', true);
     content += '\t};\n';
     return content;
 };
 
-var createSimpleClass = function createSimpleClass(apiDef, apiDoc, tabs) {
+var createSimpleClass = function createSimpleClass(apiDef, tabs) {
     tabs = tabs || '';
-    //var argSection = createArgs(apiDef);
     var constructorSignature = tabs + 'function ' + apiDef.name + addGenerics(apiDef.longname) + createArgs(apiDef) + ': void;\n';
     content = replaceSignatureElements(constructorSignature);
-    content += tabs + 'interface ' + apiDef.name + addGenerics(apiDef.longname) + '{\n';
-    content += createModuleInnerContent(apiDef.longname, apiDoc, tabs, true);
+    content += tabs + 'interface ' + apiDef.name + addGenerics(apiDef.longname) + ' {\n';
+    content += createModuleInnerContent(apiDef.longname, tabs, true);
     content += tabs + '}\n\n';
     return content;
+};
+
+// Following Class Decomposition strategy found here https://typescript.codeplex.com/wikipage?title=Writing%20Definition%20(.d.ts)%20Files
+// This serves two purposes:
+//     - enables ambient declaration of class
+//     - enables separation of static and instance vars and methods (for the case of Template)
+var createDecomposedClass = function(apiDef, tabs) {
+    //console.log('Creating decomposed class, longName = ' + longName);
+    tabs = tabs || '';
+    var classContent = tabs + 'var ' + apiDef.name + ': ' + apiDef.name + 'Static;\n';
+    classContent += tabs + 'interface ' + apiDef.name + 'Static {\n';
+    var constructorSignature = tabs + '\tnew ' + addGenerics(apiDef.longname) + createArgs(apiDef) + ': ' + apiDef.name + addGenerics(apiDef.longname) + ';\n';
+    classContent += replaceSignatureElements(constructorSignature);
+    if (apiDef.name === 'Template') classContent += tabs + '\t//[templateName: string]: Template; //really should have this here, but not possible in TypeScript with other static members\n';
+    classContent += createModuleInnerContent(apiDef.longname, tabs, true, 'static');
+    classContent += tabs + '}\n';
+    classContent += tabs + 'interface ' + apiDef.name + addGenerics(apiDef.longname) + ' {\n';
+    classContent += createModuleInnerContent(apiDef.longname, tabs, true, 'instance');
+    classContent += tabs + '}\n\n';
+    return classContent;
+};
+
+var createGlobalClasses = function() {
+    var allClassesContent = '';
+
+    _.each(globalClassNames, function(className) {
+        allClassesContent += 'declare ' + createDecomposedClass(DocsData[className], ''); // Global var DocsData created in function runApiFileInThisContext()
+    });
+
+    return allClassesContent;
 };
 
 var createVar = function createVar(apiDef, tabs, isInInterface) {
@@ -556,28 +587,30 @@ var createFunction= function createFunction(apiDef, tabs, isInInterface) {
 };
 
 // Recursively create contents for each module
-var createModuleInnerContent = function(moduleOrInterfaceName, apiDoc, tabs, isInterface) {
+var createModuleInnerContent = function(moduleOrInterfaceName, tabs, isInterface, scope) {
     //console.log('createModuleInnerContent(), moduleOrInterfaceName = ' + moduleOrInterfaceName);
     tabs = tabs || '';
     var content = '';
-    _.forIn(apiDoc, function (apiDef) {
+    _.forIn(DocsData, function (apiDef) {  // Global var DocsData created in function runApiFileInThisContext()
         if (apiDef.memberof === moduleOrInterfaceName) {
             if (apiDef.longname === 'Template.dynamic') return;  // Special case since it's just for use in templates
+            if (scope && apiDef.scope !== scope) return;
+            //if (apiDef) console.log('apiDef.longname = ' + apiDef.longname + 'apiDef.scope = ' + apiDef.scope);
             switch (apiDef.kind) {
                 case 'namespace':
                     //console.log('Found namespace, longname = ' + apiDef.longname);
-                    content += createInnerVar(apiDef, apiDoc);
+                    content += createInnerVar(apiDef);
                     break;
                 case 'class':
                     //console.log('Found class, longname = ' + apiDef.longname);
-                    content += createSimpleClass(apiDef, apiDoc, '\t' + tabs);
+                    content += createDecomposedClass(apiDef, '\t' + tabs);
                     break;
                 case 'member':
                     content += createVar(apiDef, '\t' + tabs, isInterface);
                     break;
                 case 'function':
                     if (apiDef.longname === 'Tracker.Computation') {  // TODO: better handle special case where function has members
-                        content += createSimpleClass(apiDef, apiDoc, '\t' + tabs);
+                        content += createSimpleClass(apiDef, '\t' + tabs);
                         break;
                     }
                     content += createFunction(apiDef, '\t' + tabs, isInterface);
@@ -588,13 +621,13 @@ var createModuleInnerContent = function(moduleOrInterfaceName, apiDoc, tabs, isI
     return content;
 };
 
-var createModules = function(DocsData) {
+var createModules = function() {
     var allModulesContent = '';
 
     _.each(moduleNames, function(moduleName) {
         var moduleContent = '';
         moduleContent += 'declare module ' + moduleName + ' {\n';
-        moduleContent += createModuleInnerContent(moduleName, DocsData);  //DocsData is root element within meteorClientApiFile
+        moduleContent += createModuleInnerContent(moduleName);
         moduleContent += '}\n\n';
         allModulesContent += moduleContent;
     });
@@ -602,40 +635,12 @@ var createModules = function(DocsData) {
     return allModulesContent;
 };
 
-var createDecomposedClass = function(className, longName, tabs) {
-    tabs = tabs || '';
-    var classContent = 'declare var ' + className + ': ' + className + 'Static;\n';
-    classContent += '// ' + className + 'Static interface should be defined separately at top with static methods\n';
-    classContent += tabs + 'interface ' + className + addGenerics(longName) + '{\n';
-    classContent += createModuleInnerContent(longName, DocsData, tabs, true); //DocsData is root element meteorClientApiFile
-    classContent += tabs + '}\n\n';
-    return classContent;
-};
-
-// Following Class Decomposition strategy found here https://typescript.codeplex.com/wikipage?title=Writing%20Definition%20(.d.ts)%20Files
-// This serves two purposes:
-//     - enables ambient declaration of class
-//     - enables separation of static and instance vars and methods (for the case of Template)
-var createGlobalClasses = function(DocsData) {
-    var allClassesContent = '';
-
-    _.each(globalClassNames, function(className) {
-        if (className !== 'Template') { // Special case since Template has static and instance members
-            allClassesContent += 'declare ' + createSimpleClass(DocsData[className], DocsData, '');
-        } else {
-            allClassesContent += createDecomposedClass(className, className);
-        }
-    });
-
-    return allClassesContent;
-};
-
 var parseClientMeteorApi = function(meteorClientApiFile) {
     runApiFileInThisContext(meteorClientApiFile); // Makes var DocsData in meterClientApiFile accessible as a global var
     var stubFileContent = '';
     stubFileContent += addManuallyMaintainedDefs();
-    stubFileContent += createModules(DocsData);
-    stubFileContent += createGlobalClasses(DocsData);
+    stubFileContent += createModules();
+    stubFileContent += createGlobalClasses();
     return stubFileContent;
 };
 
@@ -657,4 +662,3 @@ createMeteorDefFile();
 getThirdPartyDefLibs();
 getThirdPartyDefTests();
 setTimeout(testThirdPartyDefs, 8000);
-//setTimeout(createMasterDefFile, 10000);

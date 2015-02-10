@@ -15,10 +15,10 @@
  */
 
 interface EJSON extends JSON {}
-interface TemplateStatic {
-    new(): Template;
-    [templateName: string]: Meteor.TemplatePage;
-}
+//interface TemplateStatic {
+//    new(): Template;
+//    [templateName: string]: Meteor.TemplatePage;
+//}
 
 declare module Match {
     var Any;
@@ -62,7 +62,7 @@ declare module Meteor {
     }
 
     interface EventHandlerFunction extends Function {
-        (event?:Meteor.Event):any;
+        (event?:Meteor.Event):void;
     }
 
     interface EventMap {
@@ -328,12 +328,19 @@ declare module Blaze {
 	function toHTMLWithData(templateOrView: Template | Blaze.View, data: Object | Function): string;
 	function getData(elementOrView?: HTMLElement | Blaze.View): Object;
 	function getView(element?: HTMLElement): Blaze.View;
-	function Template(viewName?: string, renderFunction?: Function): void;
-	interface Template{
+	var Template: TemplateStatic;
+	interface TemplateStatic {
+		new (viewName?: string, renderFunction?: Function): Template;
+		//[templateName: string]: Template; //really should have this here, but not possible in TypeScript with other static members
+	}
+	interface Template {
 	}
 
-	function TemplateInstance(view: Blaze.View): void;
-	interface TemplateInstance{
+	var TemplateInstance: TemplateInstanceStatic;
+	interface TemplateInstanceStatic {
+		new (view: Blaze.View): TemplateInstance;
+	}
+	interface TemplateInstance {
 		data: Object;
 		view: Object;
 		firstNode: Object;
@@ -344,8 +351,11 @@ declare module Blaze {
 		autorun(runFunc: Function): Object;
 	}
 
-	function View(name?: string, renderFunction?: Function): void;
-	interface View{
+	var View: ViewStatic;
+	interface ViewStatic {
+		new (name?: string, renderFunction?: Function): View;
+	}
+	interface View {
 	}
 
 }
@@ -373,8 +383,11 @@ declare module EJSON {
 				keyOrderSensitive?: boolean;
 			}): boolean;
 	function clone<T>(val:T): T;
-	function CustomType(): void;
-	interface CustomType{
+	var CustomType: CustomTypeStatic;
+	interface CustomTypeStatic {
+		new (): CustomType;
+	}
+	interface CustomType {
 		typeName(): string;
 		toJSONValue(): JSON;
 		clone(): EJSON.CustomType;
@@ -426,19 +439,25 @@ declare module Meteor {
 				replaceLocalhost?: Boolean;
 				rootUrl?: string;
 			}): string;
-	function Error(error: string, reason?: string, details?: string): void;
-	interface Error{
+	var Error: ErrorStatic;
+	interface ErrorStatic {
+		new (error: string, reason?: string, details?: string): Error;
+	}
+	interface Error {
 	}
 
 }
 
 declare module Mongo {
-	function Collection<T>(name: string, options?: {
+	var Collection: CollectionStatic;
+	interface CollectionStatic {
+		new <T>(name: string, options?: {
 				connection?: Object;
 				idGeneration?: string;
 				transform?: Function;
-			}): void;
-	interface Collection<T>{
+			}): Collection<T>;
+	}
+	interface Collection<T> {
 		insert(doc: Object, callback?: Function): string;
 		update(selector: Mongo.Selector, modifier: Mongo.Modifier, options?: {
 				multi?: boolean;
@@ -479,12 +498,18 @@ declare module Mongo {
 			}): boolean;
 	}
 
-	function ObjectID(hexString: string): void;
-	interface ObjectID{
+	var ObjectID: ObjectIDStatic;
+	interface ObjectIDStatic {
+		new (hexString: string): ObjectID;
+	}
+	interface ObjectID {
 	}
 
-	function Cursor<T>(): void;
-	interface Cursor<T>{
+	var Cursor: CursorStatic;
+	interface CursorStatic {
+		new <T>(): Cursor<T>;
+	}
+	interface Cursor<T> {
 		forEach(callback: Function, thisArg?: any): void;
 		map(callback: Function, thisArg?: any): void;
 		fetch(): Array<T>;
@@ -499,7 +524,7 @@ declare module Tracker {
 	var active: boolean;
 	var currentComputation: Tracker.Computation;
 	function Computation(): void;
-	interface Computation{
+	interface Computation {
 		stopped: boolean;
 		invalidated: boolean;
 		firstRun: boolean;
@@ -513,8 +538,11 @@ declare module Tracker {
 	function nonreactive(func: Function): void;
 	function onInvalidate(callback: Function): void;
 	function afterFlush(callback: Function): void;
-	function Dependency(): void;
-	interface Dependency{
+	var Dependency: DependencyStatic;
+	interface DependencyStatic {
+		new (): Dependency;
+	}
+	interface Dependency {
 		depend(fromComputation?: Tracker.Computation): boolean
 		changed(): void;
 		hasDependents(): boolean
@@ -563,7 +591,7 @@ declare module Package {
 
 declare module Npm {
 	function depends(dependencies:{[id:string]:string}): void;
-	function require(name: string): void;
+	function require(name: string): any;
 }
 
 declare module Cordova {
@@ -608,8 +636,11 @@ declare module Email {
 			}): void;
 }
 
-declare function Subscription(): void;
-interface Subscription{
+declare var Subscription: SubscriptionStatic;
+interface SubscriptionStatic {
+	new (): Subscription;
+}
+interface Subscription {
 	connection: Meteor.Connection;
 	userId: string;
 	error(error: Error): void;
@@ -621,32 +652,41 @@ interface Subscription{
 	ready(): void;
 }
 
-declare function ReactiveVar<T>(initialValue: T, equalsFunc?: Function): void;
-interface ReactiveVar<T>{
+declare var ReactiveVar: ReactiveVarStatic;
+interface ReactiveVarStatic {
+	new <T>(initialValue: T, equalsFunc?: Function): ReactiveVar<T>;
+}
+interface ReactiveVar<T> {
 	get(): T;
 	set(newValue: T): void;
 }
 
 declare var Template: TemplateStatic;
-// TemplateStatic interface should be defined separately at top with static methods
-interface Template{
+interface TemplateStatic {
+	new (): Template;
+	//[templateName: string]: Template; //really should have this here, but not possible in TypeScript with other static members
+	body: TemplateStatic;
+	instance(): Blaze.TemplateInstance;
+	currentData(): {};
+	parentData(numLevels?: number): {};
+	registerHelper(name: string, helperFunction: Function): void;
+}
+interface Template {
 	onCreated: Function;
 	onRendered: Function;
 	onDestroyed: Function;
 	created: Function;
 	rendered: Function;
 	destroyed: Function;
-	body: TemplateStatic;
 	helpers(helpers:{[id:string]: any}): void;
 	events(eventMap: {[actions: string]: Function}): void;
-	instance(): Blaze.TemplateInstance;
-	currentData(): {};
-	parentData(numLevels?: number): {};
-	registerHelper(name: string, helperFunction: Function): void;
 }
 
-declare function CompileStep(): void;
-interface CompileStep{
+declare var CompileStep: CompileStepStatic;
+interface CompileStepStatic {
+	new (): CompileStep;
+}
+interface CompileStep {
 	inputSize; /** TODO: add return value **/
 	inputPath; /** TODO: add return value **/
 	fullInputPath; /** TODO: add return value **/
@@ -674,8 +714,11 @@ interface CompileStep{
 			}, message: string, sourcePath?: string, line?: number, func?: string); /** TODO: add return value **/
 }
 
-declare function PackageAPI(): void;
-interface PackageAPI{
+declare var PackageAPI: PackageAPIStatic;
+interface PackageAPIStatic {
+	new (): PackageAPI;
+}
+interface PackageAPI {
 	use(packageNames: string | string[], architecture?: string, options?: {
 				weak?: boolean;
 				unordered?: Boolean;

@@ -77,7 +77,7 @@ declare module Router {
     export function current(): any;
 
     export function onRun(hook?: string, func?: Function, params?: any): void;
-    export function onBeforeAction(hook?: string, func?: Function, params?: any): void;
+    export function onBeforeAction(hookOrFunc?: string | Function, funcOrParams?: Function | any, params?: any): void;
     export function onAfterAction(hook?: string, func?: Function, params?: any): void;
     export function onStop(hook?: string, func?: Function, params?: any): void;
     export function onData(hook?: string, func?: Function, params?: any): void;

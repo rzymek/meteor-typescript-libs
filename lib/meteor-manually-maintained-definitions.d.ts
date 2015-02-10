@@ -15,10 +15,10 @@
  */
 
 interface EJSON extends JSON {}
-interface TemplateStatic {
-    new(): Template;
-    [templateName: string]: Meteor.TemplatePage;
-}
+//interface TemplateStatic {
+//    new(): Template;
+//    [templateName: string]: Meteor.TemplatePage;
+//}
 
 declare module Match {
     var Any;
@@ -62,7 +62,7 @@ declare module Meteor {
     }
 
     interface EventHandlerFunction extends Function {
-        (event?:Meteor.Event):any;
+        (event?:Meteor.Event):void;
     }
 
     interface EventMap {
