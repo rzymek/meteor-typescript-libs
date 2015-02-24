@@ -20,6 +20,8 @@ interface EJSON extends JSON {}
 //    [templateName: string]: Meteor.TemplatePage;
 //}
 
+declare function check(value:any, pattern:any);
+
 declare module Match {
     var Any;
     var String;
@@ -664,9 +666,14 @@ interface ReactiveVar<T> {
 declare var Template: TemplateStatic;
 interface TemplateStatic {
 	new (): Template;
-	//[templateName: string]: Template; //really should have this here, but not possible in TypeScript with other static members
-	body: TemplateStatic;
-	instance(): Blaze.TemplateInstance;
+	// It should be a strict [templateName: string]: TemplateInstance but it's not possible
+	[templateName: string]: any|Template;
+	body: Template;
+	head: Template;
+	instance(): Blaze.Template;
+	find(selector:string):Blaze.Template;
+	findAll(selector:string):Blaze.Template[];
+	$:any;
 	currentData(): {};
 	parentData(numLevels?: number): {};
 	registerHelper(name: string, helperFunction: Function): void;

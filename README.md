@@ -65,8 +65,9 @@ When specifying template *helpers*, *events*, and functions for *created*, *rend
     });
 
     Template['myTemplateName']['rendered'] = function ( ) { ... }
-
+    
 This is because TypeScript enforces typing and it will throw an error saying "myTemplateName" does not exist when using the dot notation.
+The only exception to this rule are the **body** and **head** templates which can be access via *Template.body or Template.head*
 
 ### Accessing a Form field
 
