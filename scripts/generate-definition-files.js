@@ -28,6 +28,7 @@ var vm = require('vm'),
     testFilenames = ['meteor-tests.ts'],
     moduleNames = [],
     globalClassNames = [];
+    globalFunctionNames = [];
 // Global var DocsData created in function runApiFileInThisContext()
 
 
@@ -320,7 +321,9 @@ var propertyAndReturnTypeMappings = {
 
     'DDP.connect': 'DDP.DDPStatic',
 
-    'CompileStep#read': 'any'
+    'CompileStep#read': 'any',
+
+    'check': 'void'
 
 };
 
@@ -463,6 +466,9 @@ var populateModuleAndGlobalClassNames = function(meteorClientApiFile) {
         if (value.kind === 'class' && !value.memberof) {
             globalClassNames.push(key);
         }
+        if (value.kind === 'function' && !value.memberof) {
+            globalFunctionNames.push(key);
+        }
     });
     moduleNames.push('Session'); // TODO: fix exception
     moduleNames.push('HTTP'); // TODO: fix exception
@@ -542,7 +548,7 @@ var createDecomposedClass = function(apiDef, tabs) {
     tabs = tabs || '';
     var classContent = tabs + 'var ' + apiDef.name + ': ' + apiDef.name + 'Static;\n';
     classContent += tabs + 'interface ' + apiDef.name + 'Static {\n';
-    var constructorSignature = tabs + '\tnew ' + addGenerics(apiDef.longname) + createArgs(apiDef) + ': ' + apiDef.name + addGenerics(apiDef.longname) + ';\n';
+    var constructorSignature = tabs + '\tnew' + addGenerics(apiDef.longname) + createArgs(apiDef) + ': ' + apiDef.name + addGenerics(apiDef.longname) + ';\n';
     classContent += replaceSignatureElements(constructorSignature);
 
     // Exception case for Template
@@ -550,8 +556,8 @@ var createDecomposedClass = function(apiDef, tabs) {
         classContent += tabs + '\t// It should be [templateName: string]: TemplateInstance but this is not possible -- user will need to cast to TemplateInstance\n' +
                         tabs + '\t[templateName: string]: any | Template; // added "any" to make it work\n' +
                         tabs + '\thead: Template;\n' +
-        tabs + '\tfind(selector:string):Blaze.TemplateInstance;\n' +
-        tabs + '\tfindAll(selector:string):Blaze.TemplateInstance[];\n' +
+        tabs + '\tfind(selector:string):Blaze.Template;\n' +
+        tabs + '\tfindAll(selector:string):Blaze.Template[];\n' +
         tabs + '\t$:any; \n';
     }
 
@@ -563,7 +569,7 @@ var createDecomposedClass = function(apiDef, tabs) {
     return classContent;
 };
 
-var createGlobalClasses = function() {
+var createGlobalClasses = function createGlobalClasses() {
     var allClassesContent = '';
 
     _.each(globalClassNames, function(className) {
@@ -571,6 +577,16 @@ var createGlobalClasses = function() {
     });
 
     return allClassesContent;
+};
+
+var createGlobalFunctions = function createGlobalFunctions() {
+    var allFunctionsContent = '';
+
+    _.each(globalFunctionNames, function(functionName) {
+        allFunctionsContent += 'declare ' + createFunction(DocsData[functionName], ''); // Global var DocsData created in function runApiFileInThisContext()
+    });
+
+    return allFunctionsContent;
 };
 
 var createVar = function createVar(apiDef, tabs, isInInterface) {
@@ -654,6 +670,7 @@ var parseClientMeteorApi = function(meteorClientApiFile) {
     stubFileContent += addManuallyMaintainedDefs();
     stubFileContent += createModules();
     stubFileContent += createGlobalClasses();
+    stubFileContent += createGlobalFunctions();
     return stubFileContent;
 };
 

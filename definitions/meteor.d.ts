@@ -38,16 +38,6 @@ declare module Meteor {
     //interface EJSONObject extends Object {}
 
     /** Start definitions for Template **/
-    // DA: "Template" needs to support these functions:
-        //         Template.<your template name>.rendered
-        //         Template.<your template name>.created
-        //         Template.<your template name>.destroyed
-        //         Template.<your template name>.helpers
-        //         Template.<your template name>.events
-        //                       and
-        //         Template.currentData
-        //         Template.parentData, etc.
-
     interface Event {
         type:string;
         target:HTMLElement;
@@ -67,14 +57,6 @@ declare module Meteor {
 
     interface EventMap {
         [id:string]:Meteor.EventHandlerFunction;
-    }
-
-    interface TemplatePage {
-        rendered: Function;
-        created: Function;
-        destroyed: Function;
-        events(eventMap:Meteor.EventMap): void;
-        helpers(helpers:{[id:string]: any}): void;
     }
     /** End definitions for Template **/
 
@@ -343,12 +325,12 @@ declare module Blaze {
 	function If(conditionFunc: Function, contentFunc: Function, elseFunc?: Function): Blaze.View;
 	var Template: TemplateStatic;
 	interface TemplateStatic {
-		new (viewName?: string, renderFunction?: Function): Template;
+		new(viewName?: string, renderFunction?: Function): Template;
 		// It should be [templateName: string]: TemplateInstance but this is not possible -- user will need to cast to TemplateInstance
 		[templateName: string]: any | Template; // added "any" to make it work
 		head: Template;
-		find(selector:string):Blaze.TemplateInstance;
-		findAll(selector:string):Blaze.TemplateInstance[];
+		find(selector:string):Blaze.Template;
+		findAll(selector:string):Blaze.Template[];
 		$:any; 
 	}
 	interface Template {
@@ -356,7 +338,7 @@ declare module Blaze {
 
 	var TemplateInstance: TemplateInstanceStatic;
 	interface TemplateInstanceStatic {
-		new (view: Blaze.View): TemplateInstance;
+		new(view: Blaze.View): TemplateInstance;
 	}
 	interface TemplateInstance {
 		$(selector: string): any;
@@ -374,7 +356,7 @@ declare module Blaze {
 	function Unless(conditionFunc: Function, contentFunc: Function, elseFunc?: Function): Blaze.View;
 	var View: ViewStatic;
 	interface ViewStatic {
-		new (name?: string, renderFunction?: Function): View;
+		new(name?: string, renderFunction?: Function): View;
 	}
 	interface View {
 	}
@@ -402,7 +384,7 @@ declare module DDP {
 declare module EJSON {
 	var CustomType: CustomTypeStatic;
 	interface CustomTypeStatic {
-		new (): CustomType;
+		new(): CustomType;
 	}
 	interface CustomType {
 		clone(): EJSON.CustomType;
@@ -434,7 +416,7 @@ declare module Match {
 declare module Meteor {
 	var Error: ErrorStatic;
 	interface ErrorStatic {
-		new (error: string, reason?: string, details?: string): Error;
+		new(error: string, reason?: string, details?: string): Error;
 	}
 	interface Error {
 	}
@@ -486,7 +468,7 @@ declare module Meteor {
 declare module Mongo {
 	var Collection: CollectionStatic;
 	interface CollectionStatic {
-		new <T>(name: string, options?: {
+		new<T>(name: string, options?: {
 				connection?: Object;
 				idGeneration?: string;
 				transform?: Function;
@@ -535,7 +517,7 @@ declare module Mongo {
 
 	var Cursor: CursorStatic;
 	interface CursorStatic {
-		new <T>(): Cursor<T>;
+		new<T>(): Cursor<T>;
 	}
 	interface Cursor<T> {
 		count(): number;
@@ -548,7 +530,7 @@ declare module Mongo {
 
 	var ObjectID: ObjectIDStatic;
 	interface ObjectIDStatic {
-		new (hexString: string): ObjectID;
+		new(hexString: string): ObjectID;
 	}
 	interface ObjectID {
 	}
@@ -591,7 +573,7 @@ declare module Tracker {
 
 	var Dependency: DependencyStatic;
 	interface DependencyStatic {
-		new (): Dependency;
+		new(): Dependency;
 	}
 	interface Dependency {
 		changed(): void;
@@ -648,7 +630,7 @@ declare module Email {
 
 declare var CompileStep: CompileStepStatic;
 interface CompileStepStatic {
-	new (): CompileStep;
+	new(): CompileStep;
 }
 interface CompileStep {
 	addAsset(options: {
@@ -680,7 +662,7 @@ interface CompileStep {
 
 declare var PackageAPI: PackageAPIStatic;
 interface PackageAPIStatic {
-	new (): PackageAPI;
+	new(): PackageAPI;
 }
 interface PackageAPI {
 	addFiles(filename: string | string[], architecture?: string): void;
@@ -695,7 +677,7 @@ interface PackageAPI {
 
 declare var ReactiveVar: ReactiveVarStatic;
 interface ReactiveVarStatic {
-	new <T>(initialValue: T, equalsFunc?: Function): ReactiveVar<T>;
+	new<T>(initialValue: T, equalsFunc?: Function): ReactiveVar<T>;
 }
 interface ReactiveVar<T> {
 	get(): T;
@@ -704,7 +686,7 @@ interface ReactiveVar<T> {
 
 declare var Subscription: SubscriptionStatic;
 interface SubscriptionStatic {
-	new (): Subscription;
+	new(): Subscription;
 }
 interface Subscription {
 	added(collection: string, id: string, fields: Object): void;
@@ -720,12 +702,12 @@ interface Subscription {
 
 declare var Template: TemplateStatic;
 interface TemplateStatic {
-	new (): Template;
+	new(): Template;
 	// It should be [templateName: string]: TemplateInstance but this is not possible -- user will need to cast to TemplateInstance
 	[templateName: string]: any | Template; // added "any" to make it work
 	head: Template;
-	find(selector:string):Blaze.TemplateInstance;
-	findAll(selector:string):Blaze.TemplateInstance[];
+	find(selector:string):Blaze.Template;
+	findAll(selector:string):Blaze.Template[];
 	$:any; 
 	body: Template;
 	currentData(): {};
@@ -744,3 +726,6 @@ interface Template {
 	rendered: Function;
 }
 
+declare function MethodInvocation(options: {
+			}); /** TODO: add return value **/
+declare function check(value: any, pattern: any): void;

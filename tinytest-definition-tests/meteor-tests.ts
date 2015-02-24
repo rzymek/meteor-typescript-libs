@@ -17,8 +17,6 @@ interface MonkeyDAO {
 var Monkeys = new Mongo.Collection<MonkeyDAO>('monkeys');
 //var x = new Mongo.Collection<xDAO>('x');
 //var y = new Mongo.Collection<yDAO>('y');
-
-var check = function(str1, str2) {};
 /********************************** End setup for tests *********************************/
 
 
