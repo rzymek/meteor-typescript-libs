@@ -52,7 +52,7 @@ deep within `<project_root_dir>/.meteor/...`.  The following will probably work:
 ### References
 
 Try to stay away from referencing *file.ts*, rather generate a *file.d.ts* using `tsc --reference file.ts`, and reference it in your file. Compilation will
-be much faster and code cleaner - it's always better to split definition from implemention.
+be much faster and code cleaner - it's always better to split definition from implementation.
 
 ### Templates
 
