@@ -556,9 +556,9 @@ var createDecomposedClass = function(apiDef, tabs) {
         classContent += tabs + '\t// It should be [templateName: string]: TemplateInstance but this is not possible -- user will need to cast to TemplateInstance\n' +
                         tabs + '\t[templateName: string]: any | Template; // added "any" to make it work\n' +
                         tabs + '\thead: Template;\n' +
-        tabs + '\tfind(selector:string):Blaze.Template;\n' +
-        tabs + '\tfindAll(selector:string):Blaze.Template[];\n' +
-        tabs + '\t$:any; \n';
+                        tabs + '\tfind(selector:string):Blaze.Template;\n' +
+                        tabs + '\tfindAll(selector:string):Blaze.Template[];\n' +
+                        tabs + '\t$:any; \n';
     }
 
     classContent += createModuleInnerContent(apiDef.longname, tabs, true, 'static');
