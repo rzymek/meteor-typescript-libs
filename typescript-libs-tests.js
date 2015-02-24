@@ -19,7 +19,7 @@ var testsWithModuleFlag = [
 ];
 
 var fs = Npm.require('fs');
-var exec = Npm.require('exec');
+var exec = Npm.require('child_process').exec;
 
 exec('pwd', function(error, stdout, stderror) {
   console.log('Executing in directory: ' + stdout);

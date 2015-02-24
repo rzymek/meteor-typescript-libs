@@ -143,7 +143,8 @@ var propertyAndReturnTypeMappings = {
     'Meteor.settings': '{[id:string]: any}',
     'Meteor.release': 'string',
     'Meteor.publish': 'void',
-    'Meteor.subscribe': 'SubscriptionHandle',
+    'Meteor.subscribe': 'Meteor.SubscriptionHandle',
+    'Blaze.TemplateInstance#subscribe': 'Meteor.SubscriptionHandle',
     'Meteor.apply': 'void',
     'Meteor.call': 'void',
     'Meteor.clearTimeout': 'void',
@@ -186,9 +187,9 @@ var propertyAndReturnTypeMappings = {
     'Npm.depends': 'void',
     'Npm.require': 'any',
     'Cordova.depends': 'void',
-    'Blaze.TemplateInstance#$': 'Node[]',
-    'Blaze.TemplateInstance#findAll': 'HTMLElement[]',
-    'Blaze.TemplateInstance#find': 'HTMLElement',
+    'Blaze.TemplateInstance#$': 'any',
+    'Blaze.TemplateInstance#findAll': 'Blaze.TemplateInstance[]',
+    'Blaze.TemplateInstance#find': 'Blaze.TemplateInstance',
     'Blaze.render': 'Blaze.View',
     'Blaze.renderWithData': 'Blaze.View',
     'Blaze.remove': 'void',
@@ -258,7 +259,7 @@ var propertyAndReturnTypeMappings = {
     'Template#destroyed': 'Function',
     'Template#events': 'void',
     'Template#helpers': 'void',
-    'Template.body': 'TemplateStatic',
+    'Template.body': 'Template',
     'Template.instance': 'Blaze.TemplateInstance',
     'Template.currentData': '{}',
     'Template.parentData': '{}',
@@ -317,7 +318,9 @@ var propertyAndReturnTypeMappings = {
 
     'Match.test': 'boolean',
 
-    'DDP.connect': 'DDP.DDPStatic'
+    'DDP.connect': 'DDP.DDPStatic',
+
+    'CompileStep#read': 'any'
 
 };
 
@@ -421,7 +424,7 @@ var addPropertyOrReturnTypeAndComplete = function(longName, returns) {
         return ': ' + returnValue + ';';
     }
     if (returns && returns[0] && returns[0].type) {
-        return ': ' + returns[0].type.names[0]
+        return ': ' + returns[0].type.names[0] + ';';
     }
     return DEBUG ? '; /** TODO: add return value **/' : ';';
 };
@@ -541,7 +544,17 @@ var createDecomposedClass = function(apiDef, tabs) {
     classContent += tabs + 'interface ' + apiDef.name + 'Static {\n';
     var constructorSignature = tabs + '\tnew ' + addGenerics(apiDef.longname) + createArgs(apiDef) + ': ' + apiDef.name + addGenerics(apiDef.longname) + ';\n';
     classContent += replaceSignatureElements(constructorSignature);
-    if (apiDef.name === 'Template') classContent += tabs + '\t//[templateName: string]: Template; //really should have this here, but not possible in TypeScript with other static members\n';
+
+    // Exception case for Template
+    if (apiDef.name === 'Template') {
+        classContent += tabs + '\t// It should be [templateName: string]: TemplateInstance but this is not possible -- user will need to cast to TemplateInstance\n' +
+                        tabs + '\t[templateName: string]: any | Template; // added "any" to make it work\n' +
+                        tabs + '\thead: Template;\n' +
+        tabs + '\tfind(selector:string):Blaze.TemplateInstance;\n' +
+        tabs + '\tfindAll(selector:string):Blaze.TemplateInstance[];\n' +
+        tabs + '\t$:any; \n';
+    }
+
     classContent += createModuleInnerContent(apiDef.longname, tabs, true, 'static');
     classContent += tabs + '}\n';
     classContent += tabs + 'interface ' + apiDef.name + addGenerics(apiDef.longname) + ' {\n';

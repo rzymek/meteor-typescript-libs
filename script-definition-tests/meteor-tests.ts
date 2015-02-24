@@ -8,14 +8,6 @@
 
 
 /*********************************** Begin setup for tests ******************************/
-
-// A developer must declare a var Template like this in a separate file to use this TypeScript type definition file
-//interface ITemplate {
-//  adminDashboard: Meteor.Template;
-//  chat: Meteor.Template;
-//}
-//declare var Template: ITemplate;
-
 var Rooms = new Mongo.Collection('rooms');
 var Messages = new Mongo.Collection('messages');
 interface MonkeyDAO {
@@ -433,6 +425,36 @@ Template['adminDashboard'].helpers({
     return Session.get("foo");
   }
 });
+Template['newTemplate'].helpers({
+    helperName: function () {
+    }
+});
+
+Template['newTemplate'].created = function () {
+
+};
+
+Template['newTemplate'].rendered = function () {
+
+};
+
+Template['newTemplate'].destroyed = function () {
+
+};
+
+Template['newTemplate'].events({
+    'click .something': function (event) {
+    }
+});
+
+Template.registerHelper('testHelper', function() {
+    return 'tester';
+});
+
+var instance = Template.instance();
+var data = Template.currentData();
+var data = Template.parentData(1);
+var body = Template.body;
 
 /**
  * From Match section

@@ -38,16 +38,6 @@ declare module Meteor {
     //interface EJSONObject extends Object {}
 
     /** Start definitions for Template **/
-    // DA: "Template" needs to support these functions:
-        //         Template.<your template name>.rendered
-        //         Template.<your template name>.created
-        //         Template.<your template name>.destroyed
-        //         Template.<your template name>.helpers
-        //         Template.<your template name>.events
-        //                       and
-        //         Template.currentData
-        //         Template.parentData, etc.
-
     interface Event {
         type:string;
         target:HTMLElement;
@@ -67,14 +57,6 @@ declare module Meteor {
 
     interface EventMap {
         [id:string]:Meteor.EventHandlerFunction;
-    }
-
-    interface TemplatePage {
-        rendered: Function;
-        created: Function;
-        destroyed: Function;
-        events(eventMap:Meteor.EventMap): void;
-        helpers(helpers:{[id:string]: any}): void;
     }
     /** End definitions for Template **/
 

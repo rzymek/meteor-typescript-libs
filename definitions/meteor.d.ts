@@ -272,6 +272,35 @@ declare module Blaze {
  * These modules and interfaces are automatically generated from the Meteor api.js file
  */
 declare module Accounts {
+	function changePassword(oldPassword: string, newPassword: string, callback?: Function): void;
+	function config(options: {
+				sendVerificationEmail?: boolean;
+				forbidClientAccountCreation?: Boolean;
+				restrictCreationByEmailDomain?: string | Function;
+				loginExpirationInDays?: number;
+				oauthSecretKey?: string;
+			}): void;
+	function createUser(options: {
+				username?: string;
+				email?: string;
+				password?: string;
+				profile?: Object;
+			}, callback?: Function): string;
+	var emailTemplates: Meteor.EmailTemplates;
+	function forgotPassword(options: {
+				email?: string;
+			}, callback?: Function): void;
+	function onCreateUser(func: Function): void;
+	function onEmailVerificationLink(callback: Function): void;
+	function onEnrollmentLink(callback: Function): void;
+	function onLogin(func: Function): {stop: Function};
+	function onLoginFailure(func: Function): {stop: Function};
+	function onResetPasswordLink(callback: Function): void;
+	function resetPassword(token: string, newPassword: string, callback?: Function): void;
+	function sendEnrollmentEmail(userId: string, email?: string): void;
+	function sendResetPasswordEmail(userId: string, email?: string): void;
+	function sendVerificationEmail(userId: string, email?: string): void;
+	function setPassword(userId: string, newPassword: string): void;
 	var ui: {
 		config(options: {
 				requestPermissions?: Object;
@@ -280,58 +309,47 @@ declare module Accounts {
 				passwordSignupFields?: string;
 			}): void;
 	};
-	var emailTemplates: Meteor.EmailTemplates;
-	function config(options: {
-				sendVerificationEmail?: boolean;
-				forbidClientAccountCreation?: Boolean;
-				restrictCreationByEmailDomain?: string | Function;
-				loginExpirationInDays?: number;
-				oauthSecretKey?: string;
-			}): void;
 	function validateLoginAttempt(func: Function): {stop: Function};
-	function onLogin(func: Function): {stop: Function};
-	function onLoginFailure(func: Function): {stop: Function};
-	function onCreateUser(func: Function): void;
 	function validateNewUser(func: Function): void;
-	function onResetPasswordLink(callback: Function): void;
-	function onEmailVerificationLink(callback: Function): void;
-	function onEnrollmentLink(callback: Function): void;
-	function createUser(options: {
-				username?: string;
-				email?: string;
-				password?: string;
-				profile?: Object;
-			}, callback?: Function): string;
-	function changePassword(oldPassword: string, newPassword: string, callback?: Function): void;
-	function forgotPassword(options: {
-				email?: string;
-			}, callback?: Function): void;
-	function resetPassword(token: string, newPassword: string, callback?: Function): void;
 	function verifyEmail(token: string, callback?: Function): void;
-	function setPassword(userId: string, newPassword: string): void;
-	function sendResetPasswordEmail(userId: string, email?: string): void;
-	function sendEnrollmentEmail(userId: string, email?: string): void;
-	function sendVerificationEmail(userId: string, email?: string): void;
+}
+
+declare module App {
+	function accessRule(domainRule: string, options?: {
+				launchExternal?: boolean;
+			}); /** TODO: add return value **/
+	function configurePlugin(pluginName: string, config: Object): void;
+	function icons(icons: Object): void;
+	function info(options: {
+				id?: string;
+				 version?: string;
+				 name?: string;
+				 description?: string;
+				 author?: string;
+				 email?: string;
+				 website?: string;
+			}): void;
+	function launchScreens(launchScreens: Object): void;
+	function setPreference(name: string, value: string): void;
+}
+
+declare module Assets {
+	function getBinary(assetPath: string, asyncCallback?: Function): EJSON;
+	function getText(assetPath: string, asyncCallback?: Function): string;
 }
 
 declare module Blaze {
-	var currentView: Blaze.View;
-	function With(data: Object | Function, contentFunc: Function): Blaze.View;
-	function If(conditionFunc: Function, contentFunc: Function, elseFunc?: Function): Blaze.View;
-	function Unless(conditionFunc: Function, contentFunc: Function, elseFunc?: Function): Blaze.View;
 	function Each(argFunc: Function, contentFunc: Function, elseFunc?: Function): Blaze.View;
-	function isTemplate(value: any): boolean;
-	function render(templateOrView: Template | Blaze.View, parentNode: Node, nextNode?: Node, parentView?: Blaze.View): Blaze.View;
-	function renderWithData(templateOrView: Template | Blaze.View, data: Object | Function, parentNode: Node, nextNode?: Node, parentView?: Blaze.View): Blaze.View;
-	function remove(renderedView: Blaze.View): void;
-	function toHTML(templateOrView: Template | Blaze.View): string;
-	function toHTMLWithData(templateOrView: Template | Blaze.View, data: Object | Function): string;
-	function getData(elementOrView?: HTMLElement | Blaze.View): Object;
-	function getView(element?: HTMLElement): Blaze.View;
+	function If(conditionFunc: Function, contentFunc: Function, elseFunc?: Function): Blaze.View;
 	var Template: TemplateStatic;
 	interface TemplateStatic {
 		new (viewName?: string, renderFunction?: Function): Template;
-		//[templateName: string]: Template; //really should have this here, but not possible in TypeScript with other static members
+		// It should be [templateName: string]: TemplateInstance but this is not possible -- user will need to cast to TemplateInstance
+		[templateName: string]: any | Template; // added "any" to make it work
+		head: Template;
+		find(selector:string):Blaze.TemplateInstance;
+		findAll(selector:string):Blaze.TemplateInstance[];
+		$:any; 
 	}
 	interface Template {
 	}
@@ -341,16 +359,19 @@ declare module Blaze {
 		new (view: Blaze.View): TemplateInstance;
 	}
 	interface TemplateInstance {
+		$(selector: string): any;
+		autorun(runFunc: Function): Object;
 		data: Object;
-		view: Object;
+		find(selector?: string): Blaze.TemplateInstance;
+		findAll(selector: string): Blaze.TemplateInstance[];
 		firstNode: Object;
 		lastNode: Object;
-		$(selector: string): Node[];
-		findAll(selector: string): HTMLElement[];
-		find(selector?: string): HTMLElement;
-		autorun(runFunc: Function): Object;
+		subscribe(name: string, ...args): Meteor.SubscriptionHandle;
+		subscriptionsReady(): boolean;
+		view: Object;
 	}
 
+	function Unless(conditionFunc: Function, contentFunc: Function, elseFunc?: Function): Blaze.View;
 	var View: ViewStatic;
 	interface ViewStatic {
 		new (name?: string, renderFunction?: Function): View;
@@ -358,10 +379,20 @@ declare module Blaze {
 	interface View {
 	}
 
+	function With(data: Object | Function, contentFunc: Function): Blaze.View;
+	var currentView: Blaze.View;
+	function getData(elementOrView?: HTMLElement | Blaze.View): Object;
+	function getView(element?: HTMLElement): Blaze.View;
+	function isTemplate(value: any): boolean;
+	function remove(renderedView: Blaze.View): void;
+	function render(templateOrView: Template | Blaze.View, parentNode: Node, nextNode?: Node, parentView?: Blaze.View): Blaze.View;
+	function renderWithData(templateOrView: Template | Blaze.View, data: Object | Function, parentNode: Node, nextNode?: Node, parentView?: Blaze.View): Blaze.View;
+	function toHTML(templateOrView: Template | Blaze.View): string;
+	function toHTMLWithData(templateOrView: Template | Blaze.View, data: Object | Function): string;
 }
 
-declare module Match {
-	function test(value: any, pattern: any): boolean;
+declare module Cordova {
+	function depends(dependencies:{[id:string]:string}): void;
 }
 
 declare module DDP {
@@ -369,45 +400,62 @@ declare module DDP {
 }
 
 declare module EJSON {
-	var newBinary: any;
-	function addType(name: string, factory: Function): void;
-	function toJSONValue(val: EJSON): JSON;
-	function fromJSONValue(val: JSON): any;
-	function stringify(val: EJSON, options?: {
-				indent?: boolean | number | string;
-				canonical?: Boolean;
-			}): string;
-	function parse(str: string): EJSON;
-	function isBinary(x: Object): boolean;
-	function equals(a: EJSON, b: EJSON, options?: {
-				keyOrderSensitive?: boolean;
-			}): boolean;
-	function clone<T>(val:T): T;
 	var CustomType: CustomTypeStatic;
 	interface CustomTypeStatic {
 		new (): CustomType;
 	}
 	interface CustomType {
-		typeName(): string;
-		toJSONValue(): JSON;
 		clone(): EJSON.CustomType;
 		equals(other: Object): boolean;
+		toJSONValue(): JSON;
+		typeName(): string;
 	}
 
+	function addType(name: string, factory: Function): void;
+	function clone<T>(val:T): T;
+	function equals(a: EJSON, b: EJSON, options?: {
+				keyOrderSensitive?: boolean;
+			}): boolean;
+	function fromJSONValue(val: JSON): any;
+	function isBinary(x: Object): boolean;
+	var newBinary: any;
+	function parse(str: string): EJSON;
+	function stringify(val: EJSON, options?: {
+				indent?: boolean | number | string;
+				canonical?: Boolean;
+			}): string;
+	function toJSONValue(val: EJSON): JSON;
+}
+
+declare module Match {
+	function test(value: any, pattern: any): boolean;
 }
 
 declare module Meteor {
-	var users: Mongo.Collection<User>;
+	var Error: ErrorStatic;
+	interface ErrorStatic {
+		new (error: string, reason?: string, details?: string): Error;
+	}
+	interface Error {
+	}
+
+	function absoluteUrl(path?: string, options?: {
+				secure?: boolean;
+				replaceLocalhost?: Boolean;
+				rootUrl?: string;
+			}): string;
+	function apply(name: string, args: EJSON[], options?: {
+				wait?: boolean;
+				onResultReceived?: Function;
+			}, asyncCallback?: Function): void;
+	function call(name: string, ...args): void;
+	function clearInterval(id: number): void;
+	function clearTimeout(id: number): void;
+	function disconnect(): void;
 	var isClient: boolean;
-	var isServer: boolean;
-	var settings: {[id:string]: any};
 	var isCordova: boolean;
-	var release: string;
-	function userId(): string;
+	var isServer: boolean;
 	function loggingIn(): boolean;
-	function user(): Meteor.User;
-	function logout(callback?: Function): void;
-	function logoutOtherClients(callback?: Function): void;
 	function loginWith<ExternalService>(options?: {
 				requestPermissions?: string[];
 				requestOfflineToken?: boolean;
@@ -416,36 +464,23 @@ declare module Meteor {
 				loginStyle?: string;
 			}, callback?: Function): void;
 	function loginWithPassword(user: Object | string, password: string, callback?: Function): void;
-	function subscribe(name: string, ...args): SubscriptionHandle;
-	function call(name: string, ...args): void;
-	function apply(name: string, args: EJSON[], options?: {
-				wait?: boolean;
-				onResultReceived?: Function;
-			}, asyncCallback?: Function): void;
-	function status(): Meteor.StatusEnum;
-	function reconnect(): void;
-	function disconnect(): void;
+	function logout(callback?: Function): void;
+	function logoutOtherClients(callback?: Function): void;
+	function methods(methods: Object): void;
 	function onConnection(callback: Function): void;
 	function publish(name: string, func: Function): void;
-	function methods(methods: Object): void;
-	function wrapAsync(func: Function, context?: Object): any;
-	function startup(func: Function): void;
-	function setTimeout(func: Function, delay: number): number;
+	function reconnect(): void;
+	var release: string;
 	function setInterval(func: Function, delay: number): number;
-	function clearInterval(id: number): void;
-	function clearTimeout(id: number): void;
-	function absoluteUrl(path?: string, options?: {
-				secure?: boolean;
-				replaceLocalhost?: Boolean;
-				rootUrl?: string;
-			}): string;
-	var Error: ErrorStatic;
-	interface ErrorStatic {
-		new (error: string, reason?: string, details?: string): Error;
-	}
-	interface Error {
-	}
-
+	function setTimeout(func: Function, delay: number): number;
+	var settings: {[id:string]: any};
+	function startup(func: Function): void;
+	function status(): Meteor.StatusEnum;
+	function subscribe(name: string, ...args): Meteor.SubscriptionHandle;
+	function user(): Meteor.User;
+	function userId(): string;
+	var users: Mongo.Collection<User>;
+	function wrapAsync(func: Function, context?: Object): any;
 }
 
 declare module Mongo {
@@ -458,11 +493,20 @@ declare module Mongo {
 			}): Collection<T>;
 	}
 	interface Collection<T> {
-		insert(doc: Object, callback?: Function): string;
-		update(selector: Mongo.Selector, modifier: Mongo.Modifier, options?: {
-				multi?: boolean;
-				upsert?: Boolean;
-			}, callback?: Function): number;
+		allow(options: {
+				insert?: (userId:string, doc) => boolean;
+				 update?: (userId, doc, fieldNames, modifier) => boolean;
+				 remove?: (userId, doc) => boolean;
+				fetch?: string[];
+				transform?: Function;
+			}): boolean;
+		deny(options: {
+				insert?: (userId:string, doc) => boolean;
+				 update?: (userId, doc, fieldNames, modifier) => boolean;
+				 remove?: (userId, doc) => boolean;
+				fetch?: string[];
+				transform?: Function;
+			}): boolean;
 		find(selector?: Mongo.Selector, options?: {
 				sort?: Mongo.SortSpecifier;
 				skip?: number;
@@ -478,24 +522,28 @@ declare module Mongo {
 				reactive?: boolean;
 				transform?: Function;
 			}): T;
+		insert(doc: Object, callback?: Function): string;
 		remove(selector: Mongo.Selector, callback?: Function): void;
+		update(selector: Mongo.Selector, modifier: Mongo.Modifier, options?: {
+				multi?: boolean;
+				upsert?: Boolean;
+			}, callback?: Function): number;
 		upsert(selector: Mongo.Selector, modifier: Mongo.Modifier, options?: {
 				multi?: boolean;
 			}, callback?: Function): {numberAffected?: number; insertedId?: string;};
-		allow(options: {
-				insert?: (userId:string, doc) => boolean;
-				 update?: (userId, doc, fieldNames, modifier) => boolean;
-				 remove?: (userId, doc) => boolean;
-				fetch?: string[];
-				transform?: Function;
-			}): boolean;
-		deny(options: {
-				insert?: (userId:string, doc) => boolean;
-				 update?: (userId, doc, fieldNames, modifier) => boolean;
-				 remove?: (userId, doc) => boolean;
-				fetch?: string[];
-				transform?: Function;
-			}): boolean;
+	}
+
+	var Cursor: CursorStatic;
+	interface CursorStatic {
+		new <T>(): Cursor<T>;
+	}
+	interface Cursor<T> {
+		count(): number;
+		fetch(): Array<T>;
+		forEach(callback: Function, thisArg?: any): void;
+		map(callback: Function, thisArg?: any): void;
+		observe(callbacks: Object): Meteor.LiveQueryHandle;
+		observeChanges(callbacks: Object): Meteor.LiveQueryHandle;
 	}
 
 	var ObjectID: ObjectIDStatic;
@@ -505,70 +553,11 @@ declare module Mongo {
 	interface ObjectID {
 	}
 
-	var Cursor: CursorStatic;
-	interface CursorStatic {
-		new <T>(): Cursor<T>;
-	}
-	interface Cursor<T> {
-		forEach(callback: Function, thisArg?: any): void;
-		map(callback: Function, thisArg?: any): void;
-		fetch(): Array<T>;
-		count(): number;
-		observe(callbacks: Object): Meteor.LiveQueryHandle;
-		observeChanges(callbacks: Object): Meteor.LiveQueryHandle;
-	}
-
 }
 
-declare module Tracker {
-	var active: boolean;
-	var currentComputation: Tracker.Computation;
-	function Computation(): void;
-	interface Computation {
-		stopped: boolean;
-		invalidated: boolean;
-		firstRun: boolean;
-		onInvalidate(callback: Function): void;
-		invalidate(): void;
-		stop(): void;
-	}
-
-	function flush(): void;
-	function autorun(runFunc: Function): Tracker.Computation;
-	function nonreactive(func: Function): void;
-	function onInvalidate(callback: Function): void;
-	function afterFlush(callback: Function): void;
-	var Dependency: DependencyStatic;
-	interface DependencyStatic {
-		new (): Dependency;
-	}
-	interface Dependency {
-		depend(fromComputation?: Tracker.Computation): boolean
-		changed(): void;
-		hasDependents(): boolean
-	}
-
-}
-
-declare module Assets {
-	function getText(assetPath: string, asyncCallback?: Function): string;
-	function getBinary(assetPath: string, asyncCallback?: Function): EJSON;
-}
-
-declare module App {
-	function info(options: {
-				id?: string;
-				 version?: string;
-				 name?: string;
-				 description?: string;
-				 author?: string;
-				 email?: string;
-				 website?: string;
-			}): void;
-	function setPreference(name: string, value: string): void;
-	function configurePlugin(pluginName: string, config: Object): void;
-	function icons(icons: Object): void;
-	function launchScreens(launchScreens: Object): void;
+declare module Npm {
+	function depends(dependencies:{[id:string]:string}): void;
+	function require(name: string): any;
 }
 
 declare module Package {
@@ -579,8 +568,8 @@ declare module Package {
 				git?: string;
 				documentation?: string;
 			}): void;
-	function onUse(func: Function): void;
 	function onTest(func: Function): void;
+	function onUse(func: Function): void;
 	function registerBuildPlugin(options?: {
 				name?: string;
 				use?: string | string[];
@@ -589,20 +578,41 @@ declare module Package {
 			}): void;
 }
 
-declare module Npm {
-	function depends(dependencies:{[id:string]:string}): void;
-	function require(name: string): any;
-}
+declare module Tracker {
+	function Computation(): void;
+	interface Computation {
+		firstRun: boolean;
+		invalidate(): void;
+		invalidated: boolean;
+		onInvalidate(callback: Function): void;
+		stop(): void;
+		stopped: boolean;
+	}
 
-declare module Cordova {
-	function depends(dependencies:{[id:string]:string}): void;
+	var Dependency: DependencyStatic;
+	interface DependencyStatic {
+		new (): Dependency;
+	}
+	interface Dependency {
+		changed(): void;
+		depend(fromComputation?: Tracker.Computation): boolean;
+		hasDependents(): boolean;
+	}
+
+	var active: boolean;
+	function afterFlush(callback: Function): void;
+	function autorun(runFunc: Function): Tracker.Computation;
+	var currentComputation: Tracker.Computation;
+	function flush(): void;
+	function nonreactive(func: Function): void;
+	function onInvalidate(callback: Function): void;
 }
 
 declare module Session {
+	function equals(key: string, value: string | number | boolean | any /** Null **/ | any /** Undefined **/): boolean;
+	function get(key: string): any;
 	function set(key: string, value: EJSON | any /** Undefined **/): void;
 	function setDefault(key: string, value: EJSON | any /** Undefined **/): void;
-	function get(key: string): any;
-	function equals(key: string, value: string | number | boolean | any /** Null **/ | any /** Undefined **/): boolean;
 }
 
 declare module HTTP {
@@ -616,10 +626,10 @@ declare module HTTP {
 				timeout?: number;
 				followRedirects?: boolean;
 			}, asyncCallback?: Function): HTTP.HTTPResponse;
+	function del(url: string, callOptions?: Object, asyncCallback?: Function): HTTP.HTTPResponse;
 	function get(url: string, callOptions?: Object, asyncCallback?: Function): HTTP.HTTPResponse;
 	function post(url: string, callOptions?: Object, asyncCallback?: Function): HTTP.HTTPResponse;
 	function put(url: string, callOptions?: Object, asyncCallback?: Function): HTTP.HTTPResponse;
-	function del(url: string, callOptions?: Object, asyncCallback?: Function): HTTP.HTTPResponse;
 }
 
 declare module Email {
@@ -636,20 +646,51 @@ declare module Email {
 			}): void;
 }
 
-declare var Subscription: SubscriptionStatic;
-interface SubscriptionStatic {
-	new (): Subscription;
+declare var CompileStep: CompileStepStatic;
+interface CompileStepStatic {
+	new (): CompileStep;
 }
-interface Subscription {
-	connection: Meteor.Connection;
-	userId: string;
-	error(error: Error): void;
-	stop(): void;
-	onStop(func: Function): void;
-	added(collection: string, id: string, fields: Object): void;
-	changed(collection: string, id: string, fields: Object): void;
-	removed(collection: string, id: string): void;
-	ready(): void;
+interface CompileStep {
+	addAsset(options: {
+			}, path: string, data: any /** Buffer **/ | string); /** TODO: add return value **/
+	addHtml(options: {
+				section?: string;
+				data?: string;
+			}); /** TODO: add return value **/
+	addJavaScript(options: {
+				path?: string;
+				data?: string;
+				sourcePath?: string;
+			}); /** TODO: add return value **/
+	addStylesheet(options: {
+			}, path: string, data: string, sourceMap: string); /** TODO: add return value **/
+	arch; /** TODO: add return value **/
+	declaredExports; /** TODO: add return value **/
+	error(options: {
+			}, message: string, sourcePath?: string, line?: number, func?: string); /** TODO: add return value **/
+	fileOptions; /** TODO: add return value **/
+	fullInputPath; /** TODO: add return value **/
+	inputPath; /** TODO: add return value **/
+	inputSize; /** TODO: add return value **/
+	packageName; /** TODO: add return value **/
+	pathForSourceMap; /** TODO: add return value **/
+	read(n?: number): any;
+	rootOutputPath; /** TODO: add return value **/
+}
+
+declare var PackageAPI: PackageAPIStatic;
+interface PackageAPIStatic {
+	new (): PackageAPI;
+}
+interface PackageAPI {
+	addFiles(filename: string | string[], architecture?: string): void;
+	export(exportedObject: string, architecture?: string): void;
+	imply(packageSpecs: string | string[]): void;
+	use(packageNames: string | string[], architecture?: string, options?: {
+				weak?: boolean;
+				unordered?: Boolean;
+			}): void;
+	versionsFrom(meteorRelease: string | string[]): void;
 }
 
 declare var ReactiveVar: ReactiveVarStatic;
@@ -661,71 +702,45 @@ interface ReactiveVar<T> {
 	set(newValue: T): void;
 }
 
+declare var Subscription: SubscriptionStatic;
+interface SubscriptionStatic {
+	new (): Subscription;
+}
+interface Subscription {
+	added(collection: string, id: string, fields: Object): void;
+	changed(collection: string, id: string, fields: Object): void;
+	connection: Meteor.Connection;
+	error(error: Error): void;
+	onStop(func: Function): void;
+	ready(): void;
+	removed(collection: string, id: string): void;
+	stop(): void;
+	userId: string;
+}
+
 declare var Template: TemplateStatic;
 interface TemplateStatic {
 	new (): Template;
-	//[templateName: string]: Template; //really should have this here, but not possible in TypeScript with other static members
-	body: TemplateStatic;
-	instance(): Blaze.TemplateInstance;
+	// It should be [templateName: string]: TemplateInstance but this is not possible -- user will need to cast to TemplateInstance
+	[templateName: string]: any | Template; // added "any" to make it work
+	head: Template;
+	find(selector:string):Blaze.TemplateInstance;
+	findAll(selector:string):Blaze.TemplateInstance[];
+	$:any; 
+	body: Template;
 	currentData(): {};
+	instance(): Blaze.TemplateInstance;
 	parentData(numLevels?: number): {};
 	registerHelper(name: string, helperFunction: Function): void;
 }
 interface Template {
-	onCreated: Function;
-	onRendered: Function;
-	onDestroyed: Function;
 	created: Function;
-	rendered: Function;
 	destroyed: Function;
-	helpers(helpers:{[id:string]: any}): void;
 	events(eventMap: {[actions: string]: Function}): void;
-}
-
-declare var CompileStep: CompileStepStatic;
-interface CompileStepStatic {
-	new (): CompileStep;
-}
-interface CompileStep {
-	inputSize; /** TODO: add return value **/
-	inputPath; /** TODO: add return value **/
-	fullInputPath; /** TODO: add return value **/
-	pathForSourceMap; /** TODO: add return value **/
-	packageName; /** TODO: add return value **/
-	rootOutputPath; /** TODO: add return value **/
-	arch; /** TODO: add return value **/
-	fileOptions; /** TODO: add return value **/
-	declaredExports; /** TODO: add return value **/
-	read(n?: number); /** TODO: add return value **/
-	addHtml(options: {
-				section?: string;
-				data?: string;
-			}); /** TODO: add return value **/
-	addStylesheet(options: {
-			}, path: string, data: string, sourceMap: string); /** TODO: add return value **/
-	addJavaScript(options: {
-				path?: string;
-				data?: string;
-				sourcePath?: string;
-			}); /** TODO: add return value **/
-	addAsset(options: {
-			}, path: string, data: any /** Buffer **/ | string); /** TODO: add return value **/
-	error(options: {
-			}, message: string, sourcePath?: string, line?: number, func?: string); /** TODO: add return value **/
-}
-
-declare var PackageAPI: PackageAPIStatic;
-interface PackageAPIStatic {
-	new (): PackageAPI;
-}
-interface PackageAPI {
-	use(packageNames: string | string[], architecture?: string, options?: {
-				weak?: boolean;
-				unordered?: Boolean;
-			}): void;
-	imply(packageSpecs: string | string[]): void;
-	addFiles(filename: string | string[], architecture?: string): void;
-	versionsFrom(meteorRelease: string | string[]): void;
-	export(exportedObject: string, architecture?: string): void;
+	helpers(helpers:{[id:string]: any}): void;
+	onCreated: Function;
+	onDestroyed: Function;
+	onRendered: Function;
+	rendered: Function;
 }
 

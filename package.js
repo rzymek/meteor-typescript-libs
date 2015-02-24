@@ -5,10 +5,6 @@ Package.describe({
     git: 'https://github.com/meteor-typescript/meteor-typescript-libs'
 });
 
-Npm.depends({
-    'exec': '0.1.3'
-});
-
 Package.onUse(function (api, where) {
     api.versionsFrom('1.0.3.1');
     api.addFiles([
