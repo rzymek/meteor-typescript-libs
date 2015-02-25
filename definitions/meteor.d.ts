@@ -250,6 +250,42 @@ declare module Blaze {
     }
 }
 
+declare module BrowserPolicy {
+
+    interface framing {
+        disallow():void;
+        restrictToOrigin(origin:string):void;
+        allowAll():void;
+    }
+    interface content {
+        allowEval():void;
+        allowInlineStyles():void;
+        allowInlineScripts():void;
+        allowSameOriginForAll():void;
+        allowDataUrlForAll():void;
+        allowOriginForAll(origin:string):void;
+        allowImageOrigin(origin:string):void;
+        allowFrameOrigin(origin:string):void;
+        allowContentTypeSniffing():void;
+        allowAllContentOrigin():void;
+        allowAllContentDataUrl():void;
+        allowAllContentSameOrigin():void;
+
+        disallowAll():void;
+        disallowInlineStyles():void;
+        disallowEval():void;
+        disallowInlineScripts():void;
+        disallowFont():void;
+        disallowObject():void;
+        disallowAllContent():void;
+        //TODO: add the basic content types
+        // allow<content type>Origin(origin)
+        // allow<content type>DataUrl()
+        // allow<content type>SameOrigin()
+        // disallow<content type>()
+    }
+}
+
 /**
  * These modules and interfaces are automatically generated from the Meteor api.js file
  */

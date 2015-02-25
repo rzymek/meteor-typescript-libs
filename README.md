@@ -3,23 +3,12 @@
 This project adds TypeScript definition files related to Meteor.  It includes *meteor.d.ts* plus many others.  These are definitions for Meteor 1.0.3.1, and
 they require TypeScript 1.4 or higher (to allow Union types).
 
-
 ## Why use TypeScript?
-[TypeScript](http://www.typescriptlang.org/) allows you to specify and enforce variable types and interfaces.  A TypeScript-aware editor, like WebStorm, will
-provide you with code completion and code help/tips, real-time type-checking, and *informative* error information (e.g. a required property can't be found) -- all before
-deployment/runtime.  TypeScript code is much more self-documenting than straight-up, uncommented JavaScript code.
+[TypeScript](http://www.typescriptlang.org/) enforces a *relaxed* static typing transpiler to Javascript. It is an opinionated attempt to build an elegant language on top of a crappy, yet popular platform.
 
-TypeScript also enables you to use some of the new features in the upcoming ECMAScript 6 release that have already been finalized in the spec, such as modules,
-rest arguments, and default arguments.  Finally, TypeScript allows you to leverage some features found in other languages, such as generics.
-
-There is some time investment required to use TypeScript, and the benefits will probably outweigh the costs when a code base is large and will be refactored
-many times, and/or will be worked on by multiple developers.
-
-In general, TypeScript will NOT make JavaScript prettier (like CoffeeScript).  However, it can help simplify JavaScript code in some ways by replacing previously
-some verbose patterns (e.g. replacing the Revealing Module Pattern with a TypeScript Module declaration).
+In general, TypeScript will NOT make JavaScript prettier (like CoffeeScript).  However, it can help simplify JavaScript programming for the many object oriented coders out there. TypeScript also provides transparent access to features only available in ECMAScript 6 and above.
 
 For further reading about TypeScript, please refer to the [TypeScript Handbook](http://www.typescriptlang.org/Handbook).
-
 
 ## Usage
 
@@ -28,7 +17,6 @@ deep within `<project_root_dir>/.meteor/...`.  The following will probably work:
 
         $ ln -s ../.meteor/local/build/programs/server/assets/packages/meteortypescript_typescript-libs/definitions package_defs
 
-
    If the definitions can't be found within the .meteor directory, you will have to manually pull down the definitions from github and add them to your project:
     <https://github.com/meteor-typescript/meteor-typescript-libs>
 
@@ -36,7 +24,6 @@ deep within `<project_root_dir>/.meteor/...`.  The following will probably work:
 3. From the typescript files, add references.  Reference the definition files with a single line:
 
         /// <reference path=".typescript/package_defs/all-definitions.d.ts" />  (substitute path in your project)
-
 
    Or you can reference definition files individually:
    
@@ -51,27 +38,28 @@ deep within `<project_root_dir>/.meteor/...`.  The following will probably work:
 
 ### References
 
-Try to stay away from referencing *file.ts*, rather generate a *file.d.ts* using `tsc --reference file.ts`, and reference it in your file. Compilation will
-be much faster and code cleaner - it's always better to split definition from implementation.
+Meteor code can run on the client and the server, for this reason you should try to stay away from referencing *file.ts* directly: you may get unexpected results.  
+Rather generate a *file.d.ts* using `tsc --reference file.ts`, and reference it in your file. 
+  
+Compilation will be much faster and code cleaner - it's always better to split definition from implementation anyways.
 
 ### Templates
 
-When specifying template *helpers*, *events*, and functions for *created*, *rendered*, and *destroyed*, you will need to use a "bracket notation" instead of the "dot notation":
+With the exception of the **body** and **head** templates, Meteor's Template dot notation cannot be used (ie. *Template.mytemplate*). Thanks to Typescript static typing checks, you will need to used the *bracket notation* to access the Template.
 
-    Template['myTemplateName']['helpers']({
+
+    Template['myTemplateName'].helpers({
       foo: function () {
         return Session.get("foo");
       }
     });
 
-    Template['myTemplateName']['rendered'] = function ( ) { ... }
+    Template['myTemplateName'].rendered = function ( ) { ... }
     
-This is because TypeScript enforces typing and it will throw an error saying "myTemplateName" does not exist when using the dot notation.
-The only exception to this rule are the **body** and **head** templates which can be access via *Template.body or Template.head*
 
-### Accessing a Form field
+### Form fields
 
-Trying to read a form field value? use `(<HTMLInputElement>evt.target).value`.
+Form fields typically need to be casted to <HTMLInputElement>. For instance to read a form field value, use `(<HTMLInputElement>evt.target).value`.
 
 ### Global variables
 
@@ -140,44 +128,27 @@ Last option, is to compile code from the command line. With node and the typescr
 
     $ tsc *.ts
 
-
 ## Contributing
 
 Contributions are welcome. Remember that this project is about typing meteor packages in TypeScript.
 
-Changes to the definitions for any third party libraries (e.g. jquery.d.ts) should be made on the [DefinitelyTyped](https://github.com/borisyankov/DefinitelyTyped)
+* Any changes to the meteor definitions file, "meteor.d.ts", should be made by altering "scripts/generate-definition-files.js".  Corresponding changes should also be made to "script-definition-tests/meteor-tests.ts" and "tinytest-definition-tests/meteor-tests.ts".
+* Changes to the definitions for any third party libraries (e.g. jquery.d.ts) should be made on the [DefinitelyTyped](https://github.com/borisyankov/DefinitelyTyped)
 repo.
-
-
-### Creating Definitions
-Here is a guide to creating definitions: <http://www.typescriptlang.org/Handbook#writing-dts-files>
-
+* Changes to the smart package definitions can be made directly to those definition files (e.g. ironrouter.d.ts).
 
 ### Creating meteor.d.ts and its related files
 
-All definition files in this Meteor package are generated by executing a file generation script:
+All definition files in this Meteor package are generated by executing the makefile (ensure *node* and *npm* are properly installed in your system).
 
-    $ cd scripts
-    $ node generate-definition-files.js
+    $ make
 
-
-This script generates the meteor.d.ts file from the same [Meteor data.js file](https://github.com/meteor/meteor/blob/devel/docs/client/data.js) that is used
-to generate the official [Meteor docs](http://docs.meteor.com/).
+The makefile generates **meteor.d.ts** from the same [Meteor data.js file](https://github.com/meteor/meteor/blob/devel/docs/client/data.js) that is used to generate the official [Meteor docs](http://docs.meteor.com/).
 
 This script also retrieves the latest third-party library definitions from the [DefinitelyTyped](https://github.com/borisyankov/DefinitelyTyped) repo, which is the
-semi-official repository for TypeScript definition files.  Running this script will also run any specified tests found on [DefinitelyTyped](https://github.com/borisyankov/DefinitelyTyped),
-as well as the tests for meteor.d.ts and any other meteor packages.  All tests that are run can be found in "script-definition-tests/".
+semi-official repository for TypeScript definition files.  Running this script will also run any specified tests found on [DefinitelyTyped](https://github.com/borisyankov/DefinitelyTyped) as well as the tests for meteor.d.ts and any other meteor packages.  All tests that are run can be found in "script-definition-tests/".
 
-The script depends on node modules lodash and request, so these must be installed on your system before running the script (along with the [Typescript Transpiler](http://www.typescriptlang.org/)):
- 
-    $ [sudo -H] npm install -g lodash 
-    $ [sudo -H] npm install -g request
-    For the TypeScript transpiler:  $ [sudo -H] npm install -g typescript
-
-Any changes to the meteor definitions file, "meteor.d.ts", should be made by altering "scripts/generate-definition-files.js".  Corresponding changes should also be made 
-to "script-definition-tests/meteor-tests.ts" and "tinytest-definition-tests/meteor-tests.ts".
-
-Changes to the smart package definitions can be made directly to those definition files (e.g. ironrouter.d.ts).
-
+### Creating Definitions
+Writting typed deifinition files takes practice and experimentation, please refer to [this guide](http://www.typescriptlang.org/Handbook#writing-dts-files) for more details.
 
 

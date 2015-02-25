@@ -1,4 +1,4 @@
-/// <reference path="../../meteortypescript_typescript-libs/definitions/node.d.ts" />
+/// <reference path="../meteortypescript_typescript-libs/definitions/node.d.ts" />
 
 import assert = require("assert");
 import fs = require("fs");

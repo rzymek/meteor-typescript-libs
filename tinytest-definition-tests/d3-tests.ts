@@ -1,4 +1,4 @@
-/// <reference path="../../meteortypescript_typescript-libs/definitions/d3.d.ts" />
+/// <reference path="../meteortypescript_typescript-libs/definitions/d3.d.ts" />
 
 //Example from http://bl.ocks.org/3887235
 function testPieChart() {

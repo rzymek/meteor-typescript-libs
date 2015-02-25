@@ -1,8 +1,10 @@
-all:
-		echo "publish or deploy - to release code to atmospherejs.com"
+all: gen test
 
-publish deploy:
+gen:
+		npm install; node ./scripts/generate-definition-files.js
+
+test:
+		npm install; node ./scripts/test-definition-files.js
+
+publish deploy: gen test
 		meteor publish
-
-
-

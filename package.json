@@ -1,0 +1,13 @@
+{
+
+  "name": "GenerateMeteor.d.ts",
+  "description": "Generator for meteor.d.ts, this file is used to get npm dependencies",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "lodash": "3.3.*",
+    "typescript": "*",
+    "request": "2.*"
+  },
+  "engine": "node >= 0.10.x"
+}

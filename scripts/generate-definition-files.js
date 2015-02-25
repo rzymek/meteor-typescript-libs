@@ -15,13 +15,13 @@
 var vm = require('vm'),
     fs = require('fs'),
     _ = require('lodash'),
-    DEF_DIR = '../definitions/',
-    SCRIPT_TEST_DIR = '../script-definition-tests/',
-    TINYTEST_TEST_DIR = '../tinytest-definition-tests/',
-    TINYTEST_DEF_BASE_PATH = '../../meteortypescript_typescript-libs/',
+    DEF_DIR = './definitions/',
+    SCRIPT_TEST_DIR = './script-definition-tests/',
+    TINYTEST_TEST_DIR = './tinytest-definition-tests/',
+    TINYTEST_DEF_BASE_PATH = '../meteortypescript_typescript-libs/',
     METEOR_API_URL = 'https://raw.githubusercontent.com//meteor/meteor/devel/docs/client/data.js',
-    SAVED_METEOR_API_FILE_PATH = '../lib/data.js';
-    MANUALLY_MAINTAINED_DEFS_FILE = '../lib/meteor-manually-maintained-definitions.d.ts',
+    SAVED_METEOR_API_FILE_PATH = './lib/data.js';
+    MANUALLY_MAINTAINED_DEFS_FILE = './lib/meteor-manually-maintained-definitions.d.ts',
     METEOR_DEF_FILENAME = 'meteor.d.ts',
     DEBUG = true,
     definitionFilenames = [], // References to these files will be written to the master definition file
@@ -72,7 +72,6 @@ var thirdPartyDefTests = [
     //'https://github.com/borisyankov/DefinitelyTyped/raw/master/lodash/lodash-tests.ts'
 ];
 
-var testsWithModuleFlag = ['handlebars-tests.ts', 'node-tests.ts', 'node-fibers-tests.ts'];
 
 // keys are strings that will be sent into new RegExp(<regexp string>)
 var argTypeMappings = {
@@ -370,29 +369,29 @@ var createTypeScriptLibFile = function() {
     });
 };
 
-var testThirdPartyDefs = function() {
-    _.each(testFilenames, function(filename) {
-        console.log('Running transpilation test: ' + filename);
-        //var sys = require('sys');
-        var exec = require('child_process').exec;
-        function displayOutput(error, stdout, stderror) {
-            if (stdout) console.log(stdout);
-            if (error || stderror) { // Only display one of these to avoid duplication
-                if (stderror) {
-                    console.log('Error: ' + stderror);
-                } else {
-                    console.log('Error: ' + error);
-                }
-            }
-        }
-        if (_.contains(testsWithModuleFlag, filename)) {
-            exec("tsc -m commonjs " + SCRIPT_TEST_DIR + filename, displayOutput);
-        } else {
-            exec("tsc " + SCRIPT_TEST_DIR + filename, displayOutput);
-
-        }
-    });
-};
+//var testThirdPartyDefs = function() {
+//    _.each(testFilenames, function(filename) {
+//        console.log('Running transpilation test: ' + filename);
+//        //var sys = require('sys');
+//        var exec = require('child_process').exec;
+//        function displayOutput(error, stdout, stderror) {
+//            if (stdout) console.log(stdout);
+//            if (error || stderror) { // Only display one of these to avoid duplication
+//                if (stderror) {
+//                    console.log('Error: ' + stderror);
+//                } else {
+//                    console.log('Error: ' + error);
+//                }
+//            }
+//        }
+//        if (_.contains(testsWithModuleFlag, filename)) {
+//            exec("tsc -m commonjs " + SCRIPT_TEST_DIR + filename, displayOutput);
+//        } else {
+//            exec("tsc " + SCRIPT_TEST_DIR + filename, displayOutput);
+//
+//        }
+//    });
+//};
 
 var replaceIrregularArgTypes = function(argSection) {
     for (var key in argTypeMappings) {
@@ -691,4 +690,4 @@ createMeteorDefFile();
 //createTypeScriptLibFile();  Not currently working -- not sure how to generated latest typescript lib.d.ts file
 getThirdPartyDefLibs();
 getThirdPartyDefTests();
-setTimeout(testThirdPartyDefs, 8000);
+

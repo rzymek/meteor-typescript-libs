@@ -1,4 +1,4 @@
-/// <reference path="../../meteortypescript_typescript-libs/definitions/jquery.d.ts" />
+/// <reference path="../meteortypescript_typescript-libs/definitions/jquery.d.ts" />
 
 function test_add() {
     $("p").add("div").addClass("widget");

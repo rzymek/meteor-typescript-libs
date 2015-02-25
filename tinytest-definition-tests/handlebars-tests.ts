@@ -1,4 +1,4 @@
-/// <reference path="../../meteortypescript_typescript-libs/definitions/handlebars.d.ts" />
+/// <reference path="../meteortypescript_typescript-libs/definitions/handlebars.d.ts" />
 import Handlebars = require('handlebars');
 
 
