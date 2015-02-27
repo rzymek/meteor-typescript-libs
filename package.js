@@ -37,7 +37,7 @@ Package.onUse(function (api, where) {
 Package.onTest(function(api) {
     api.use('meteortypescript:typescript-libs', ['server']);
     api.use(['tinytest', 'test-helpers', 'underscore'], ['server']);
-    api.addFiles('typescript-libs-tests.js', ['server']);
+    api.addFiles('scripts/typescript-libs-tests.js', ['server']);
 
     api.addFiles([
         'definitions/all-definitions.d.ts',
