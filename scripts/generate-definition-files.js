@@ -18,7 +18,7 @@ var vm = require('vm'),
     DEF_DIR = './definitions/',
     SCRIPT_TEST_DIR = './script-definition-tests/',
     TINYTEST_TEST_DIR = './tinytest-definition-tests/',
-    TINYTEST_DEF_BASE_PATH = '../meteortypescript_typescript-libs/',
+    TINYTEST_DEF_BASE_PATH = '../../meteortypescript_typescript-libs/',
     METEOR_API_URL = 'https://raw.githubusercontent.com//meteor/meteor/devel/docs/client/data.js',
     SAVED_METEOR_API_FILE_PATH = './lib/data.js';
     MANUALLY_MAINTAINED_DEFS_FILE = './lib/meteor-manually-maintained-definitions.d.ts',
@@ -81,8 +81,9 @@ var argTypeMappings = {
     'String': 'string',
     'clone<T>\\(val: EJSON': 'clone<T>(val: T',
     'JSONCompatible': 'JSON',
+    //'EJSONable': 'EJSONable',
     'Array.<EJSON>': 'EJSON[]',
-    'Array.<EJSONable>': 'EJSON[]',
+    'Array.<EJSONable>': 'EJSONable[]',
     'DOMElement': 'HTMLElement',
     'DOMNode': 'Node',
     'EventMap': '{[actions: string]: Function}',
@@ -95,7 +96,6 @@ var argTypeMappings = {
     'MongoSelector': 'Mongo.Selector',
     'MongoModifier': 'Mongo.Modifier',
     'MongoSortSpecifier': 'Mongo.SortSpecifier',
-    'EJSONable': 'EJSON',
     'null': 'any /** Null **/',
     'undefined': 'any /** Undefined **/',
     'Buffer': 'any /** Buffer **/'
@@ -130,7 +130,8 @@ var signatureElementMappings = {
     'findOne(selector:': 'findOne(selector?:',
     'Collection(name: string,': 'Collection<T>(name: string,',
     '(initialValue: any,': '(initialValue: T,',
-    'set(newValue: any)': 'set(newValue: T)'
+    'set(newValue: any)': 'set(newValue: T)',
+    'addType(name: string, factory: Function)': 'addType(name: string, factory: (val: EJSONable) => JSONable)'
 };
 
 var propertyAndReturnTypeMappings = {
@@ -145,8 +146,8 @@ var propertyAndReturnTypeMappings = {
     'Meteor.publish': 'void',
     'Meteor.subscribe': 'Meteor.SubscriptionHandle',
     'Blaze.TemplateInstance#subscribe': 'Meteor.SubscriptionHandle',
-    'Meteor.apply': 'void',
-    'Meteor.call': 'void',
+    'Meteor.apply': 'any',
+    'Meteor.call': 'any',
     'Meteor.clearTimeout': 'void',
     'Meteor.clearInterval': 'void',
     'Meteor.disconnect': 'void',
@@ -564,6 +565,9 @@ var createDecomposedClass = function(apiDef, tabs) {
     classContent += tabs + '}\n';
     classContent += tabs + 'interface ' + apiDef.name + addGenerics(apiDef.longname) + ' {\n';
     classContent += createModuleInnerContent(apiDef.longname, tabs, true, 'instance');
+    if (apiDef.longname === 'Mongo.Collection') { // Total exception case
+        classContent += tabs + '\t_ensureIndex(indexName: string, options?: {[key: string]: any}): void;\n'
+    }
     classContent += tabs + '}\n\n';
     return classContent;
 };

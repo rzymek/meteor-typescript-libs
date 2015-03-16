@@ -6,7 +6,7 @@
  *
  *  Thanks to Sam Hatoum for the base code for auto-generating this file.
  *
- *  supports Meteor 1.0.2.1
+ *  supports Meteor 1.0.3.2
  *
  */
 
@@ -14,11 +14,13 @@
  * These are the modules and interfaces that can't be automatically generated from the Meteor data.js file
  */
 
-interface EJSON extends JSON {}
-//interface TemplateStatic {
-//    new(): Template;
-//    [templateName: string]: Meteor.TemplatePage;
-//}
+interface EJSONable {
+    [key: string]: number | string | boolean | Object | number[] | string[] | Object[] | Date | Uint8Array | EJSON.CustomType;
+}
+interface JSONable {
+    [key: string]: number | string | boolean | Object | number[] | string[] | Object[];
+}
+interface EJSON extends EJSONable {}
 
 declare module Match {
     var Any;
@@ -35,8 +37,6 @@ declare module Match {
 }
 
 declare module Meteor {
-    //interface EJSONObject extends Object {}
-
     /** Start definitions for Template **/
     interface Event {
         type:string;

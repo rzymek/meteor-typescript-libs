@@ -1,4 +1,4 @@
-/// <reference path="../meteortypescript_typescript-libs/definitions/underscore.d.ts" />
+/// <reference path="../../meteortypescript_typescript-libs/definitions/underscore.d.ts" />
 
 declare var $: any;
 

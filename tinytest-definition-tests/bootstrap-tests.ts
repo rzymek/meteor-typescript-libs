@@ -1,5 +1,5 @@
-/// <reference path="../meteortypescript_typescript-libs/definitions/jquery.d.ts" />
-/// <reference path="../meteortypescript_typescript-libs/definitions/bootstrap.d.ts" />
+/// <reference path="../../meteortypescript_typescript-libs/definitions/jquery.d.ts" />
+/// <reference path="../../meteortypescript_typescript-libs/definitions/bootstrap.d.ts" />
 
 $('body').off('.data-api');
 $('body').off('.alert.data-api');

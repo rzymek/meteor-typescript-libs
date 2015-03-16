@@ -2899,3 +2899,26 @@ function test_promise_then_change_type() {
     }).fail(function (exception) {
     });
 }
+function test_promise_then_not_return_deferred() {
+    var state;
+    var deferred = $.Deferred();
+    state = deferred.state();
+    deferred = deferred.progress();
+    deferred = deferred.done();
+    deferred = deferred.fail();
+    deferred = deferred.always();
+    deferred = deferred.notify();
+    deferred = deferred.resolve();
+    deferred = deferred.reject();
+    promise = deferred.promise();
+    promise = deferred.then(function () {
+    });
+    var promise = $.Deferred().promise();
+    state = promise.state();
+    promise = promise.then(function () {
+    });
+    promise = promise.progress();
+    promise = promise.done();
+    promise = promise.fail();
+    promise = promise.always();
+}

@@ -1,5 +1,5 @@
-/// <reference path="../meteortypescript_typescript-libs/definitions/underscore.d.ts" />
-/// <reference path="../meteortypescript_typescript-libs/definitions/underscore.string.d.ts" />
+/// <reference path="../../meteortypescript_typescript-libs/definitions/underscore.d.ts" />
+/// <reference path="../../meteortypescript_typescript-libs/definitions/underscore.string.d.ts" />
 
 _.mixin(_.string.exports());
 interface UnderscoreStatic extends UnderscoreStringStaticExports { }

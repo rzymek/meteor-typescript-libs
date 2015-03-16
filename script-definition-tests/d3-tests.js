@@ -23,6 +23,30 @@ function testPieChart() {
         });
     });
 }
+function testMapConstructor() {
+    //No arg constructor
+    var emptyMap = d3.map();
+    //Object constructor
+    var object = { a: 1, b: 2, c: 3 };
+    var objectMap = d3.map(object);
+    //Array constructor
+    var numberArray = [1, 2, 3];
+    var numberArrayMap = d3.map(numberArray);
+    //Array with keyFn constructor
+    var objectArray = [{ key: "v1" }, { key: "v2" }, { key: "v3" }];
+    var indexes = [];
+    //keyFn with index
+    var objectArrayMap1 = d3.map(objectArray, function (o, index) {
+        indexes.push(index);
+        return o.key;
+    });
+    //keyFn without index
+    var objectArrayMap2 = d3.map(objectArray, function (o) {
+        return o.key;
+    });
+    //Map constructor
+    var duplicateMap = d3.map(numberArrayMap);
+}
 function groupedBarChart() {
     var margin = { top: 20, right: 20, bottom: 30, left: 40 }, width = 960 - margin.left - margin.right, height = 500 - margin.top - margin.bottom;
     var x0 = d3.scale.ordinal().rangeRoundBands([0, width], .1);

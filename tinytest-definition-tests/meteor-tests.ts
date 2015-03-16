@@ -131,8 +131,14 @@ Meteor.methods({
 /**
  * From Methods, Meteor.call section
  */
-Meteor.call('foo', 1, 2, function (error, result) {} );
+Meteor.call('foo', 1, 2, function (error, result) {});
 var result = Meteor.call('foo', 1, 2);
+var someVar = result.someProp;
+
+Meteor.apply('foo', [{"1": 1}, {"2": 1}], function(error, result) {});
+var result = Meteor.apply('foo', [{"1": 1}, {"2": 2}]);
+var someVar = result.someProp;
+
 
 /**
  * From Collections, Mongo.Collection section
@@ -595,3 +601,27 @@ var reactiveVar2 = new ReactiveVar<string>('test value', function(oldVal) { retu
 
 var varValue: string = reactiveVar1.get();
 reactiveVar1.set('new value');
+
+
+/**
+ * From EJSON section
+ */
+var testEJSONResult: EJSON = EJSON.parse('{"test1": 1}');
+var testEJSONAsString: string = EJSON.stringify({"test1": 1});
+
+interface iTestEJSON extends EJSON {
+    "test1": number;
+    "test2": number;
+}
+var testEJSON1: iTestEJSON = {"test1": 1, "test2": 2};
+var testEJSON2: iTestEJSON = {"test1": 3, "test2": 4};
+var isEqual: boolean = EJSON.equals(testEJSON1, testEJSON2);
+var cloned: iTestEJSON = EJSON.clone(testEJSON1);
+
+EJSON.addType('newType', function(newVal: EJSONable) {
+    return {"foo": "bar"};
+});
+
+// Not sure about EJSON definitions and tests that require EJSON
+// Don't know how to work with having to have "parse" method within JSON
+// testEJSONResult: EJSON = EJSON.fromJSONValue({"foo": "bar"});

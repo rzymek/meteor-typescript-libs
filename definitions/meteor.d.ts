@@ -6,7 +6,7 @@
  *
  *  Thanks to Sam Hatoum for the base code for auto-generating this file.
  *
- *  supports Meteor 1.0.2.1
+ *  supports Meteor 1.0.3.2
  *
  */
 
@@ -14,11 +14,13 @@
  * These are the modules and interfaces that can't be automatically generated from the Meteor data.js file
  */
 
-interface EJSON extends JSON {}
-//interface TemplateStatic {
-//    new(): Template;
-//    [templateName: string]: Meteor.TemplatePage;
-//}
+interface EJSONable {
+    [key: string]: number | string | boolean | Object | number[] | string[] | Object[] | Date | Uint8Array | EJSON.CustomType;
+}
+interface JSONable {
+    [key: string]: number | string | boolean | Object | number[] | string[] | Object[];
+}
+interface EJSON extends EJSONable {}
 
 declare module Match {
     var Any;
@@ -35,8 +37,6 @@ declare module Match {
 }
 
 declare module Meteor {
-    //interface EJSONObject extends Object {}
-
     /** Start definitions for Template **/
     interface Event {
         type:string;
@@ -429,7 +429,7 @@ declare module EJSON {
 		typeName(): string;
 	}
 
-	function addType(name: string, factory: Function): void;
+	function addType(name: string, factory: (val: EJSONable) => JSONable): void;
 	function clone<T>(val:T): T;
 	function equals(a: EJSON, b: EJSON, options?: {
 				keyOrderSensitive?: boolean;
@@ -462,11 +462,11 @@ declare module Meteor {
 				replaceLocalhost?: Boolean;
 				rootUrl?: string;
 			}): string;
-	function apply(name: string, args: EJSON[], options?: {
+	function apply(name: string, args: EJSONable[], options?: {
 				wait?: boolean;
 				onResultReceived?: Function;
-			}, asyncCallback?: Function): void;
-	function call(name: string, ...args): void;
+			}, asyncCallback?: Function): any;
+	function call(name: string, ...args): any;
 	function clearInterval(id: number): void;
 	function clearTimeout(id: number): void;
 	function disconnect(): void;
@@ -549,6 +549,7 @@ declare module Mongo {
 		upsert(selector: Mongo.Selector, modifier: Mongo.Modifier, options?: {
 				multi?: boolean;
 			}, callback?: Function): {numberAffected?: number; insertedId?: string;};
+		_ensureIndex(indexName: string, options?: {[key: string]: any}): void;
 	}
 
 	var Cursor: CursorStatic;
@@ -629,8 +630,8 @@ declare module Tracker {
 declare module Session {
 	function equals(key: string, value: string | number | boolean | any /** Null **/ | any /** Undefined **/): boolean;
 	function get(key: string): any;
-	function set(key: string, value: EJSON | any /** Undefined **/): void;
-	function setDefault(key: string, value: EJSON | any /** Undefined **/): void;
+	function set(key: string, value: EJSONable | any /** Undefined **/): void;
+	function setDefault(key: string, value: EJSONable | any /** Undefined **/): void;
 }
 
 declare module HTTP {
@@ -643,6 +644,7 @@ declare module HTTP {
 				headers?: Object;
 				timeout?: number;
 				followRedirects?: boolean;
+				npmRequestOptions?: Object;
 			}, asyncCallback?: Function): HTTP.HTTPResponse;
 	function del(url: string, callOptions?: Object, asyncCallback?: Function): HTTP.HTTPResponse;
 	function get(url: string, callOptions?: Object, asyncCallback?: Function): HTTP.HTTPResponse;
