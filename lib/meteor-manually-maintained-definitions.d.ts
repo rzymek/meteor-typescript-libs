@@ -286,6 +286,13 @@ declare module BrowserPolicy {
     }
 }
 
+declare module Tracker {
+    export var ComputationFunction: (computation: Tracker.Computation) => void;
+
+}
+
+declare var IterationCallback: <T>(doc: T, index: number, cursor: Mongo.Cursor<T>) => void;
+
 /**
  * These modules and interfaces are automatically generated from the Meteor api.js file
  */

@@ -98,7 +98,9 @@ var argTypeMappings = {
     'MongoSortSpecifier': 'Mongo.SortSpecifier',
     'null': 'any /** Null **/',
     'undefined': 'any /** Undefined **/',
-    'Buffer': 'any /** Buffer **/'
+    'Buffer': 'any /** Buffer **/',
+    'IterationCallback': '<T>(doc: T, index: number, cursor: Mongo.Cursor<T>) => void',
+    'Tracker.ComputationFunction': '(computation: Tracker.Computation) => void'
 };
 
 var signatureElementMappings = {

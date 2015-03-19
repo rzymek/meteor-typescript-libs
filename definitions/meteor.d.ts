@@ -286,6 +286,13 @@ declare module BrowserPolicy {
     }
 }
 
+declare module Tracker {
+    export var ComputationFunction: (computation: Tracker.Computation) => void;
+
+}
+
+declare var IterationCallback: <T>(doc: T, index: number, cursor: Mongo.Cursor<T>) => void;
+
 /**
  * These modules and interfaces are automatically generated from the Meteor api.js file
  */
@@ -318,7 +325,9 @@ declare module Accounts {
 	function sendEnrollmentEmail(userId: string, email?: string): void;
 	function sendResetPasswordEmail(userId: string, email?: string): void;
 	function sendVerificationEmail(userId: string, email?: string): void;
-	function setPassword(userId: string, newPassword: string): void;
+	function setPassword(userId: string, newPassword: string, options?: {
+				logout?: Object;
+			}): void;
 	var ui: {
 		config(options: {
 				requestPermissions?: Object;
@@ -559,8 +568,8 @@ declare module Mongo {
 	interface Cursor<T> {
 		count(): number;
 		fetch(): Array<T>;
-		forEach(callback: Function, thisArg?: any): void;
-		map(callback: Function, thisArg?: any): void;
+		forEach(callback: <T>(doc: T, index: number, cursor: Mongo.Cursor<T>) => void, thisArg?: any): void;
+		map(callback: <T>(doc: T, index: number, cursor: Mongo.Cursor<T>) => void, thisArg?: any): void;
 		observe(callbacks: Object): Meteor.LiveQueryHandle;
 		observeChanges(callbacks: Object): Meteor.LiveQueryHandle;
 	}
@@ -620,7 +629,7 @@ declare module Tracker {
 
 	var active: boolean;
 	function afterFlush(callback: Function): void;
-	function autorun(runFunc: Function): Tracker.Computation;
+	function autorun(runFunc: (computation: Tracker.Computation) => void): Tracker.Computation;
 	var currentComputation: Tracker.Computation;
 	function flush(): void;
 	function nonreactive(func: Function): void;
