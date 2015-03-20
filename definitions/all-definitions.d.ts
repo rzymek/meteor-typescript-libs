@@ -8,9 +8,6 @@
  */
 /// <reference path="meteor.d.ts" />
 /// <reference path="collectionfs.d.ts" />
-/// <reference path="collection2.d.ts" />
-/// <reference path="simple-schema.d.ts" />
-/// <reference path="json-schema.d.ts" />
 /// <reference path="flash-messages.d.ts" />
 /// <reference path="ironrouter.d.ts" />
 /// <reference path="observatory.d.ts" />
