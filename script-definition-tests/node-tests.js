@@ -53,6 +53,12 @@ var Networker = (function (_super) {
     }
     return Networker;
 })(events.EventEmitter);
+var errno;
+fs.readFile('testfile', function (err, data) {
+    if (err && err.errno) {
+        errno = err.errno;
+    }
+});
 ////////////////////////////////////////////////////
 /// Url tests : http://nodejs.org/api/url.html
 ////////////////////////////////////////////////////
