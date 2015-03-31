@@ -297,6 +297,8 @@ topPosts.forEach(function (post) {
     count += 1;
 });
 
+topPosts.map((post) => post.score).length;
+
 /**
  * From Collections, cursor.observeChanges section
  */
