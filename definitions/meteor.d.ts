@@ -6,7 +6,7 @@
  *
  *  Thanks to Sam Hatoum for the base code for auto-generating this file.
  *
- *  supports Meteor 1.0.3.2
+ *  supports Meteor 1.1.0.1
  *
  */
 
@@ -307,7 +307,7 @@ declare module Accounts {
 	function changePassword(oldPassword: string, newPassword: string, callback?: Function): void;
 	function config(options: {
 				sendVerificationEmail?: boolean;
-				forbidClientAccountCreation?: Boolean;
+				forbidClientAccountCreation?: boolean;
 				restrictCreationByEmailDomain?: string | Function;
 				loginExpirationInDays?: number;
 				oauthSecretKey?: string;
@@ -456,7 +456,7 @@ declare module EJSON {
 	function parse(str: string): EJSON;
 	function stringify(val: EJSON, options?: {
 				indent?: boolean | number | string;
-				canonical?: Boolean;
+				canonical?: boolean;
 			}): string;
 	function toJSONValue(val: EJSON): JSON;
 }
@@ -475,7 +475,7 @@ declare module Meteor {
 
 	function absoluteUrl(path?: string, options?: {
 				secure?: boolean;
-				replaceLocalhost?: Boolean;
+				replaceLocalhost?: boolean;
 				rootUrl?: string;
 			}): string;
 	function apply(name: string, args: EJSONable[], options?: {
@@ -493,7 +493,7 @@ declare module Meteor {
 	function loginWith<ExternalService>(options?: {
 				requestPermissions?: string[];
 				requestOfflineToken?: boolean;
-				forceApprovalPrompt?: Boolean;
+				forceApprovalPrompt?: boolean;
 				userEmail?: string;
 				loginStyle?: string;
 			}, callback?: Function): void;
@@ -560,7 +560,7 @@ declare module Mongo {
 		remove(selector: Mongo.Selector, callback?: Function): void;
 		update(selector: Mongo.Selector, modifier: Mongo.Modifier, options?: {
 				multi?: boolean;
-				upsert?: Boolean;
+				upsert?: boolean;
 			}, callback?: Function): number;
 		upsert(selector: Mongo.Selector, modifier: Mongo.Modifier, options?: {
 				multi?: boolean;
@@ -636,7 +636,9 @@ declare module Tracker {
 
 	var active: boolean;
 	function afterFlush(callback: Function): void;
-	function autorun(runFunc: (computation: Tracker.Computation) => void): Tracker.Computation;
+	function autorun(runFunc: (computation: Tracker.Computation) => void, options?: {
+				onError?: Function;
+			}): Tracker.Computation;
 	var currentComputation: Tracker.Computation;
 	function flush(): void;
 	function nonreactive(func: Function): void;
@@ -679,6 +681,7 @@ declare module Email {
 				text?: string;
 				 html?: string;
 				headers?: Object;
+				attachments?: Object[];
 			}): void;
 }
 
@@ -724,7 +727,7 @@ interface PackageAPI {
 	imply(packageSpecs: string | string[]): void;
 	use(packageNames: string | string[], architecture?: string, options?: {
 				weak?: boolean;
-				unordered?: Boolean;
+				unordered?: boolean;
 			}): void;
 	versionsFrom(meteorRelease: string | string[]): void;
 }

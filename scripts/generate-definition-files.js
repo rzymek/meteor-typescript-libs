@@ -54,7 +54,7 @@ var thirdPartyDefLibs = [
     'https://github.com/borisyankov/DefinitelyTyped/raw/master/handlebars/handlebars.d.ts',
     'https://github.com/borisyankov/DefinitelyTyped/raw/master/node/node.d.ts',
     'https://github.com/borisyankov/DefinitelyTyped/raw/master/node-fibers/node-fibers.d.ts',
-    'https://github.com/borisyankov/DefinitelyTyped/raw/master/googlemaps/google.maps.d.ts',
+    'https://github.com/borisyankov/DefinitelyTyped/raw/master/googlemaps/google.maps.d.ts'
     //'https://github.com/borisyankov/DefinitelyTyped/raw/master/lodash/lodash.d.ts'
 ];
 
@@ -68,7 +68,7 @@ var thirdPartyDefTests = [
     'https://github.com/borisyankov/DefinitelyTyped/raw/master/d3/d3-tests.ts',
     'https://github.com/borisyankov/DefinitelyTyped/raw/master/handlebars/handlebars-tests.ts',
     'https://github.com/borisyankov/DefinitelyTyped/raw/master/node/node-tests.ts',
-    'https://github.com/borisyankov/DefinitelyTyped/raw/master/node-fibers/node-fibers-tests.ts',
+    'https://github.com/borisyankov/DefinitelyTyped/raw/master/node-fibers/node-fibers-tests.ts'
     //'https://github.com/borisyankov/DefinitelyTyped/raw/master/lodash/lodash-tests.ts'
 ];
 
@@ -100,40 +100,40 @@ var argTypeMappings = {
     'undefined': 'any /** Undefined **/',
     'Buffer': 'any /** Buffer **/',
     'IterationCallback': '<T>(doc: T, index: number, cursor: Mongo.Cursor<T>) => void',
-    'Tracker.ComputationFunction': '(computation: Tracker.Computation) => void'
+    'Tracker.ComputationFunction': '(computation: Tracker.Computation) => void',
+    'Array.<Object>': 'Object[]'
 };
 
+// Regex mappings for full flexibility
 var signatureElementMappings = {
-    'clone(val: EJSON): T;': 'clone<T>(val:T): T;',
-    'fetch();': 'fetch(): Array<T>;',
-    'find(selector: any, options?);': 'find(selector?: any, options?): Meteor.Cursor<T>;',
-    'findOne(selector: any, options?);': 'findOne(selector?, options?): T;',
-    'insert(doc: Object, callback?);': 'insert(doc: T, callback?: Function): string;',
-    'subscribe(name: string, arg1, arg2...?: any, callbacks?: any)': 'subscribe(name: string, ...args)',
-    'call(name: string, arg1, arg2...?: EJSONable, asyncCallback?: Function)': 'call(name: string, ...args)',
-    'function body()': 'body: TemplateStaic',
-    'helpers(helpers: Object)': 'helpers(helpers:{[id:string]: any})',
-    'sourcePath?: string, line: number, func: string': 'sourcePath?: string, line?: number, func?: string',
+    'clone\\(val: EJSON\\): T;': 'clone<T>(val:T): T;',
+    'fetch\\(\\);': 'fetch(): Array<T>;',
+    'find\\(selector: any, options\\?\\);': 'find(selector?: any, options?): Meteor.Cursor<T>;',
+    'findOne\\(selector: any, options\\?\\);': 'findOne(selector?, options?): T;',
+    'insert\\(doc: Object, callback\\?\\);': 'insert(doc: T, callback?: Function): string;',
+    'subscribe\\(name: string, arg1, arg2...\\?: any, callbacks\\?: any\\)': 'subscribe(name: string, ...args)',
+    'call\\(name: string, arg1, arg2...\\?: EJSONable, asyncCallback\\?: Function\\)': 'call(name: string, ...args)',
+    'function body\\(\\)': 'body: TemplateStaic',
+    'helpers\\(helpers: Object\\)': 'helpers(helpers:{[id:string]: any})',
+    'sourcePath\\?: string, line: number, func: string': 'sourcePath?: string, line?: number, func?: string',
     'function export': '// function export',
-    'ReactiveVar(initialValue: any, equalsFunc?: Function)': 'ReactiveVar(initialValue: any, equalsFunc?: (oldVal:any, newVal:any)=>boolean)',
+    'ReactiveVar\\(initialValue: any, equalsFunc\\?: Function\\)': 'ReactiveVar(initialValue: any, equalsFunc?: (oldVal:any, newVal:any)=>boolean)',
     'Boolean': 'boolean',
-    'depends(dependencies: Object)': 'depends(dependencies:{[id:string]:string})',
-    'insert?: Function;': 'insert?: (userId:string, doc) => boolean;',
-    'update?: Function;': 'update?: (userId, doc, fieldNames, modifier) => boolean;',
-    'remove?: Function;': 'remove?: (userId, doc) => boolean;',
-    'arg1, arg2...?: any, callbacks?: Function | Object)': '...args)',
-    'arg1, arg2...?: any, callbacks?: Object)': '...args)',
-    'arg1, arg2...?: EJSON, asyncCallback?: Function)': '...args)',
-    'function: Function)': 'helperFunction: Function)',
-    'renderFunction: Function)': 'renderFunction?: Function)',
+    'depends\\(dependencies: Object\\)': 'depends(dependencies:{[id:string]:string})',
+    'insert\\?: Function;': 'insert?: (userId:string, doc) => boolean;',
+    'update\\?: Function;': 'update?: (userId, doc, fieldNames, modifier) => boolean;',
+    'remove\\?: Function;': 'remove?: (userId, doc) => boolean;',
+    'arg1, arg2...\\?: any(.|\n)*\\)': '...args)',
+    'function: Function\\)': 'helperFunction: Function)',
+    'renderFunction: Function\\)': 'renderFunction?: Function)',
 
-    'function send(options)': 'function send(options: Email.EmailMessage)',
-    'find(selector:': 'find(selector?:',
-    'findOne(selector:': 'findOne(selector?:',
-    'Collection(name: string,': 'Collection<T>(name: string,',
-    '(initialValue: any,': '(initialValue: T,',
-    'set(newValue: any)': 'set(newValue: T)',
-    'addType(name: string, factory: Function)': 'addType(name: string, factory: (val: EJSONable) => JSONable)'
+    'function send\\(options\\)': 'function send(options: Email.EmailMessage)',
+    'find\\(selector:': 'find(selector?:',
+    'findOne\\(selector:': 'findOne(selector?:',
+    'Collection\\(name: string,': 'Collection<T>(name: string,',
+    '\\(initialValue: any,': '(initialValue: T,',
+    'set\\(newValue: any\\)': 'set(newValue: T)',
+    'addType\\(name: string, factory: Function\\)': 'addType(name: string, factory: (val: EJSONable) => JSONable)'
 };
 
 var propertyAndReturnTypeMappings = {
@@ -372,30 +372,6 @@ var createTypeScriptLibFile = function() {
     });
 };
 
-//var testThirdPartyDefs = function() {
-//    _.each(testFilenames, function(filename) {
-//        console.log('Running transpilation test: ' + filename);
-//        //var sys = require('sys');
-//        var exec = require('child_process').exec;
-//        function displayOutput(error, stdout, stderror) {
-//            if (stdout) console.log(stdout);
-//            if (error || stderror) { // Only display one of these to avoid duplication
-//                if (stderror) {
-//                    console.log('Error: ' + stderror);
-//                } else {
-//                    console.log('Error: ' + error);
-//                }
-//            }
-//        }
-//        if (_.contains(testsWithModuleFlag, filename)) {
-//            exec("tsc -m commonjs " + SCRIPT_TEST_DIR + filename, displayOutput);
-//        } else {
-//            exec("tsc " + SCRIPT_TEST_DIR + filename, displayOutput);
-//
-//        }
-//    });
-//};
-
 var replaceIrregularArgTypes = function(argSection) {
     for (var key in argTypeMappings) {
         // Needs to use the RegExp form of replace so can be global in case of multiple arg types
@@ -406,9 +382,7 @@ var replaceIrregularArgTypes = function(argSection) {
 
 var replaceSignatureElements = function(funcSignature) {
     for (var key in signatureElementMappings) {
-        funcSignature = funcSignature.replace(key, signatureElementMappings[key]);
-        //eventually should be:
-        //funcSignature = funcSignature.replace(new RegExp(key, 'g'), signatureElementMappings[key]);
+        funcSignature = funcSignature.replace(new RegExp(key, 'g'), signatureElementMappings[key]);
     }
     return funcSignature;
 };

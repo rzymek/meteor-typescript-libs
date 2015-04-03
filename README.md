@@ -1,7 +1,7 @@
 # Meteor TypeScript libraries
 
-This project adds TypeScript definition files related to Meteor.  It includes *meteor.d.ts* plus many others.  These are definitions for Meteor 1.0.3.1, and
-they require TypeScript 1.4 or higher (to allow Union types).
+This project adds TypeScript definition files related to Meteor.  It includes *meteor.d.ts* plus many others.  These are definitions for Meteor 1.1.0.1, and
+they require TypeScript 1.4 or higher (to allow Union types).  These definitions are mostly backwards compatible for any 1.0* Meteor version.
 
 ## Why use TypeScript?
 [TypeScript](http://www.typescriptlang.org/) enforces a *relaxed* static typing transpiler to Javascript. It is an opinionated attempt to build an elegant language on top of a crappy, yet popular platform.
@@ -132,7 +132,8 @@ Last option, is to compile code from the command line. With node and the typescr
 
 Contributions are welcome. Remember that this project is about typing meteor packages in TypeScript.
 
-* Any changes to the meteor definitions file, "meteor.d.ts", should be made by altering "scripts/generate-definition-files.js".  Corresponding changes should also be made to "script-definition-tests/meteor-tests.ts" and "tinytest-definition-tests/meteor-tests.ts".
+* Most changes to the meteor definitions file, "meteor.d.ts", should be made by altering "scripts/generate-definition-files.js".  Often, fixing a type/signature mapping near the top is all that is necessary.  Corresponding changes should also be made to "script-definition-tests/meteor-tests.ts" and "tinytest-definition-tests/meteor-tests.ts".
+    * Some definitions in "meteor.d.ts" can be found in `lib/meteor-manually-maintained-definitions.d.ts`, which contains definitions that can't be automatically generated.
 * Changes to the definitions for any third party libraries (e.g. jquery.d.ts) should be made on the [DefinitelyTyped](https://github.com/borisyankov/DefinitelyTyped)
 repo.
 * Changes to the smart package definitions can be made directly to those definition files (e.g. ironrouter.d.ts).
@@ -149,6 +150,6 @@ This script also retrieves the latest third-party library definitions from the [
 semi-official repository for TypeScript definition files.  Running this script will also run any specified tests found on [DefinitelyTyped](https://github.com/borisyankov/DefinitelyTyped) as well as the tests for meteor.d.ts and any other meteor packages.  All tests that are run can be found in "script-definition-tests/".
 
 ### Creating Definitions
-Writting typed deifinition files takes practice and experimentation, please refer to [this guide](http://www.typescriptlang.org/Handbook#writing-dts-files) for more details.
+Writing typed definition files takes practice and experimentation, please refer to [this guide](http://www.typescriptlang.org/Handbook#writing-dts-files) for more details.
 
 
