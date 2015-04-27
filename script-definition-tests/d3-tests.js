@@ -2015,3 +2015,18 @@ function multiTest() {
     var svg = d3.select("body").append("svg").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom).append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
     svg.append("g").attr("class", "x axis").attr("transform", "translate(0," + height + ")").call(xAxis);
 }
+// Tests miscellaneous keyboard events
+function keyboardEventsTest() {
+    var keyPressed;
+    d3.select("body").on("keydown", function () {
+        if (d3.event.metaKey) {
+            keyPressed = "meta";
+        }
+        else if (d3.event.ctrlKey) {
+            keyPressed = "ctrl";
+        }
+        else if (d3.event.altKey) {
+            keyPressed = "alt";
+        }
+    });
+}

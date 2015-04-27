@@ -2197,6 +2197,10 @@ function test_jQuery() {
         }
     }).appendTo("body");
     jQuery(function ($) {
+        // Your code using failsafe $ alias here...
+    });
+    jQuery(document).ready(function ($) {
+        // Your code using failsafe $ alias here...
     });
 }
 function test_fn_extend() {
