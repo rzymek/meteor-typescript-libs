@@ -71,7 +71,9 @@ var Counts = new Mongo.Collection("counts");
 Tracker.autorun(function () {
     Meteor.subscribe("counts-by-room", Session.get("roomId"));
 });
-console.log("Current room has " + Counts.find(Session.get("roomId")).count + " messages.");
+console.log("Current room has " +
+    Counts.find(Session.get("roomId")).count +
+    " messages.");
 /**
  * From Publish and Subscribe, Meteor.subscribe section
  */
@@ -103,8 +105,7 @@ Meteor.methods({
 /**
  * From Methods, Meteor.call section
  */
-Meteor.call('foo', 1, 2, function (error, result) {
-});
+Meteor.call('foo', 1, 2, function (error, result) { });
 var result = Meteor.call('foo', 1, 2);
 var Chatrooms = new Mongo.Collection("chatrooms");
 Messages = new Mongo.Collection("messages");
@@ -135,9 +136,7 @@ Animal.prototype = {
 };
 // Define a Collection that uses Animal as its document
 var Animals = new Mongo.Collection("Animals", {
-    transform: function (doc) {
-        return new Animal(doc);
-    }
+    transform: function (doc) { return new Animal(doc); }
 });
 // Create an Animal and call its makeNoise method
 Animals.insert({ name: "raptor", sound: "roar" });
@@ -184,9 +183,6 @@ Meteor.startup(function () {
         Players.remove({ karma: { $lt: -2 } });
     }
 });
-/***
- * From Collections, collection.allow section
- */
 Posts = new Mongo.Collection("posts");
 Posts.allow({
     insert: function (userId, doc) {
@@ -204,9 +200,9 @@ Posts.allow({
     fetch: ['owner']
 });
 Posts.deny({
-    update: function (userId, docs, fields, modifier) {
+    update: function (userId, doc, fields, modifier) {
         // can't change owners
-        return docs.userId = userId;
+        return doc.userId !== userId;
     },
     remove: function (userId, doc) {
         // can't remove locked documents
@@ -241,9 +237,7 @@ var handle = query.observeChanges({
     }
 });
 // After five seconds, stop keeping the count.
-setTimeout(function () {
-    handle.stop();
-}, 5000);
+setTimeout(function () { handle.stop(); }, 5000);
 /**
  * From Sessions, Session.set section
  */
@@ -273,9 +267,7 @@ Session.equals("key", value);
 Meteor.publish("userData", function () {
     return Meteor.users.find({ _id: this.userId }, { fields: { 'other': 1, 'things': 1 } });
 });
-Meteor.users.deny({ update: function () {
-    return true;
-} });
+Meteor.users.deny({ update: function () { return true; } });
 /**
  * From Accounts, Meteor.loginWithExternalService section
  */
@@ -314,9 +306,7 @@ Accounts.validateNewUser(function (user) {
  * From Accounts, Accounts.onCreateUser section
  */
 Accounts.onCreateUser(function (options, user) {
-    var d6 = function () {
-        return Math.floor(Math.random() * 6) + 1;
-    };
+    var d6 = function () { return Math.floor(Math.random() * 6) + 1; };
     user.dexterity = d6() + d6() + d6();
     // We still want the default hook's 'profile' behavior.
     if (options.profile)
@@ -332,7 +322,9 @@ Accounts.emailTemplates.enrollAccount.subject = function (user) {
     return "Welcome to Awesome Town, " + user.profile.name;
 };
 Accounts.emailTemplates.enrollAccount.text = function (user, url) {
-    return "You have been selected to participate in building a better future!" + " To activate your account, simply click the link below:\n\n" + url;
+    return "You have been selected to participate in building a better future!"
+        + " To activate your account, simply click the link below:\n\n"
+        + url;
 };
 /**
  * From Templates, Template.myTemplate.helpers section
@@ -373,15 +365,15 @@ Meteor.publish("chats-in-room", function (roomId) {
     return Chats.find({ room: roomId });
 });
 Meteor.methods({ addChat: function (roomId, message) {
-    check(roomId, String);
-    check(message, {
-        text: String,
-        timestamp: Date,
-        // Optional, but if present must be an array of strings.
-        tags: Match.Optional('Test String')
-    });
-    // ... do something with the message ...
-} });
+        check(roomId, String);
+        check(message, {
+            text: String,
+            timestamp: Date,
+            // Optional, but if present must be an array of strings.
+            tags: Match.Optional('Test String')
+        });
+        // ... do something with the message ...
+    } });
 /**
  * From Match patterns section
  */
@@ -432,13 +424,13 @@ var setWeather = function (w) {
  * From HTTP, HTTP.call section
  */
 Meteor.methods({ checkTwitter: function (userId) {
-    check(userId, String);
-    this.unblock();
-    var result = HTTP.call("GET", "http://api.twitter.com/xyz", { params: { user: userId } });
-    if (result.statusCode === 200)
-        return true;
-    return false;
-} });
+        check(userId, String);
+        this.unblock();
+        var result = HTTP.call("GET", "http://api.twitter.com/xyz", { params: { user: userId } });
+        if (result.statusCode === 200)
+            return true;
+        return false;
+    } });
 HTTP.call("POST", "http://api.twitter.com/xyz", { data: { some: "json", stuff: 1 } }, function (error, result) {
     if (result.statusCode === 200) {
         Session.set("twizzled", true);
@@ -467,14 +459,10 @@ Blaze.getData(testView);
 Blaze.toHTML(testTemplate);
 Blaze.toHTML(testView);
 Blaze.toHTMLWithData(testTemplate, { test: 1 });
-Blaze.toHTMLWithData(testTemplate, function () {
-});
+Blaze.toHTMLWithData(testTemplate, function () { });
 Blaze.toHTMLWithData(testView, { test: 1 });
-Blaze.toHTMLWithData(testView, function () {
-});
+Blaze.toHTMLWithData(testView, function () { });
 var reactiveVar1 = new ReactiveVar('test value');
-var reactiveVar2 = new ReactiveVar('test value', function (oldVal) {
-    return true;
-});
+var reactiveVar2 = new ReactiveVar('test value', function (oldVal) { return true; });
 var varValue = reactiveVar1.get();
 reactiveVar1.set('new value');

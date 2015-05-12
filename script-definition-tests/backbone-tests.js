@@ -57,12 +57,9 @@ var Note = (function (_super) {
     function Note() {
         _super.apply(this, arguments);
     }
-    Note.prototype.initialize = function () {
-    };
-    Note.prototype.author = function () {
-    };
-    Note.prototype.coordinates = function () {
-    };
+    Note.prototype.initialize = function () { };
+    Note.prototype.author = function () { };
+    Note.prototype.coordinates = function () { };
     Note.prototype.allowedToEdit = function (account) {
         return true;
     };
@@ -109,8 +106,7 @@ var EmployeeCollection = (function (_super) {
     function EmployeeCollection() {
         _super.apply(this, arguments);
     }
-    EmployeeCollection.prototype.findByName = function (key) {
-    };
+    EmployeeCollection.prototype.findByName = function (key) { };
     return EmployeeCollection;
 })(Backbone.Collection);
 var Book = (function (_super) {
@@ -146,9 +142,15 @@ function test_collection() {
     if (model !== book1) {
         throw new Error("Error");
     }
-    books.each(function (book) { return book.get("title"); });
-    var titles = books.map(function (book) { return book.get("title"); });
-    var publishedBooks = books.filter(function (book) { return book.get("published") === true; });
+    books.each(function (book) {
+        return book.get("title");
+    });
+    var titles = books.map(function (book) {
+        return book.get("title");
+    });
+    var publishedBooks = books.filter(function (book) {
+        return book.get("published") === true;
+    });
     var alphabetical = books.sortBy(function (book) { return null; });
 }
 //////////
@@ -159,28 +161,23 @@ var v1Changes;
     (function (events) {
         function test_once() {
             var model = new Employee;
-            model.once('invalid', function () {
-            }, this);
-            model.once('invalid', function () {
-            });
+            model.once('invalid', function () { }, this);
+            model.once('invalid', function () { });
         }
         function test_listenTo() {
             var model = new Employee;
             var view = new Backbone.View();
-            view.listenTo(model, 'invalid', function () {
-            });
+            view.listenTo(model, 'invalid', function () { });
         }
         function test_listenToOnce() {
             var model = new Employee;
             var view = new Backbone.View();
-            view.listenToOnce(model, 'invalid', function () {
-            });
+            view.listenToOnce(model, 'invalid', function () { });
         }
         function test_stopListening() {
             var model = new Employee;
             var view = new Backbone.View();
-            view.stopListening(model, 'invalid', function () {
-            });
+            view.stopListening(model, 'invalid', function () { });
             view.stopListening(model, 'invalid');
             view.stopListening(model);
         }
@@ -221,10 +218,8 @@ var v1Changes;
         function test_fetch() {
             var model = new Employee({ id: 1 });
             model.fetch({
-                success: function () {
-                },
-                error: function () {
-                }
+                success: function () { },
+                error: function () { }
             });
         }
         function test_set() {
@@ -236,22 +231,16 @@ var v1Changes;
             var model = new Employee;
             model.destroy({
                 wait: true,
-                success: function (m, response, options) {
-                },
-                error: function (m, jqxhr, options) {
-                }
+                success: function (m, response, options) { },
+                error: function (m, jqxhr, options) { }
             });
             model.destroy({
-                success: function (m, response, options) {
-                },
-                error: function (m, jqxhr) {
-                }
+                success: function (m, response, options) { },
+                error: function (m, jqxhr) { }
             });
             model.destroy({
-                success: function () {
-                },
-                error: function (m, jqxhr) {
-                }
+                success: function () { },
+                error: function (m, jqxhr) { }
             });
         }
         function test_save() {
@@ -262,19 +251,15 @@ var v1Changes;
             }, {
                 wait: true,
                 validate: false,
-                success: function (m, response, options) {
-                },
-                error: function (m, jqxhr, options) {
-                }
+                success: function (m, response, options) { },
+                error: function (m, jqxhr, options) { }
             });
             model.save({
                 name: 'Joe Doe',
                 age: 21
             }, {
-                success: function () {
-                },
-                error: function (m, jqxhr) {
-                }
+                success: function () { },
+                error: function (m, jqxhr) { }
             });
         }
         function test_validate() {

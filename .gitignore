@@ -2,4 +2,4 @@
 .versions
 .npm
 node_modules/
-
+*.js.map

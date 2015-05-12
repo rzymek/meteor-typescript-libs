@@ -6,7 +6,7 @@
  *
  *  Thanks to Sam Hatoum for the base code for auto-generating this file.
  *
- *  supports Meteor 1.1.0.1
+ *  supports Meteor 1.1.0.2
  *
  */
 
@@ -23,17 +23,17 @@ interface JSONable {
 interface EJSON extends EJSONable {}
 
 declare module Match {
-    var Any;
-    var String;
-    var Integer;
-    var Boolean;
-    var undefined;
+    var Any: any;
+    var String: any;
+    var Integer: any;
+    var Boolean: any;
+    var undefined: any;
     //function null();  // not allowed in TypeScript
-    var Object;
-    function Optional(pattern):boolean;
-    function ObjectIncluding(dico):boolean;
-    function OneOf(...patterns);
-    function Where(condition);
+    var Object: any;
+    function Optional(pattern: any):boolean;
+    function ObjectIncluding(dico: any):boolean;
+    function OneOf(...patterns: any[]): any;
+    function Where(condition: any): any;
 }
 
 declare module Meteor {
@@ -96,8 +96,8 @@ declare module Meteor {
     }
 
     interface Tinytest {
-        add(name:string, func:Function);
-        addAsync(name:string, func:Function);
+        add(name:string, func:Function): any;
+        addAsync(name:string, func:Function): any;
     }
 
     enum StatusEnum {
@@ -152,9 +152,9 @@ declare module Mongo {
         MONGO
     }
     interface AllowDenyOptions {
-        insert?: (userId:string, doc) => boolean;
-        update?: (userId, doc, fieldNames, modifier) => boolean;
-        remove?: (userId, doc) => boolean;
+        insert?: (userId: string, doc: any) => boolean;
+        update?: (userId: string, doc: any, fieldNames: string[], modifier: any) => boolean;
+        remove?: (userId: string, doc: any) => boolean;
         fetch?: string[];
         transform?: Function;
     }
@@ -191,10 +191,10 @@ declare module HTTP {
 declare module Email {
     interface EmailMessage {
         from: string;
-        to: any;  // string or string[]
-        cc?: any; // string or string[]
-        bcc?: any; // string or string[]
-        replyTo?: any; // string or string[]
+        to: string | string[];
+        cc?: string | string[];
+        bcc?: string | string[];
+        replyTo?: string | string[];
         subject: string;
         text?: string;
         html?: string;
@@ -204,14 +204,14 @@ declare module Email {
 
 declare module DDP {
     interface DDPStatic {
-        subscribe(name, ...rest);
-        call(method:string, ...parameters):void;
-        apply(method:string, ...parameters):void;
-        methods(IMeteorMethodsDictionary);
+        subscribe(name: string, ...rest: any[]);
+        call(method: string, ...parameters: any[]):void;
+        apply(method: string, ...parameters: any[]):void;
+        methods(IMeteorMethodsDictionary: any): any;
         status():DDPStatus;
-        reconnect();
-        disconnect();
-        onReconnect();
+        reconnect(): void;
+        disconnect(): void;
+        onReconnect(): void;
     }
 
     interface DDPStatus {
@@ -299,6 +299,26 @@ declare module Tracker {
 }
 
 declare var IterationCallback: <T>(doc: T, index: number, cursor: Mongo.Cursor<T>) => void;
+
+
+interface MailComposerOptions {
+    escapeSMTP: boolean;
+    encoding: string;
+    charset: string;
+    keepBcc: boolean;
+    forceEmbeddedImages: boolean;
+}
+
+declare var MailComposer: MailComposerStatic;
+interface MailComposerStatic {
+    new(options: MailComposerOptions): MailComposer;
+}
+interface MailComposer {
+    addHeader(name: string, value: string): void;
+    setMessageOption(from: string, to: string, body: string, html: string): void;
+    streamMessage();
+    pipe(stream: any /** fs.WriteStream **/);
+}
 
 /**
  * These modules and interfaces are automatically generated from the Meteor api.js file

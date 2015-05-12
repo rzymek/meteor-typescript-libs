@@ -21,9 +21,7 @@ assert(1 + 1 - 2 === 0, "The universe isn't how it should.");
 assert.deepEqual({ x: { y: 3 } }, { x: { y: 3 } }, "DEEP WENT DERP");
 assert.equal(3, "3", "uses == comparator");
 assert.notStrictEqual(2, "2", "uses === comparator");
-assert.throws(function () {
-    throw "a hammer at your face";
-}, undefined, "DODGED IT");
+assert.throws(function () { throw "a hammer at your face"; }, undefined, "DODGED IT");
 assert.doesNotThrow(function () {
     if (false) {
         throw "a hammer at your face";
@@ -121,8 +119,7 @@ function crypto_cipher_decipher_buffer_test() {
 http.createServer().listen(0).close().address();
 net.createServer().listen(0).close().address();
 var request = http.request('http://0.0.0.0');
-request.once('error', function () {
-});
+request.once('error', function () { });
 request.setNoDelay(true);
 request.abort();
 ////////////////////////////////////////////////////
@@ -167,6 +164,8 @@ var path_tests;
 (function (path_tests) {
     path.normalize('/foo/bar//baz/asdf/quux/..');
     path.join('/foo', 'bar', 'baz/asdf', 'quux', '..');
+    // returns
+    //'/foo/bar/baz/asdf'
     try {
         path.join('foo', {}, 'bar');
     }

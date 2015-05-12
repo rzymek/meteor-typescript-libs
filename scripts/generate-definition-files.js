@@ -19,7 +19,7 @@ var vm = require('vm'),
     SCRIPT_TEST_DIR = './script-definition-tests/',
     TINYTEST_TEST_DIR = './tinytest-definition-tests/',
     TINYTEST_DEF_BASE_PATH = '../../meteortypescript_typescript-libs/',
-    METEOR_API_URL = 'https://raw.githubusercontent.com//meteor/meteor/devel/docs/client/data.js',
+    METEOR_API_URL = 'https://raw.githubusercontent.com/meteor/meteor/devel/docs/client/data.js',
     SAVED_METEOR_API_FILE_PATH = './lib/data.js';
     MANUALLY_MAINTAINED_DEFS_FILE = './lib/meteor-manually-maintained-definitions.d.ts',
     METEOR_DEF_FILENAME = 'meteor.d.ts',
@@ -111,8 +111,8 @@ var signatureElementMappings = {
     'find\\(selector: any, options\\?\\);': 'find(selector?: any, options?): Meteor.Cursor<T>;',
     'findOne\\(selector: any, options\\?\\);': 'findOne(selector?, options?): T;',
     'insert\\(doc: Object, callback\\?\\);': 'insert(doc: T, callback?: Function): string;',
-    'subscribe\\(name: string, arg1, arg2...\\?: any, callbacks\\?: any\\)': 'subscribe(name: string, ...args)',
-    'call\\(name: string, arg1, arg2...\\?: EJSONable, asyncCallback\\?: Function\\)': 'call(name: string, ...args)',
+    'subscribe\\(name: string, arg1, arg2...\\?: any, callbacks\\?: any\\)': 'subscribe(name: string, ...args: any[])',
+    'call\\(name: string, arg1, arg2...\\?: EJSONable, asyncCallback\\?: Function\\)': 'call(name: string, ...args: any[])',
     'function body\\(\\)': 'body: TemplateStaic',
     'helpers\\(helpers: Object\\)': 'helpers(helpers:{[id:string]: any})',
     'sourcePath\\?: string, line: number, func: string': 'sourcePath?: string, line?: number, func?: string',
@@ -123,7 +123,7 @@ var signatureElementMappings = {
     'insert\\?: Function;': 'insert?: (userId:string, doc) => boolean;',
     'update\\?: Function;': 'update?: (userId, doc, fieldNames, modifier) => boolean;',
     'remove\\?: Function;': 'remove?: (userId, doc) => boolean;',
-    'arg1, arg2...\\?: any(.|\n)*\\)': '...args)',
+    'arg1, arg2...\\?: any(.|\n)*\\)': '...args: any[])',
     'function: Function\\)': 'helperFunction: Function)',
     'renderFunction: Function\\)': 'renderFunction?: Function)',
 
@@ -133,7 +133,11 @@ var signatureElementMappings = {
     'Collection\\(name: string,': 'Collection<T>(name: string,',
     '\\(initialValue: any,': '(initialValue: T,',
     'set\\(newValue: any\\)': 'set(newValue: T)',
-    'addType\\(name: string, factory: Function\\)': 'addType(name: string, factory: (val: EJSONable) => JSONable)'
+    'addType\\(name: string, factory: Function\\)': 'addType(name: string, factory: (val: EJSONable) => JSONable)',
+
+    'insert\\?: \\(userId:string, doc\\)': 'insert?: (userId: string, doc: T)',
+    'update\\?: \\(userId, doc, fieldNames, modifier\\)': 'update?: (userId: string, doc: T, fieldNames: string[], modifier: any)',
+    'remove\\?: \\(userId, doc\\)': 'remove?: (userId: string, doc: T)'
 };
 
 var propertyAndReturnTypeMappings = {
@@ -205,6 +209,7 @@ var propertyAndReturnTypeMappings = {
     'Blaze.If': 'Blaze.View',
     'Blaze.Unless': 'Blaze.View',
     'Blaze.Each': 'Blaze.View',
+    'Blaze.Let': 'Blaze.View',
     'Blaze.getData': 'Object',
     'Blaze.getView': 'Blaze.View',
     'Blaze.TemplateInstance#data': 'Object',
@@ -253,6 +258,7 @@ var propertyAndReturnTypeMappings = {
     'App.configurePlugin': 'void',
     'App.icons': 'void',
     'App.launchScreens': 'void',
+    'App.accessRule': 'void',
 
     'Template#onCreated': 'Function',
     'Template#onRendered': 'Function',
@@ -298,6 +304,7 @@ var propertyAndReturnTypeMappings = {
     'Tracker.Computation#stop': 'void',
     'Tracker.Computation#invalidate': 'void',
     'Tracker.Computation#onInvalidate': 'void',
+    'Tracker.Computation#onStop': 'void',
     'Tracker.Computation#stopped': 'boolean',
     'Tracker.Computation#invalidated': 'boolean',
     'Tracker.Computation#firstRun': 'boolean',
@@ -323,9 +330,25 @@ var propertyAndReturnTypeMappings = {
 
     'DDP.connect': 'DDP.DDPStatic',
 
+    'CompileStep#addAsset': 'any',
+    'CompileStep#addHtml': 'any',
+    'CompileStep#addJavaScript': 'any',
+    'CompileStep#addStylesheet': 'any',
+    'CompileStep#arch': 'any',
+    'CompileStep#declaredExports': 'any',
+    'CompileStep#error': 'any',
+    'CompileStep#fileOptions': 'any',
+    'CompileStep#fullInputPath': 'any',
+    'CompileStep#inputPath': 'any',
+    'CompileStep#inputSize': 'any',
+    'CompileStep#packageName': 'any',
+    'CompileStep#pathForSourceMap': 'any',
     'CompileStep#read': 'any',
+    'CompileStep#rootOutputPath': 'any',
 
-    'check': 'void'
+    'check': 'void',
+
+    'DDPCommon.MethodInvocation': 'any'
 
 };
 

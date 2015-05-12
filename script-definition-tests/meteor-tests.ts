@@ -251,18 +251,26 @@ Meteor.startup(function () {
 /***
  * From Collections, collection.allow section
  */
-Posts = new Mongo.Collection("posts");
+
+interface iPost {
+    _id: string;
+    owner: string;
+    userId: string;
+    locked: boolean;
+}
+
+Posts = new Mongo.Collection<iPost>("posts");
 
 Posts.allow({
-  insert: function (userId, doc) {
+  insert: function (userId, doc: iPost) {
     // the user must be logged in, and the document must be owned by the user
     return (userId && doc.owner === userId);
   },
-  update: function (userId, doc, fields, modifier) {
+  update: function (userId, doc: iPost, fields, modifier) {
     // can only change your own documents
     return doc.owner === userId;
   },
-  remove: function (userId, doc) {
+  remove: function (userId, doc: iPost) {
     // can only remove your own documents
     return doc.owner === userId;
   },
@@ -270,11 +278,11 @@ Posts.allow({
 });
 
 Posts.deny({
-  update: function (userId, docs, fields, modifier) {
+  update: function (userId, doc: iPost, fields, modifier) {
     // can't change owners
-    return docs.userId = userId;
+    return doc.userId !== userId;
   },
-  remove: function (userId, doc) {
+  remove: function (userId, doc: iPost) {
     // can't remove locked documents
     return doc.locked;
   },

@@ -6,6 +6,7 @@ _.map({ one: 1, two: 2, three: 3 }, function (value, key) { return value * 3; })
 //var sum = _.reduce([1, 2, 3], (memo, num) => memo + num, 0);	// https://typescript.codeplex.com/workitem/1960
 var sum = _.reduce([1, 2, 3], function (memo, num) { return memo + num; }, 0);
 sum = _.reduce([1, 2, 3], function (memo, num) { return memo + num; }); // memo is optional #issue 5 github
+sum = _.reduce({ 'a': '1', 'b': '2', 'c': '3' }, function (memo, numstr) { return memo + (+numstr); });
 var list = [[0, 1], [2, 3], [4, 5]];
 //var flat = _.reduceRight(list, (a, b) => a.concat(b), []);	// https://typescript.codeplex.com/workitem/1960
 var flat = _.reduceRight(list, function (a, b) { return a.concat(b); }, []);
@@ -35,16 +36,15 @@ _.groupBy([1.3, 2.1, 2.4], function (num) { return Math.floor(num).toString(); }
 _.groupBy(['one', 'two', 'three'], 'length');
 _.indexBy(stooges, 'age')['40'].age;
 _(stooges).indexBy('age')['40'].name;
-_(stooges).chain().indexBy('age').value()['40'].age;
+_(stooges)
+    .chain()
+    .indexBy('age')
+    .value()['40'].age;
 _.countBy([1, 2, 3, 4, 5], function (num) { return (num % 2 == 0) ? 'even' : 'odd'; });
 _.shuffle([1, 2, 3, 4, 5, 6]);
-(function (a, b, c, d) {
-    return _.toArray(arguments).slice(1);
-})(1, 2, 3, 4);
+(function (a, b, c, d) { return _.toArray(arguments).slice(1); })(1, 2, 3, 4);
 _.size({ one: 1, two: 2, three: 3 });
-_.partition([0, 1, 2, 3, 4, 5], function (num) {
-    return num % 2 == 0;
-});
+_.partition([0, 1, 2, 3, 4, 5], function (num) { return num % 2 == 0; });
 var isUncleMoe = _.matches({ name: 'moe', relation: 'uncle' });
 _.filter([{ name: 'larry', relation: 'father' }, { name: 'moe', relation: 'uncle' }], isUncleMoe);
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -75,21 +75,15 @@ _.range(0, 30, 5);
 _.range(0, 30, 5);
 _.range(0);
 ///////////////////////////////////////////////////////////////////////////////////////
-var func = function (greeting) {
-    return greeting + ': ' + this.name;
-};
+var func = function (greeting) { return greeting + ': ' + this.name; };
 // need a second var otherwise typescript thinks func signature is the above func type,
 // instead of the newly returned _bind => func type.
 var func2 = _.bind(func, { name: 'moe' }, 'hi');
 func2();
 var buttonView = {
     label: 'underscore',
-    onClick: function () {
-        alert('clicked: ' + this.label);
-    },
-    onHover: function () {
-        console.log('hovering: ' + this.label);
-    }
+    onClick: function () { alert('clicked: ' + this.label); },
+    onHover: function () { console.log('hovering: ' + this.label); }
 };
 _.bindAll(buttonView);
 $('#underscore_button').bind('click', buttonView.onClick);
@@ -98,9 +92,7 @@ var fibonacci = _.memoize(function (n) {
 });
 var log = _.bind(console.log, console);
 _.delay(log, 1000, 'logged later');
-_.defer(function () {
-    alert('deferred');
-});
+_.defer(function () { alert('deferred'); });
 var updatePosition = function (param) { return alert('updating position... Param: ' + param); };
 var throttled = _.throttle(updatePosition, 100);
 $(window).scroll(throttled);
@@ -115,20 +107,12 @@ var notes;
 var render = function () { return alert("rendering..."); };
 var renderNotes = _.after(notes.length, render);
 _.each(notes, function (note) { return note.asyncSave({ success: renderNotes }); });
-var hello = function (name) {
-    return "hello: " + name;
-};
+var hello = function (name) { return "hello: " + name; };
 // can't use the same "hello" var otherwise typescript fails
-var hello2 = _.wrap(hello, function (func) {
-    return "before, " + func("moe") + ", after";
-});
+var hello2 = _.wrap(hello, function (func) { return "before, " + func("moe") + ", after"; });
 hello2();
-var greet = function (name) {
-    return "hi: " + name;
-};
-var exclaim = function (statement) {
-    return statement + "!";
-};
+var greet = function (name) { return "hi: " + name; };
+var exclaim = function (statement) { return statement + "!"; };
 var welcome = _.compose(exclaim, greet);
 welcome('moe');
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -146,16 +130,17 @@ var iceCream = { flavor: "chocolate" };
 _.defaults(iceCream, { flavor: "vanilla", sprinkles: "lots" });
 _.clone({ name: 'moe' });
 _.clone(['i', 'am', 'an', 'object!']);
-_([1, 2, 3, 4]).chain().filter(function (num) {
-    return num % 2 == 0;
-}).tap(alert).map(function (num) {
-    return num * num;
-}).value();
-_.chain([1, 2, 3, 200]).filter(function (num) {
-    return num % 2 == 0;
-}).tap(alert).map(function (num) {
-    return num * num;
-}).value();
+_([1, 2, 3, 4])
+    .chain()
+    .filter(function (num) { return num % 2 == 0; })
+    .tap(alert)
+    .map(function (num) { return num * num; })
+    .value();
+_.chain([1, 2, 3, 200])
+    .filter(function (num) { return num % 2 == 0; })
+    .tap(alert)
+    .map(function (num) { return num * num; })
+    .value();
 _.has({ a: 1, b: 2, c: 3 }, "b");
 var moe = { name: 'moe', luckyNumbers: [13, 27, 34] };
 var clone = { name: 'moe', luckyNumbers: [13, 27, 34] };
@@ -164,9 +149,7 @@ _.isEqual(moe, clone);
 _.isEmpty([1, 2, 3]);
 _.isEmpty({});
 _.isElement($('body')[0]);
-(function () {
-    return _.isArray(arguments);
-})();
+(function () { return _.isArray(arguments); })();
 _.isArray([1, 2, 3]);
 _.isObject({});
 _.isObject(1);
@@ -195,12 +178,8 @@ var underscore = _.noConflict();
 var moe2 = { name: 'moe' };
 moe2 === _.identity(moe);
 var genie;
-var r2 = _.times(3, function (n) {
-    return n * n;
-});
-_(3).times(function (n) {
-    genie.grantWishNumber(n);
-});
+var r2 = _.times(3, function (n) { return n * n; });
+_(3).times(function (n) { genie.grantWishNumber(n); });
 _.random(0, 100);
 _.mixin({
     capitalize: function (string) {
@@ -210,9 +189,7 @@ _.mixin({
 _("fabio").capitalize();
 _.uniqueId('contact_');
 _.escape('Curly, Larry & Moe');
-var object = { cheese: 'crumpets', stuff: function () {
-    return 'nonsense';
-} };
+var object = { cheese: 'crumpets', stuff: function () { return 'nonsense'; } };
 _.result(object, 'cheese');
 _.result(object, 'stuff');
 var compiled = _.template("hello: <%= name %>");
@@ -233,11 +210,30 @@ _(['test', 'test']).pick(['test2', 'test2']);
 //////////////// Chain Tests
 function chain_tests() {
     // https://typescript.codeplex.com/workitem/1960
-    var numArray = _.chain([1, 2, 3, 4, 5, 6, 7, 8]).filter(function (num) { return num % 2 == 0; }).map(function (num) { return num * num; }).value();
-    var strArray = _([1, 2, 3, 4]).chain().filter(function (num) { return num % 2 == 0; }).tap(alert).map(function (num) { return "string" + num; }).value();
-    var n = _.chain([1, 2, 3, 200]).filter(function (num) { return num % 2 == 0; }).tap(alert).map(function (num) { return num * num; }).max().value();
-    var hoverOverValueShouldBeNumberNotAny = _([1, 2, 3]).chain().map(function (num) { return [num, num + 1]; }).flatten().find(function (num) { return num % 2 == 0; }).value();
-    var firstVal = _.chain([1, 2, 3]).first().value();
+    var numArray = _.chain([1, 2, 3, 4, 5, 6, 7, 8])
+        .filter(function (num) { return num % 2 == 0; })
+        .map(function (num) { return num * num; })
+        .value();
+    var strArray = _([1, 2, 3, 4])
+        .chain()
+        .filter(function (num) { return num % 2 == 0; })
+        .tap(alert)
+        .map(function (num) { return "string" + num; })
+        .value();
+    var n = _.chain([1, 2, 3, 200])
+        .filter(function (num) { return num % 2 == 0; })
+        .tap(alert)
+        .map(function (num) { return num * num; })
+        .max()
+        .value();
+    var hoverOverValueShouldBeNumberNotAny = _([1, 2, 3]).chain()
+        .map(function (num) { return [num, num + 1]; })
+        .flatten()
+        .find(function (num) { return num % 2 == 0; })
+        .value();
+    var firstVal = _.chain([1, 2, 3])
+        .first()
+        .value();
 }
 var obj = {
     'test': 5,

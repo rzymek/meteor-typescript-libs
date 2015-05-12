@@ -92,8 +92,8 @@ Tracker.autorun(function () {
 });
 
 console.log("Current room has " +
-Counts.find(Session.get("roomId")).count +
-" messages.");
+        Counts.find(Session.get("roomId")).count +
+        " messages.");
 
 /**
  * From Publish and Subscribe, Meteor.subscribe section
@@ -131,14 +131,8 @@ Meteor.methods({
 /**
  * From Methods, Meteor.call section
  */
-Meteor.call('foo', 1, 2, function (error, result) {});
+Meteor.call('foo', 1, 2, function (error, result) {} );
 var result = Meteor.call('foo', 1, 2);
-var someVar = result.someProp;
-
-Meteor.apply('foo', [{"1": 1}, {"2": 1}], function(error, result) {});
-var result = Meteor.apply('foo', [{"1": 1}, {"2": 2}]);
-var someVar = result.someProp;
-
 
 /**
  * From Collections, Mongo.Collection section
@@ -257,18 +251,26 @@ Meteor.startup(function () {
 /***
  * From Collections, collection.allow section
  */
-Posts = new Mongo.Collection("posts");
+
+interface iPost {
+    _id: string;
+    owner: string;
+    userId: string;
+    locked: boolean;
+}
+
+Posts = new Mongo.Collection<iPost>("posts");
 
 Posts.allow({
-    insert: function (userId, doc) {
+    insert: function (userId, doc: iPost) {
         // the user must be logged in, and the document must be owned by the user
         return (userId && doc.owner === userId);
     },
-    update: function (userId, doc, fields, modifier) {
+    update: function (userId, doc: iPost, fields, modifier) {
         // can only change your own documents
         return doc.owner === userId;
     },
-    remove: function (userId, doc) {
+    remove: function (userId, doc: iPost) {
         // can only remove your own documents
         return doc.owner === userId;
     },
@@ -276,11 +278,11 @@ Posts.allow({
 });
 
 Posts.deny({
-    update: function (userId, docs, fields, modifier) {
+    update: function (userId, doc: iPost, fields, modifier) {
         // can't change owners
-        return docs.userId = userId;
+        return doc.userId !== userId;
     },
-    remove: function (userId, doc) {
+    remove: function (userId, doc: iPost) {
         // can't remove locked documents
         return doc.locked;
     },
@@ -296,8 +298,6 @@ topPosts.forEach(function (post) {
     console.log("Title of post " + count + ": " + post.title);
     count += 1;
 });
-
-topPosts.map((post) => post.score).length;
 
 /**
  * From Collections, cursor.observeChanges section
@@ -603,27 +603,3 @@ var reactiveVar2 = new ReactiveVar<string>('test value', function(oldVal) { retu
 
 var varValue: string = reactiveVar1.get();
 reactiveVar1.set('new value');
-
-
-/**
- * From EJSON section
- */
-var testEJSONResult: EJSON = EJSON.parse('{"test1": 1}');
-var testEJSONAsString: string = EJSON.stringify({"test1": 1});
-
-interface iTestEJSON extends EJSON {
-    "test1": number;
-    "test2": number;
-}
-var testEJSON1: iTestEJSON = {"test1": 1, "test2": 2};
-var testEJSON2: iTestEJSON = {"test1": 3, "test2": 4};
-var isEqual: boolean = EJSON.equals(testEJSON1, testEJSON2);
-var cloned: iTestEJSON = EJSON.clone(testEJSON1);
-
-EJSON.addType('newType', function(newVal: EJSONable) {
-    return {"foo": "bar"};
-});
-
-// Not sure about EJSON definitions and tests that require EJSON
-// Don't know how to work with having to have "parse" method within JSON
-// testEJSONResult: EJSON = EJSON.fromJSONValue({"foo": "bar"});
