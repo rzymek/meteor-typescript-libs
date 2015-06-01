@@ -181,10 +181,11 @@ Animal.prototype = {
     }
 };
 
-
 interface AnimalDAO {
-    _id: string;
-    makeNoise: () => void;
+    _id?: string;
+    name: string;
+    sound: string;
+    makeNoise?: () => void;
 }
 
 // Define a Collection that uses Animal as its document

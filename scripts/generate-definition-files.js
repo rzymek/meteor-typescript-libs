@@ -110,7 +110,7 @@ var signatureElementMappings = {
     'fetch\\(\\);': 'fetch(): Array<T>;',
     'find\\(selector: any, options\\?\\);': 'find(selector?: any, options?): Meteor.Cursor<T>;',
     'findOne\\(selector: any, options\\?\\);': 'findOne(selector?, options?): T;',
-    'insert\\(doc: Object, callback\\?\\);': 'insert(doc: T, callback?: Function): string;',
+    'insert\\(doc: Object, callback\\?: Function\\)': 'insert(doc: T, callback?: Function)',
     'subscribe\\(name: string, arg1, arg2...\\?: any, callbacks\\?: any\\)': 'subscribe(name: string, ...args: any[])',
     'call\\(name: string, arg1, arg2...\\?: EJSONable, asyncCallback\\?: Function\\)': 'call(name: string, ...args: any[])',
     'function body\\(\\)': 'body: TemplateStaic',
@@ -133,7 +133,7 @@ var signatureElementMappings = {
     'Collection\\(name: string,': 'Collection<T>(name: string,',
     '\\(initialValue: any,': '(initialValue: T,',
     'set\\(newValue: any\\)': 'set(newValue: T)',
-    'addType\\(name: string, factory: Function\\)': 'addType(name: string, factory: (val: EJSONable) => JSONable)',
+    'addType\\(name: string, factory: Function\\)': 'addType(name: string, factory: (val: JSON) => EJSONable)',
 
     'insert\\?: \\(userId:string, doc\\)': 'insert?: (userId: string, doc: T)',
     'update\\?: \\(userId, doc, fieldNames, modifier\\)': 'update?: (userId: string, doc: T, fieldNames: string[], modifier: any)',

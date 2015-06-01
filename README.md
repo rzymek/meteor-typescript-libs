@@ -1,7 +1,7 @@
 # Meteor TypeScript libraries
 
-This project adds TypeScript definition files related to Meteor.  It includes *meteor.d.ts* plus many others.  These are definitions for Meteor 1.1.0.1, and
-they require TypeScript 1.4 or higher (to allow Union types).  These definitions are mostly backwards compatible for any 1.0* Meteor version.
+This project adds TypeScript definition files related to Meteor.  It includes *meteor.d.ts* plus many others.  These are definitions for Meteor 1.1.0.2, and
+they require TypeScript 1.4 or higher (to allow Union types).  These definitions are mostly backwards compatible for any 1.* Meteor version.
 
 ## Why use TypeScript?
 [TypeScript](http://www.typescriptlang.org/) enforces a *relaxed* static typing transpiler to Javascript. It is an opinionated attempt to build an elegant language on top of a crappy, yet popular platform.
@@ -10,7 +10,7 @@ In general, TypeScript will NOT make JavaScript prettier (like CoffeeScript).  H
 
 For further reading about TypeScript, please refer to the [TypeScript Handbook](http://www.typescriptlang.org/Handbook).
 
-## Usage
+## Usage (OSX/Linux)
 
 1. Add a symbolic link to the definitions from within some directory within your project (e.g. ".typescript" or "lib").  The definitions can be found somewhere
 deep within `<project_root_dir>/.meteor/...`.  The following will probably work:
@@ -41,11 +41,11 @@ deep within `<project_root_dir>/.meteor/...`.  The following will probably work:
 Meteor code can run on the client and the server, for this reason you should try to stay away from referencing *file.ts* directly: you may get unexpected results.  
 Rather generate a *file.d.ts* using `tsc --reference file.ts`, and reference it in your file. 
   
-Compilation will be much faster and code cleaner - it's always better to split definition from implementation anyways.
+Compilation will be much faster and code will be cleaner - it's always better to split definition from implementation anyways.
 
 ### Templates
 
-With the exception of the **body** and **head** templates, Meteor's Template dot notation cannot be used (ie. *Template.mytemplate*). Thanks to Typescript static typing checks, you will need to used the *bracket notation* to access the Template.
+With the exception of the **body** and **head** templates, Meteor's Template dot notation cannot be used (ie. *Template.mytemplate*). Thanks to Typescript static typing checks, you will need to use the *bracket notation* to access the Template.
 
 
     Template['myTemplateName'].helpers({
@@ -59,11 +59,11 @@ With the exception of the **body** and **head** templates, Meteor's Template dot
 
 ### Form fields
 
-Form fields typically need to be casted to <HTMLInputElement>. For instance to read a form field value, use `(<HTMLInputElement>evt.target).value`.
+Form fields typically need to be cast to `<HTMLInputElement>`. For instance to read a form field value, use `(<HTMLInputElement>evt.target).value`.
 
 ### Global variables
 
-Preface any global variable declarations with a TypeScript "declare var" statement:
+Preface any global variable declarations with a TypeScript "declare var" statement (or place the statement in a definition file):
 
     declare var NavbarHelpers;
     NavbarHelpers = {};
@@ -137,6 +137,8 @@ Contributions are welcome. Remember that this project is about typing meteor pac
 * Changes to the definitions for any third party libraries (e.g. jquery.d.ts) should be made on the [DefinitelyTyped](https://github.com/borisyankov/DefinitelyTyped)
 repo.
 * Changes to the smart package definitions can be made directly to those definition files (e.g. ironrouter.d.ts).
+
+**It would be great if someone developing on Windows could add to the Usage section with instructions for Windows!**
 
 ### Creating meteor.d.ts and its related files
 

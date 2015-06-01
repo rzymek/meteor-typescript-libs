@@ -471,7 +471,7 @@ declare module EJSON {
 		typeName(): string;
 	}
 
-	function addType(name: string, factory: (val: EJSONable) => JSONable): void;
+	function addType(name: string, factory: (val: JSON) => EJSONable): void;
 	function clone<T>(val:T): T;
 	function equals(a: EJSON, b: EJSON, options?: {
 				keyOrderSensitive?: boolean;
@@ -582,7 +582,7 @@ declare module Mongo {
 				reactive?: boolean;
 				transform?: Function;
 			}): T;
-		insert(doc: Object, callback?: Function): string;
+		insert(doc: T, callback?: Function): string;
 		remove(selector: Mongo.Selector, callback?: Function): void;
 		update(selector: Mongo.Selector, modifier: Mongo.Modifier, options?: {
 				multi?: boolean;

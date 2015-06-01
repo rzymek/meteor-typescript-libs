@@ -1,5 +1,4 @@
 /// <reference path="../definitions/d3.d.ts" />
-//Example from http://bl.ocks.org/3887235
 function testPieChart() {
     var width = 960, height = 500, radius = Math.min(width, height) / 2;
     var color = d3.scale.ordinal()
@@ -15,10 +14,7 @@ function testPieChart() {
         .attr("height", height)
         .append("g")
         .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
-    d3.csv("data.csv", function (error, data) {
-        data.forEach(function (d) {
-            d.population = +d.population;
-        });
+    d3.csv("data.csv", function (d) { return ({ population: +d['population'], age: d['age'] }); }, function (error, data) {
         var g = svg.selectAll(".arc")
             .data(pie(data))
             .enter().append("g")
@@ -602,24 +598,24 @@ function populationPyramid() {
         .attr("class", "title")
         .attr("dy", ".71em")
         .text(2000);
-    d3.csv("population.csv", function (error, data) {
+    d3.csv("population.csv", function (error, rows) {
         // Convert strings to numbers.
-        data.forEach(function (d) {
+        rows.forEach(function (d) {
             d.people = +d.people;
             d.year = +d.year;
             d.age = +d.age;
         });
         // Compute the extent of the data set in age and years.
-        var age1 = d3.max(data, function (d) { return d.age; }), year0 = d3.min(data, function (d) { return d.year; }), year1 = d3.max(data, function (d) { return d.year; }), year = year1;
+        var age1 = d3.max(rows, function (d) { return d.age; }), year0 = d3.min(rows, function (d) { return d.year; }), year1 = d3.max(rows, function (d) { return d.year; }), year = year1;
         // Update the scale domains.
         x.domain([year1 - age1, year1]);
-        y.domain([0, d3.max(data, function (d) { return d.people; })]);
+        y.domain([0, d3.max(rows, function (d) { return d.people; })]);
         // Produce a map from year and birthyear to [male, female].
-        data = d3.nest()
-            .key(function (d) { return d.year; })
+        var data = d3.nest()
+            .key(function (d) { return '' + d.year; })
             .key(function (d) { return '' + (d.year - d.age); })
             .rollup(function (v) { return v.map(function (d) { return d.people; }); })
-            .map(data);
+            .map(rows);
         // Add an axis to show the population values.
         svg.append("g")
             .attr("class", "y axis")
@@ -684,7 +680,8 @@ function populationPyramid() {
     });
 }
 //Example from http://bl.ocks.org/MoritzStefaner/1377729
-function forcedBasedLabelPlacemant() {
+var forcedBasedLabelPlacemant;
+(function (forcedBasedLabelPlacemant) {
     var w = 960, h = 500;
     var labelDistance = 0;
     var vis = d3.select("body").append("svg:svg").attr("width", w).attr("height", h);
@@ -776,9 +773,10 @@ function forcedBasedLabelPlacemant() {
         link.call(updateLink);
         anchorLink.call(updateLink);
     });
-}
+})(forcedBasedLabelPlacemant || (forcedBasedLabelPlacemant = {}));
 //Example from http://bl.ocks.org/mbostock/1125997
-function forceCollapsable() {
+var forceCollapsable;
+(function (forceCollapsable) {
     var w = 1280, h = 800, node, link, root;
     var force = d3.layout.force()
         .on("tick", tick)
@@ -863,14 +861,14 @@ function forceCollapsable() {
             if (node.children)
                 node.size = node.children.reduce(function (p, v) { return p + recurse(v); }, 0);
             if (!node.id)
-                node.id = ++i;
+                node.id = String(++i);
             nodes.push(node);
             return node.size;
         }
         root.size = recurse(root);
         return nodes;
     }
-}
+})(forceCollapsable || (forceCollapsable = {}));
 //Example from http://bl.ocks.org/mbostock/3757110
 function azimuthalEquidistant() {
     var width = 960, height = 960;
@@ -941,7 +939,7 @@ function voronoiTesselation() {
 }
 // Example from https://gist.github.com/christophermanning/1734663
 function forceDirectedVoronoi() {
-    var w = window.innerWidth > 960 ? 960 : (window.innerWidth || 960), h = window.innerHeight > 500 ? 500 : (window.innerHeight || 500), radius = 5.25, links = [], simulate = true, zoomToAdd = true, color = d3.scale.quantize().domain([10000, 7250]).range(["#dadaeb", "#bcbddc", "#9e9ac8", "#807dba", "#6a51a3", "#54278f", "#3f007d"]);
+    var w = window.innerWidth > 960 ? 960 : (window.innerWidth || 960), h = window.innerHeight > 500 ? 500 : (window.innerHeight || 500), radius = 5.25, simulate = true, zoomToAdd = true, color = d3.scale.quantize().domain([10000, 7250]).range(["#dadaeb", "#bcbddc", "#9e9ac8", "#807dba", "#6a51a3", "#54278f", "#3f007d"]);
     var numVertices = (w * h) / 3000;
     var vertices = d3.range(numVertices).map(function (i) {
         var angle = radius * (i + 10);
@@ -1067,9 +1065,10 @@ function delaunayTesselation() {
 function quadtree() {
     var width = 960, height = 500;
     var data = d3.range(5000).map(function () {
-        return { x: Math.random() * width, y: Math.random() * width };
+        return [Math.random() * width, Math.random() * width];
     });
-    var quadtree = d3.geom.quadtree(data, -1, -1, width + 1, height + 1);
+    var quadtree = d3.geom.quadtree()
+        .extent([[-1, -1], [width + 1, height + 1]])(data);
     var brush = d3.svg.brush()
         .x(d3.scale.identity().domain([0, width]))
         .y(d3.scale.identity().domain([0, height]))
@@ -1090,8 +1089,8 @@ function quadtree() {
         .data(data)
         .enter().append("circle")
         .attr("class", "point")
-        .attr("cx", function (d) { return d.x; })
-        .attr("cy", function (d) { return d.y; })
+        .attr("cx", function (d) { return d[0]; })
+        .attr("cy", function (d) { return d[1]; })
         .attr("r", 4);
     svg.append("g")
         .attr("class", "brush")
@@ -1118,7 +1117,7 @@ function quadtree() {
             var p = node.point;
             if (p) {
                 p.scanned = true;
-                p.selected = (p.x >= x0) && (p.x < x3) && (p.y >= y0) && (p.y < y3);
+                p.selected = (p[0] >= x0) && (p[0] < x3) && (p[1] >= y0) && (p[1] < y3);
             }
             return x1 >= x3 || y1 >= y3 || x2 < x0 || y2 < y0;
         });
@@ -1148,7 +1147,8 @@ function convexHull() {
     }
 }
 // example from http://bl.ocks.org/mbostock/1044242
-function hierarchicalEdgeBundling() {
+var hierarchicalEdgeBundling;
+(function (hierarchicalEdgeBundling) {
     var diameter = 960, radius = diameter / 2, innerRadius = radius - 120;
     var cluster = d3.layout.cluster()
         .size([360, innerRadius])
@@ -1223,7 +1223,7 @@ function hierarchicalEdgeBundling() {
             return imports;
         }
     };
-}
+})(hierarchicalEdgeBundling || (hierarchicalEdgeBundling = {}));
 // example from http://bl.ocks.org/mbostock/1123639
 function roundedRectangles() {
     var mouse = [480, 250], count = 0;
@@ -1243,7 +1243,7 @@ function roundedRectangles() {
         .attr("height", 25)
         .attr("transform", function (d, i) { return "scale(" + (1 - d / 25) * 20 + ")"; })
         .style("fill", d3.scale.category20c());
-    g.map(function (d) {
+    var g0 = g.datum(function (d) {
         return { center: [0, 0], angle: 0 };
     });
     svg.on("mousemove", function () {
@@ -1251,7 +1251,7 @@ function roundedRectangles() {
     });
     d3.timer(function () {
         count++;
-        g.attr("transform", function (d, i) {
+        g0.attr("transform", function (d, i) {
             d.center[0] += (mouse[0] - d.center[0]) / (i + 5);
             d.center[1] += (mouse[1] - d.center[1]) / (i + 5);
             d.angle += Math.sin((count + i) / 10) * 7;
@@ -1313,7 +1313,8 @@ function streamGraph() {
     }
 }
 // example from http://mbostock.github.io/d3/talk/20111116/force-collapsible.html
-function forceCollapsable2() {
+var forceCollapsable2;
+(function (forceCollapsable2) {
     var w = 1280, h = 800, node, link, root;
     var force = d3.layout.force()
         .on("tick", tick)
@@ -1398,14 +1399,14 @@ function forceCollapsable2() {
             if (node.children)
                 node.size = node.children.reduce(function (p, v) { return p + recurse(v); }, 0);
             if (!node.id)
-                node.id = ++i;
+                node.id = String(++i);
             nodes.push(node);
             return node.size;
         }
         root.size = recurse(root);
         return nodes;
     }
-}
+})(forceCollapsable2 || (forceCollapsable2 = {}));
 //exapmle from http://bl.ocks.org/mbostock/4062006
 function chordDiagram() {
     var matrix = [
@@ -1496,12 +1497,11 @@ function irisParallel() {
         .append("svg:g")
         .attr("transform", "translate(" + m[3] + "," + m[0] + ")");
     d3.csv("iris.csv", function (flowers) {
+        var i;
         // Create a scale and brush for each trait.
         traits.forEach(function (d) {
-            // Coerce values to numbers.
-            flowers.forEach(function (p) { p[d] = +p[d]; });
             y[d] = d3.scale.linear()
-                .domain(d3.extent(flowers, function (p) { return p[d]; }))
+                .domain(d3.extent(flowers, function (p) { return +p[d]; }))
                 .range([h, 0]);
             y[d].brush = d3.svg.brush()
                 .y(y[d])
@@ -1527,7 +1527,7 @@ function irisParallel() {
             .data(flowers)
             .enter().append("svg:path")
             .attr("d", path)
-            .attr("class", function (d) { return d.species; });
+            .attr("class", function (d) { return d['species']; });
         // Add a group element for each trait.
         var g = svg.selectAll(".trait")
             .data(traits)
@@ -1535,7 +1535,7 @@ function irisParallel() {
             .attr("class", "trait")
             .attr("transform", function (d) { return "translate(" + x(d) + ")"; })
             .call(d3.behavior.drag()
-            .origin(function (d) { return { x: x(d) }; })
+            .origin(function (d) { return { x: x(d), y: NaN }; })
             .on("dragstart", dragstart)
             .on("drag", drag)
             .on("dragend", dragend));
@@ -1554,10 +1554,10 @@ function irisParallel() {
             .selectAll("rect")
             .attr("x", -8)
             .attr("width", 16);
-        function dragstart(d, i) {
+        function dragstart(d) {
             i = traits.indexOf(d);
         }
-        function drag(d, i) {
+        function drag(d) {
             x.range()[i] = d3.event.x;
             traits.sort(function (a, b) { return x(a) - x(b); });
             g.attr("transform", function (d) { return "translate(" + x(d) + ")"; });
@@ -1758,58 +1758,58 @@ function nestTest() {
         }
     ];
     var n1 = d3.nest()
-        .key(function (d) { return d.a; })
+        .key(function (d) { return String(d.a); })
         .sortKeys(d3.descending)
         .rollup(function (vals) {
-        return d3.sum(vals);
+        return d3.sum(vals[0].b);
     });
     n1.map(data);
     n1.entries(data);
     var n2 = d3.nest()
-        .key(function (d) { return d.a; })
+        .key(function (d) { return String(d.a); })
         .sortValues(function (x1, x2) {
-        return x1[0] < x1[1] ? -1 : (x1[0] > x1[0] ? 1 : 0);
+        return x1.b[0] < x1.b[1] ? -1 : (x1.b[0] > x1.b[0] ? 1 : 0);
     });
     n2.map(data);
     n2.entries(data);
     // Tests adopted from d3's tests.
     var keys = d3.nest()
-        .key(function (d) { return d.foo; })
+        .key(function (d) { return String(d.foo); })
         .entries([{ foo: 1 }, { foo: 1 }, { foo: 2 }])
         .map(function (d) { return d.key; })
         .sort(d3.ascending);
     var entries = d3.nest()
-        .key(function (d) { return d.foo; })
+        .key(function (d) { return String(d.foo); })
         .entries([{ foo: 1, bar: 0 }, { foo: 2 }, { foo: 1, bar: 1 }]);
     keys = d3.nest()
-        .key(function (d) { return d.foo; }).sortKeys(d3.descending)
+        .key(function (d) { return String(d.foo); }).sortKeys(d3.descending)
         .entries([{ foo: 1 }, { foo: 1 }, { foo: 2 }])
         .map(function (d) { return d.key; });
     entries = d3.nest()
-        .key(function (d) { return d.foo; })
+        .key(function (d) { return String(d.foo); })
         .sortValues(function (a, b) { return a.bar - b.bar; })
         .entries([{ foo: 1, bar: 2 }, { foo: 1, bar: 0 }, { foo: 1, bar: 1 }, { foo: 2 }]);
     entries = d3.nest()
-        .key(function (d) { return d.foo; })
+        .key(function (d) { return String(d.foo); })
         .rollup(function (values) { return d3.sum(values, function (d) { return d.bar; }); })
         .entries([{ foo: 1, bar: 2 }, { foo: 1, bar: 0 }, { foo: 1, bar: 1 }, { foo: 2 }]);
     entries = d3.nest()
-        .key(function (d) { return d[0]; }).sortKeys(d3.ascending)
-        .key(function (d) { return d[1]; }).sortKeys(d3.ascending)
+        .key(function (d) { return String(d[0]); }).sortKeys(d3.ascending)
+        .key(function (d) { return String(d[1]); }).sortKeys(d3.ascending)
         .entries([[0, 1], [0, 2], [1, 1], [1, 2], [0, 2]]);
     entries = d3.nest()
-        .key(function (d) { return d[0]; }).sortKeys(d3.ascending)
-        .key(function (d) { return d[1]; }).sortKeys(d3.ascending)
+        .key(function (d) { return String(d[0]); }).sortKeys(d3.ascending)
+        .key(function (d) { return String(d[1]); }).sortKeys(d3.ascending)
         .rollup(function (values) { return values.length; })
         .entries([[0, 1], [0, 2], [1, 1], [1, 2], [0, 2]]);
     entries = d3.nest()
-        .key(function (d) { return d[0]; }).sortKeys(d3.ascending)
-        .key(function (d) { return d[1]; }).sortKeys(d3.ascending)
+        .key(function (d) { return String(d[0]); }).sortKeys(d3.ascending)
+        .key(function (d) { return String(d[1]); }).sortKeys(d3.ascending)
         .sortValues(function (a, b) { return a[2] - b[2]; })
         .entries([[0, 1], [0, 2, 1], [1, 1], [1, 2], [0, 2, 0]]);
     var map = d3.nest()
-        .key(function (d) { return d[0]; }).sortKeys(d3.ascending)
-        .key(function (d) { return d[1]; }).sortKeys(d3.ascending)
+        .key(function (d) { return String(d[0]); }).sortKeys(d3.ascending)
+        .key(function (d) { return String(d[1]); }).sortKeys(d3.ascending)
         .sortValues(function (a, b) { return a[2] - b[2]; })
         .map([[0, 1], [0, 2, 1], [1, 1], [1, 2], [0, 2, 0]]);
 }
@@ -1862,178 +1862,150 @@ function brushTest() {
 // Tests for area
 // Adopted from: https://github.com/mbostock/d3/blob/master/test/svg/area-test.js
 function svgAreaTest() {
-    var a = d3.svg.area();
-    a.x()([0, 1]);
-    a.x()([0, 1], 1);
+    var a = d3.svg.area(), f, n;
+    a.x(f).x() === f;
+    a.x(n).x() === n;
     a.x(0);
-    a.x(function (d) { return d.x * 10; });
+    a.x(function (d) { return d[0] * 10; });
     a.x(function (d, i) { return i * 10; });
-    a.x0()([0, 1]);
-    a.x0()([0, 1], 1);
+    a.x(f).x0() === f;
+    a.x(n).x0() === n;
     a.x0(0);
-    a.x0(function (d) { return d.x * 10; });
+    a.x0(function (d) { return d[0] * 10; });
     a.x0(function (d, i) { return i * 10; });
-    a.x1()([0, 1]);
-    a.x1()([0, 1], 1);
+    a.x(f).x1() === f;
+    a.x(n).x1() === n;
     a.x1(0);
-    a.x1(function (d) { return d.x * 10; });
+    a.x1(function (d) { return d[0] * 10; });
     a.x1(function (d, i) { return i * 10; });
-    a.y()([0, 1]);
-    a.y()([0, 1], 1);
+    a.y(f).y() === f;
+    a.y(n).y() === n;
     a.y(0);
-    a.y(function (d) { return d.x * 10; });
+    a.y(function (d) { return d[0] * 10; });
     a.y(function (d, i) { return i * 10; });
-    a.y0()([0, 1]);
-    a.y0()([0, 1], 1);
+    a.y(f).y0() === f;
+    a.y(n).y0() === n;
     a.y0(0);
-    a.y0(function (d) { return d.x * 10; });
+    a.y0(function (d) { return d[0] * 10; });
     a.y0(function (d, i) { return i * 10; });
-    a.y1()([0, 1]);
-    a.y1()([0, 1], 1);
+    a.y(f).y1() === f;
+    a.y(n).y1() === n;
     a.y1(0);
-    a.y1(function (d) { return d.x * 10; });
+    a.y1(function (d) { return d[0] * 10; });
     a.y1(function (d, i) { return i * 10; });
 }
 // Tests for areaRadial
 // Adopted from: https://github.com/mbostock/d3/blob/master/test/svg/area-radial-test.js
 function svgAreaRadialTest() {
-    var a = d3.svg.area.radial();
-    a.x()([0, 1]);
-    a.x()([0, 1], 1);
-    a.x(0);
-    a.x(function (d) { return d.x * 10; });
-    a.x(function (d, i) { return i * 10; });
-    a.x0()([0, 1]);
-    a.x0()([0, 1], 1);
-    a.x0(0);
-    a.x0(function (d) { return d.x * 10; });
-    a.x0(function (d, i) { return i * 10; });
-    a.x1()([0, 1]);
-    a.x1()([0, 1], 1);
-    a.x1(0);
-    a.x1(function (d) { return d.x * 10; });
-    a.x1(function (d, i) { return i * 10; });
-    a.y()([0, 1]);
-    a.y()([0, 1], 1);
-    a.y(0);
-    a.y(function (d) { return d.x * 10; });
-    a.y(function (d, i) { return i * 10; });
-    a.y0()([0, 1]);
-    a.y0()([0, 1], 1);
-    a.y0(0);
-    a.y0(function (d) { return d.x * 10; });
-    a.y0(function (d, i) { return i * 10; });
-    a.y1()([0, 1]);
-    a.y1()([0, 1], 1);
-    a.y1(0);
-    a.y1(function (d) { return d.x * 10; });
-    a.y1(function (d, i) { return i * 10; });
-    a.radius(function () { return 10; });
-    a.radius(function (d) { return d.x * 10; });
+    var a = d3.svg.area.radial(), f, n;
+    a.radius(f).radius() === f;
+    a.radius(n).radius() === n;
+    a.radius(0);
+    a.radius(function (d) { return d[0] * 10; });
     a.radius(function (d, i) { return i * 10; });
-    a.innerRadius(function () { return 10; });
-    a.innerRadius(function (d) { return d.x * 10; });
+    a.radius(f).innerRadius() === f;
+    a.radius(n).innerRadius() === n;
+    a.innerRadius(0);
+    a.innerRadius(function (d) { return d[0] * 10; });
     a.innerRadius(function (d, i) { return i * 10; });
-    a.outerRadius(function () { return 10; });
-    a.outerRadius(function (d) { return d.x * 10; });
+    a.radius(f).outerRadius() === f;
+    a.radius(n).outerRadius() === n;
+    a.outerRadius(0);
+    a.outerRadius(function (d) { return d[1] * 10; });
     a.outerRadius(function (d, i) { return i * 10; });
-    a.angle(function () { return 10; });
-    a.angle(function (d) { return d.x * 10; });
+    a.angle(f).angle() === f;
+    a.angle(n).angle() === n;
+    a.angle(0);
+    a.angle(function (d) { return d[0] * 10; });
     a.angle(function (d, i) { return i * 10; });
-    a.startAngle(function () { return 10; });
-    a.startAngle(function (d) { return d.x * 10; });
+    a.angle(f).startAngle() === f;
+    a.angle(n).startAngle() === n;
+    a.startAngle(0);
+    a.startAngle(function (d) { return d[0] * 10; });
     a.startAngle(function (d, i) { return i * 10; });
-    a.endAngle(function () { return 10; });
-    a.endAngle(function (d) { return d.x * 10; });
+    a.angle(f).endAngle() === f;
+    a.angle(n).endAngle() === n;
+    a.endAngle(0);
+    a.endAngle(function (d) { return d[1] * 10; });
     a.endAngle(function (d, i) { return i * 10; });
 }
 // Tests for d3.svg.line
 // Adopted from: https://github.com/mbostock/d3/blob/master/test/svg/line-test.js
 function svgLineTest() {
-    var l = d3.svg.line();
-    l.x()([0, 1]);
-    l.x()([0, 1], 0);
+    var l = d3.svg.line(), f, n;
+    l.x(f).x() === f;
+    l.x(n).x() === n;
     l.x(0);
-    l.x(function (d) { return d.x; });
+    l.x(function (d) { return d[0]; });
     l.x(function (d, i) { return i; });
-    l.y()([0, 1]);
-    l.y()([0, 1], 0);
+    l.y(f).y() === f;
+    l.y(n).y() === n;
     l.y(0);
-    l.y(function (d) { return d.y; });
+    l.y(function (d) { return d[1]; });
     l.y(function (d, i) { return i; });
 }
 // Tests for d3.svg.line.radial
 // Adopted from: https://github.com/mbostock/d3/blob/master/test/svg/line-radial-test.js
 function svgLineRadialTest() {
-    var l = d3.svg.line.radial();
-    l.x()([0, 1]);
-    l.x()([0, 1], 0);
-    l.x(0);
-    l.x(function (d) { return d.x; });
-    l.x(function (d, i) { return i; });
-    l.y()([0, 1]);
-    l.y()([0, 1], 0);
-    l.y(0);
-    l.y(function (d) { return d.y; });
-    l.y(function (d, i) { return i; });
-    l.radius()([0, 1]);
-    l.radius()([0, 1], 0);
+    var l = d3.svg.line.radial(), f, n;
+    l.radius(f).radius() === f;
+    l.radius(n).radius() === n;
     l.radius(0);
-    l.radius(function (d) { return d.x; });
+    l.radius(function (d) { return d[0]; });
     l.radius(function (d, i) { return i; });
-    l.angle()([0, 1]);
-    l.angle()([0, 1], 0);
+    l.angle(f).angle() === f;
+    l.angle(n).angle() === n;
     l.angle(0);
-    l.angle(function (d) { return d.y; });
+    l.angle(function (d) { return d[1]; });
     l.angle(function (d, i) { return i; });
 }
 // Tests for d3.svg.arc
 // Adopted from: https://github.com/mbostock/d3/blob/master/test/svg/arc-test.js
 function svgArcTest() {
-    var l = d3.svg.arc();
-    l.innerRadius()([0, 1]);
-    l.innerRadius()([0, 1], 0);
+    var l = d3.svg.arc(), f;
+    l.innerRadius(f).innerRadius() === f;
     l.innerRadius(0);
-    l.innerRadius(function (d) { return d.x; });
+    l.innerRadius(function (d) { return d.innerRadius; });
     l.innerRadius(function (d, i) { return i; });
-    l.outerRadius()([0, 1]);
-    l.outerRadius()([0, 1], 0);
+    l.outerRadius(f).outerRadius() === f;
     l.outerRadius(0);
-    l.outerRadius(function (d) { return d.x; });
+    l.outerRadius(function (d) { return d.outerRadius; });
     l.outerRadius(function (d, i) { return i; });
-    l.startAngle()([0, 1]);
-    l.startAngle()([0, 1], 0);
+    l.startAngle(f).startAngle() === f;
     l.startAngle(0);
-    l.startAngle(function (d) { return d.x; });
+    l.startAngle(function (d) { return d.innerRadius; });
     l.startAngle(function (d, i) { return i; });
-    l.endAngle()([0, 1]);
-    l.endAngle()([0, 1], 0);
+    l.endAngle(f).endAngle() === f;
     l.endAngle(0);
-    l.endAngle(function (d) { return d.x; });
+    l.endAngle(function (d) { return d.outerRadius; });
     l.endAngle(function (d, i) { return i; });
+}
+function svgArcTest2() {
+    var l = d3.svg.arc();
+    l.innerRadius(function (d) { return d[0]; });
+    l.outerRadius(function (d) { return d[1]; });
 }
 // Tests for d3.svg.diagonal
 // Adopted from: https://github.com/mbostock/d3/blob/master/test/svg/diagonal-test.js
 function svgDiagonalTest() {
     var d = d3.svg.diagonal();
-    d.projection()({ x: 0, y: 1 });
     d.projection()({ x: 0, y: 1 }, 0);
     d.projection(function (d) { return [d.x, d.y]; });
     d.projection(function (d, i) { return [i, i + 1]; });
-    d.source()({ x: 0, y: 1 });
-    d.source()({ x: 0, y: 1 }, 0);
+    d.source()({ source: { x: 0, y: 1 }, target: null }, 0);
     d.source({ x: 0, y: 1 });
-    d.source(function (d) { return { x: d.x, y: d.y }; });
-    d.source(function (d, i) { return { x: d.x * i, y: d.y * i }; });
-    d.target()({ x: 0, y: 1 });
-    d.target()({ x: 0, y: 1 }, 0);
+    d.source(function (d) { return { x: d.source.x, y: d.source.y }; });
+    d.source(function (d, i) { return { x: d.source.x * i, y: d.source.y * i }; });
+    d.target()({ target: { x: 0, y: 1 }, source: null }, 0);
     d.target({ x: 0, y: 1 });
-    d.target(function (d) { return { x: d.x, y: d.y }; });
-    d.target(function (d, i) { return { x: d.x * i, y: d.y * i }; });
+    d.target(function (d) { return { x: d.target.x, y: d.target.y }; });
+    d.target(function (d, i) { return { x: d.target.x * i, y: d.target.y * i }; });
 }
 // Tests for d3.extent
 // Adopted from: https://github.com/mbostock/d3/blob/master/test/arrays/extent-test.js
 function extentTest() {
+    // usages of `o' suppressed as well as mixed-type comparisons
+    // see https://github.com/Microsoft/TypeScript/commit/c0db7ffe8f55b6ec335880482ca43b93b066689d
     var o = { valueOf: function () { return NaN; } };
     d3.extent([1]);
     d3.extent([5, 1, 2, 3, 4]);
@@ -2043,15 +2015,15 @@ function extentTest() {
     d3.extent(["20", "3"]);
     d3.extent(["3", "20"]);
     d3.extent([NaN, 1, 2, 3, 4, 5]);
-    d3.extent([o, 1, 2, 3, 4, 5]);
+    // d3.extent([o, 1, 2, 3, 4, 5]);
     d3.extent([1, 2, 3, 4, 5, NaN]);
-    d3.extent([1, 2, 3, 4, 5, o]);
+    // d3.extent([1, 2, 3, 4, 5, o]);
     d3.extent([10, null, 3, undefined, 5, NaN]);
     d3.extent([-1, null, -3, undefined, -5, NaN]);
-    d3.extent([20, "3"]);
-    d3.extent(["20", 3]);
-    d3.extent([3, "20"]);
-    d3.extent(["3", 20]);
+    // d3.extent([20, "3"]);
+    // d3.extent(["20", 3]);
+    // d3.extent([3, "20"]);
+    // d3.extent(["3", 20]);
     d3.extent([1], function (d) { return d; });
     d3.extent([5, 1, 2, 3, 4], function (d) { return d; });
     d3.extent([20, 3], function (d) { return d; });
@@ -2060,27 +2032,27 @@ function extentTest() {
     d3.extent(["20", "3"], function (d) { return d; });
     d3.extent(["3", "20"], function (d) { return d; });
     d3.extent([NaN, 1, 2, 3, 4, 5], function (d) { return d; });
-    d3.extent([o, 1, 2, 3, 4, 5], function (d) { return d; });
+    // d3.extent([o, 1, 2, 3, 4, 5], (d) => { return d; });
     d3.extent([1, 2, 3, 4, 5, NaN], function (d) { return d; });
-    d3.extent([1, 2, 3, 4, 5, o], function (d) { return d; });
+    // d3.extent([1, 2, 3, 4, 5, o], (d) => { return d; });
     d3.extent([10, null, 3, undefined, 5, NaN], function (d) { return d; });
     d3.extent([-1, null, -3, undefined, -5, NaN], function (d) { return d; });
-    d3.extent([20, "3"], function (d) { return d; });
-    d3.extent(["20", 3], function (d) { return d; });
-    d3.extent([3, "20"], function (d) { return d; });
-    d3.extent(["3", 20], function (d) { return d; });
+    // d3.extent([20, "3"], (d) => { return d; });
+    // d3.extent(["20", 3], (d) => { return d; });
+    // d3.extent([3, "20"], (d) => { return d; });
+    // d3.extent(["3", 20], (d) => { return d; });
 }
 // Tests for d3.time.format.multi
 // Adopted from http://bl.ocks.org/mbostock/4149176
 function multiTest() {
     var customTimeFormat = d3.time.format.multi([
-        [".%L", function (d) { return d.getMilliseconds(); }],
-        [":%S", function (d) { return d.getSeconds(); }],
-        ["%I:%M", function (d) { return d.getMinutes(); }],
-        ["%I %p", function (d) { return d.getHours(); }],
-        ["%a %d", function (d) { return d.getDay() && d.getDate() != 1; }],
+        [".%L", function (d) { return !!d.getMilliseconds(); }],
+        [":%S", function (d) { return !!d.getSeconds(); }],
+        ["%I:%M", function (d) { return !!d.getMinutes(); }],
+        ["%I %p", function (d) { return !!d.getHours(); }],
+        ["%a %d", function (d) { return !!d.getDay() && d.getDate() != 1; }],
         ["%b %d", function (d) { return d.getDate() != 1; }],
-        ["%B", function (d) { return d.getMonth(); }],
+        ["%B", function (d) { return !!d.getMonth(); }],
         ["%Y", function () { return true; }]
     ]);
     var margin = { top: 250, right: 40, bottom: 250, left: 40 }, width = 960 - margin.left - margin.right, height = 500 - margin.top - margin.bottom;
@@ -2099,19 +2071,4 @@ function multiTest() {
         .attr("class", "x axis")
         .attr("transform", "translate(0," + height + ")")
         .call(xAxis);
-}
-// Tests miscellaneous keyboard events
-function keyboardEventsTest() {
-    var keyPressed;
-    d3.select("body").on("keydown", function () {
-        if (d3.event.metaKey) {
-            keyPressed = "meta";
-        }
-        else if (d3.event.ctrlKey) {
-            keyPressed = "ctrl";
-        }
-        else if (d3.event.altKey) {
-            keyPressed = "alt";
-        }
-    });
 }
