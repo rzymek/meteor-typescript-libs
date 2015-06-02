@@ -52,7 +52,7 @@ var thirdPartyDefLibs = [
     'https://github.com/borisyankov/DefinitelyTyped/raw/master/bootstrap/bootstrap.d.ts',
     'https://github.com/borisyankov/DefinitelyTyped/raw/master/d3/d3.d.ts',
     'https://github.com/borisyankov/DefinitelyTyped/raw/master/handlebars/handlebars.d.ts',
-    'https://github.com/borisyankov/DefinitelyTyped/raw/master/node/node.d.ts',
+    'https://github.com/borisyankov/DefinitelyTyped/raw/master/node/node-0.11.d.ts',
     'https://github.com/borisyankov/DefinitelyTyped/raw/master/node-fibers/node-fibers.d.ts',
     'https://github.com/borisyankov/DefinitelyTyped/raw/master/googlemaps/google.maps.d.ts'
     //'https://github.com/borisyankov/DefinitelyTyped/raw/master/lodash/lodash.d.ts'
@@ -67,7 +67,7 @@ var thirdPartyDefTests = [
     'https://github.com/borisyankov/DefinitelyTyped/raw/master/bootstrap/bootstrap-tests.ts',
     'https://github.com/borisyankov/DefinitelyTyped/raw/master/d3/d3-tests.ts',
     'https://github.com/borisyankov/DefinitelyTyped/raw/master/handlebars/handlebars-tests.ts',
-    'https://github.com/borisyankov/DefinitelyTyped/raw/master/node/node-tests.ts',
+    'https://github.com/borisyankov/DefinitelyTyped/raw/master/node/node-0.11-tests.ts',
     'https://github.com/borisyankov/DefinitelyTyped/raw/master/node-fibers/node-fibers-tests.ts'
     //'https://github.com/borisyankov/DefinitelyTyped/raw/master/lodash/lodash-tests.ts'
 ];
@@ -133,7 +133,7 @@ var signatureElementMappings = {
     'Collection\\(name: string,': 'Collection<T>(name: string,',
     '\\(initialValue: any,': '(initialValue: T,',
     'set\\(newValue: any\\)': 'set(newValue: T)',
-    'addType\\(name: string, factory: Function\\)': 'addType(name: string, factory: (val: JSON) => EJSONable)',
+    'addType\\(name: string, factory: Function\\)': 'addType(name: string, factory: (val: JSONable) => EJSON.CustomType)',
 
     'insert\\?: \\(userId:string, doc\\)': 'insert?: (userId: string, doc: T)',
     'update\\?: \\(userId, doc, fieldNames, modifier\\)': 'update?: (userId: string, doc: T, fieldNames: string[], modifier: any)',
@@ -357,6 +357,7 @@ var getThirdPartyDefLibs = function() {
         require('request')(lib, function(error, response, body) {
             var filename = lib.slice(lib.lastIndexOf('/') + 1);
             if (hasString(lib, '/core.d.ts')) filename = filename.replace('core', 'lib');
+            filename = filename.replace('node-0.11.d.ts', 'node.d.ts');
             definitionFilenames.push(filename);
             body = body.replace('../jquery/jquery.d.ts', 'jquery.d.ts');
             body = body.replace('../underscore/underscore.d.ts', 'underscore.d.ts');
@@ -369,6 +370,7 @@ var getThirdPartyDefTests = function() {
     _.each(thirdPartyDefTests, function(test) {
         require('request')(test, function(error, response, body) {
             var filename = test.slice(test.lastIndexOf('/') + 1);
+            filename = filename.replace('node-0.11-tests.ts', 'node-tests.ts');
             testFilenames.push(filename);
             //var originalBody = JSON.parse(JSON.stringify(body));
             body = body.replace('../jquery/jquery.d.ts', 'jquery.d.ts');
@@ -693,4 +695,3 @@ createMeteorDefFile();
 //createTypeScriptLibFile();  Not currently working -- not sure how to generated latest typescript lib.d.ts file
 getThirdPartyDefLibs();
 getThirdPartyDefTests();
-
