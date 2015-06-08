@@ -450,7 +450,7 @@ Template['newTemplate'].destroyed = function () {
 };
 
 Template['newTemplate'].events({
-    'click .something': function (event) {
+    'click .something': function (event: Meteor.Event, template: Blaze.TemplateInstance) {
     }
 });
 
