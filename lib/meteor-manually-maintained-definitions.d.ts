@@ -52,7 +52,7 @@ declare module Meteor {
     }
 
     interface EventHandlerFunction extends Function {
-        (event?:Meteor.Event):void;
+        (event?:Meteor.Event, templateInstance?: Blaze.TemplateInstance):void;
     }
 
     interface EventMap {

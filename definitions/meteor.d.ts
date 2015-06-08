@@ -52,7 +52,7 @@ declare module Meteor {
     }
 
     interface EventHandlerFunction extends Function {
-        (event?:Meteor.Event):void;
+        (event?:Meteor.Event, templateInstance?: Blaze.TemplateInstance):void;
     }
 
     interface EventMap {
@@ -803,7 +803,7 @@ interface TemplateStatic {
 interface Template {
 	created: Function;
 	destroyed: Function;
-	events(eventMap: {[actions: string]: Function}): void;
+	events(eventMap: Meteor.EventMap): void;
 	helpers(helpers:{[id:string]: any}): void;
 	onCreated: Function;
 	onDestroyed: Function;
