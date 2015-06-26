@@ -112,13 +112,19 @@ If you have lots of custom definitions for a project, you can:
 One solution for transpiling typescript is to install the following meteor package: [https://github.com/meteor-typescript/meteor-typescript-compiler](https://github.com/meteor-typescript/meteor-typescript-compiler)
 
 ### IDE/Editor Transpilation
-WebStorm is a good TypeScript-aware editor.  It can automatically transpile your TypeScript code into JavaScript every time you save a file.  To enable this feature in WebStorm on OSX, first install the TypeScript transpiler on your system:
+WebStorm, SublimeText, Atom, and VisualStudio all support TypeScript.  They can automatically transpile your TypeScript code into JavaScript every time you save a file.
+
+#### WebStorm ####
+To support TypeScript in WebStorm on OSX, first install the TypeScript transpiler on your system:
 
     $ [sudo -H] npm install -g typescript
 
 On version 10 of WebStorm or later, got to Preferences -> Languages & Frameworks -> TypeScript and check "Enable TypeScript Compiler"
 
 On older versions of WebStorm (9 or earlier), go to Preferences -> File Watchers -> "+" symbol and add TypeScript.
+
+#### SublimeText, Atom, and VisualStudio ####
+Please refer to the documentation for these editors.
 
 ### Command line
 
