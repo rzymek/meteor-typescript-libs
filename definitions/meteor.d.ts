@@ -126,7 +126,7 @@ declare module Meteor {
     }
 
     interface Error {
-        error: number;
+        error: string;
         reason?: string;
         details?: string;
     }

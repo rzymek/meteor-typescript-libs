@@ -129,6 +129,22 @@ Meteor.methods({
 });
 
 /**
+ * From Methods, Meteor.Error section
+ */
+throw new Meteor.Error("logged-out",
+    "The user must be logged in to post a comment.");
+
+Meteor.call("methodName", function (error) {
+  if (error.error === "logged-out") {
+    Session.set("errorMessage", "Please log in to post a comment.");
+  }
+});
+var error = new Meteor.Error("logged-out", "The user must be logged in to post a comment.");
+console.log(error.error === "logged-out");
+console.log(error.reason === "The user must be logged in to post a comment.");
+console.log(error.details !== "");
+
+/**
  * From Methods, Meteor.call section
  */
 Meteor.call('foo', 1, 2, function (error, result) {} );
